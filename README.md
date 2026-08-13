@@ -16,6 +16,10 @@ Non è un'app di diete con le opzioni: è un motore di regole universali — la
 deperibilità del frigo, le porzioni CREA, i divieti — più un profilo che
 descrive **la tua** famiglia. Cambiare vita si fa cambiando un file.
 
+Di fatto è un *workflow domestico*: fasi in sequenza — pianifica, ritira,
+cucina, correggi, impara — con lo stato su file di testo invece che nella
+memoria della chat, e un passo di verifica che ritara quello dopo.
+
 ## La differenza
 
 Un generatore di menu ti dice «1050 g di pasta». Lunario ti dice **«2 pacchi da
@@ -27,16 +31,18 @@ E il menu segue l'orologio del frigo: il pesce lunedì, le foglie martedì, i
 legumi il venerdì. Gli ingredienti si consumano nell'ordine in cui si rovinano,
 che è la regola che azzera lo spreco prima ancora di parlare di budget.
 
-## Le sei skill
+## Le otto skill
 
 | skill | quando | cosa fa |
 |---|---|---|
-| `lunario:profilo` | una volta | ti intervista: chi siete, obiettivi, esclusioni. Calcola le calorie da peso e altezza |
+| `lunario:profilo` | una volta | ti intervista: chi siete, obiettivi, esclusioni. Calcola le calorie da peso e altezza, e costruisce la cartella |
 | `lunario:ritmi` | quando cambia la vita | la settimana tipo: chi pranza fuori il martedì, quale sera c'è poco tempo |
-| `lunario:settimana` | **il lunedì** | ti chiede impegni, voglie e di cosa sei stufo, poi genera menu e spesa |
-| `lunario:menu` | automatica | i 7 giorni e la lista in confezioni |
-| `lunario:correggi` | a settimana in corso | cambi idea? Chiede cosa hai in frigo e rifà solo i giorni che restano |
-| `lunario:postmortem` | **la domenica** | avanzi, bocciati, scontrino → ritara porzioni, piatti e prezzi |
+| `lunario:settimana` | **il lunedì** | legge il calendario, ti chiede impegni, voglie e di cosa sei stufo, poi genera menu e spesa |
+| `lunario:menu` | automatica | i 7 giorni e la lista in confezioni, in markdown e in HTML stampabile |
+| `lunario:spesa` | **al ritiro** | dallo scontrino: prezzi veri, cosa manca, alternative subito. Separa il menu dai detersivi |
+| `lunario:prepara` | **mentre cucini** | ingredienti, procedimento, un video se serve. Poi difficoltà e voto del cuoco |
+| `lunario:correggi` | a settimana in corso | cambi idea? Ti propone cosa è rimasto e rifà solo i giorni che restano |
+| `lunario:postmortem` | **la domenica** | avanzi e voti dei commensali → ritara porzioni, rotazione e budget |
 
 ## Nessuna dipendenza da un supermercato
 
@@ -46,11 +52,13 @@ online, niente scraping, niente abbonamenti. Due sole fonti, entrambe gratuite:
 - **[Open Food Facts](https://world.openfoodfacts.org)** per il formato delle
   confezioni e i valori nutrizionali, interrogato per singolo prodotto e messo
   in cache
-- **I tuoi scontrini** (PDF) per i prezzi, letti al postmortem
+- **I tuoi scontrini** (PDF) per i prezzi, letti quando ritiri la spesa
 
 Il prezzo dello scontrino batte qualsiasi listino, perché contiene già le
-promozioni e gli sconti fedeltà che hai avuto davvero. Il compromesso accettato
-è che il prezzo si conosce il ciclo dopo, non prima.
+promozioni e gli sconti fedeltà che hai avuto davvero. E siccome la spesa si
+ritira *prima* di cominciare a cucinare, lo scontrino serve a qualcosa di più
+che ai prezzi: dice cosa non è arrivato, così l'alternativa si trova il lunedì
+e non davanti al frigo il giovedì sera.
 
 ## Installazione
 

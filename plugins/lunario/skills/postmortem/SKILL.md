@@ -1,13 +1,14 @@
 ---
 name: postmortem
 description: >-
-  Chiusura della settimana. Tre domande — cosa e' avanzato, cosa e' piaciuto o
-  bocciato e da chi, e lo scontrino della spesa — poi ritara porzioni, piatti
-  e prezzi per la settimana successiva. Dallo scontrino PDF ricava prodotti
-  reali e prezzi pagati e aggiorna il paniere. Da invocare quando l'utente
-  dice "postmortem", "com'e' andata la settimana", "chiudiamo la settimana",
-  "ecco lo scontrino", "e' avanzato...", "ai bimbi non e' piaciuto...", o la
-  domenica.
+  Chiusura della settimana, la domenica. Tre domande — cosa e' avanzato, che
+  voto danno i commensali ai piatti e da chi viene, se c'e' stata spesa
+  integrativa — poi ritara porzioni, rotazione dei piatti e budget per la
+  settimana successiva. Da invocare quando l'utente dice "postmortem",
+  "com'e' andata la settimana", "chiudiamo la settimana", "e' avanzato...",
+  "ai bimbi non e' piaciuto...", o la domenica. NON e' la skill dello
+  scontrino della spesa grande: quello si registra al ritiro, con
+  lunario:spesa.
 ---
 
 # Postmortem — cosa si e' imparato
@@ -37,33 +38,18 @@ Registra i voti in `tarature.voti` di `dati/storico.yaml`: media, numero di
 voti e chi ha votato cosa. La media guida la rotazione — sopra 4 e' un
 preferito, sotto 2 un bocciato — quindi non servono liste separate.
 
-**3. Lo scontrino.** Se l'utente ha il PDF, chiedilo. Se non ce l'ha o non gli
-va, basta il totale speso: il resto si fa lo stesso, con meno precisione.
+**3. C'e' stata altra spesa in settimana?** Non lo scontrino grande: quello e'
+gia' stato registrato da `lunario:spesa` il giorno del ritiro, e i prezzi sono
+gia' nel paniere. Qui interessa solo la spesa **integrativa** — il salto al
+negozio del giovedi' — perche' se ricorre significa che la lista del lunedi'
+sbaglia sistematicamente qualcosa.
 
-## Lo scontrino
+Se c'e' uno scontrino anche per quella, leggilo con `read-document` e applica
+le stesse regole di `lunario:spesa`: prezzi nella serie con la data, sigle
+nuove in `alias_scontrino`, totale sommato a `spesa_reale`.
 
-Il PDF si legge con la skill `read-document` — nessun parser da scrivere.
-Da ogni riga ricava descrizione, quantita' e prezzo pagato, poi aggiorna
-`dati/prodotti.jsonl`:
-
-- **Riga riconosciuta** (la descrizione e' in `alias_scontrino` di un
-  prodotto): aggiungi il prezzo alla serie `prezzi` con la data dello
-  scontrino. Mai sovrascrivere i prezzi vecchi: la serie e' il valore
-- **Riga nuova**: chiedi conferma all'utente una volta sola — «`PSTA INTGR
-  500` e' la pasta integrale da 500 g?» — poi salva la sigla in
-  `alias_scontrino` e non chiedere mai piu'. Se il prodotto non esiste ancora
-  nel paniere, cercalo su Open Food Facts con
-  `${CLAUDE_PLUGIN_ROOT}/scripts/off_lookup.py` per avere formato e nutrienti
-- **Righe fuori lista**: quello che e' stato comprato senza essere a menu.
-  Non e' un errore, e' informazione: segnalalo in una riga nelle note della
-  settimana. Se ricorre, e' un consumo reale che il menu ignora
-
-Non chiedere conferma per ogni riga: raggruppa le sconosciute e chiedile
-insieme. Le righe che restano ambigue si lasciano fuori, dichiarandolo.
-
-Poi registra `spesa_reale` e lo **scarto per riga** rispetto alla stima: dove
-la previsione ha sbagliato, non solo di quanto. E' il dato che rende onesto il
-totale del lunedi' successivo.
+Se invece il ritiro non e' mai passato da `lunario:spesa` — capita — allora
+chiedi lo scontrino principale qui, e trattalo come farebbe quella skill.
 
 ## La ritaratura
 

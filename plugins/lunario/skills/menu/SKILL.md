@@ -107,3 +107,7 @@ Tre cose, in quest'ordine:
 
 In chat: il titolo, il menu, la lista, il totale, e dove hai salvato l'HTML.
 Stop. Le spiegazioni solo dove la scelta non e' ovvia, una riga ciascuna.
+
+Chiudi ricordando **una riga sola**: quando la spesa e' ritirata, `lunario:spesa`
+con lo scontrino: e' li' che i prezzi diventano veri e le mancanze si scoprono
+prima di cucinare, non davanti al frigo il giovedi' sera.

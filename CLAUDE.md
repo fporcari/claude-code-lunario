@@ -16,11 +16,23 @@ servizio di spesa online, non fa scraping, non ha abbonamenti. Due sole fonti:
 | dato | fonte | costo | quando |
 |---|---|---|---|
 | formato confezione, kcal, proteine | API pubblica Open Food Facts | gratis | una volta per prodotto, poi in cache |
-| prezzo pagato davvero | scontrino PDF dell'utente | gratis | al postmortem |
+| prezzo pagato davvero | scontrino PDF dell'utente | gratis | al ritiro della spesa |
 
 Il prezzo dello scontrino batte qualsiasi listino: contiene gia' promozioni e
-sconti fedelta'. Conseguenza accettata: il prezzo e' noto **il ciclo dopo**, e
-il menu non puo' essere costruito sulle offerte della settimana corrente.
+sconti fedelta'.
+
+**Lo scontrino arriva a inizio settimana, non alla fine**, perche' la spesa si
+ritira prima di cominciare a cucinare. Ne discendono due cose che valgono piu'
+del prezzo in se':
+
+- le **mancanze si scoprono subito** — cosa non c'era, cosa e' stato sostituito,
+  che formato hanno dato davvero — e si rimedia prima di cucinare, non davanti
+  al frigo il giovedi' sera
+- i prezzi entrano nel paniere **sette giorni prima** di servire
+
+Resta un limite, ed e' accettato: il menu del lunedi' si costruisce comunque
+sui prezzi della settimana precedente, perche' viene prima della spesa. Le
+offerte del volantino corrente non entrano nella scelta dei piatti.
 
 ## I livelli di stato, una skill ciascuno
 
@@ -33,13 +45,15 @@ non impara. Ogni skill scrive un livello solo.
 | `lunario:ritmi` | dichiarato | `dati/ritmi.yaml`, `dati/note.md` | quando cambia la vita |
 | `lunario:settimana` | effimero | `settimane/<ISO>/contesto.yaml` | ogni lunedi' |
 | `lunario:menu` | — (consuma tutto) | `settimane/<ISO>.md` + `.html`, `dati/dispensa.yaml` | ogni lunedi' |
+| `lunario:spesa` | appreso (prezzi) | `dati/prodotti.jsonl`, `dispensa.yaml`, `storico.yaml` | al ritiro della spesa |
 | `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina` | mentre si cucina |
 | `lunario:correggi` | effimero | `settimane/<ISO>.md` (giorni residui) | quando cambia qualcosa |
-| `lunario:postmortem` | appreso (tavola) | `dati/storico.yaml`, `dati/prodotti.jsonl` | domenica |
+| `lunario:postmortem` | appreso (tavola) | `dati/storico.yaml` | domenica |
 
-L'utente ne invoca tre: `lunario:settimana` il lunedi', `lunario:prepara`
-quando cucina e `lunario:postmortem` la domenica. `lunario:menu` viene
-chiamata dalla prima e non va invocata a mano; le altre servono quando serve.
+L'utente ne invoca quattro: `lunario:settimana` il lunedi', `lunario:spesa`
+quando ritira la spesa, `lunario:prepara` quando cucina e
+`lunario:postmortem` la domenica. `lunario:menu` viene chiamata dalla prima e
+non va invocata a mano; le altre servono quando serve.
 
 **I due voti non sono lo stesso voto.** Chi cucina valuta difficolta' e resa
 appena finito, e quel dato decide **dove** un piatto puo' stare nella
@@ -192,7 +206,9 @@ settimane:
     titolo: "La settimana dei legumi coraggiosi"
     menu: settimane/2026-W34.md
     spesa_stimata: 92.50
-    spesa_reale: null      # dallo scontrino, al postmortem
+    spesa_reale: null      # SOLO il menu, dallo scontrino del ritiro
+    spesa_extra_alimentare: null   # cibo comprato ma non previsto
+    totale_scontrino: null # per memoria: include detersivi e non alimentari
     scarto_per_riga: []    # dove la stima ha sbagliato, non solo di quanto
     avanzi: []
     note: ""
@@ -237,6 +253,18 @@ per niente pedante, che ascolta prima di prescrivere.
    `kb/confezioni.md`. La lista dice «2 pacchi da 500 g», mai «1050 g»
 5. Salva `settimane/<ISO>.md`, aggiorna `dispensa.yaml` con gli avanzi
    previsti, aggiungi la voce a storico con `spesa_stimata`
+
+### Il ritiro della spesa (lunario:spesa)
+
+Fra il menu e la prima cena c'e' un passaggio che non e' burocrazia: lo
+scontrino dice cosa e' **davvero** entrato in casa. Si riconcilia con la lista,
+si spunta cio' che e' arrivato, si scopre cosa manca — e per cio' che manca si
+sostituisce subito con quello che c'e', o si ricorda di ricomprarlo.
+
+Lo scontrino contiene anche cio' che con Lunario non c'entra: detersivi, casa,
+roba comprata per altri. Va separato in tre gruppi — menu, alimentare fuori
+lista, non Lunario — perche' **solo il primo e' la spesa che si confronta con
+la stima**. Un budget sporcato dai detersivi non insegna niente.
 
 ### Il menu e' anche lo stato di avanzamento
 
