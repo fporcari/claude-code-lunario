@@ -40,7 +40,7 @@ che è la regola che azzera lo spreco prima ancora di parlare di budget.
 | `lunario:settimana` | **il lunedì** | legge il calendario, ti chiede impegni, voglie e di cosa sei stufo, poi genera menu e spesa |
 | `lunario:menu` | automatica | i 7 giorni e la lista in confezioni, in markdown e in HTML stampabile |
 | `lunario:spesa` | **al ritiro** | dallo scontrino: prezzi veri, cosa manca, alternative subito. Separa il menu dai detersivi |
-| `lunario:prepara` | **mentre cucini** | ingredienti, procedimento, un video se serve. Poi difficoltà e voto del cuoco |
+| `lunario:prepara` | **mentre cucini** | ingredienti, procedimento, un video se serve. Ti avverte se manca qualcosa, poi chiede difficoltà e voto del cuoco |
 | `lunario:correggi` | a settimana in corso | cambi idea? Ti propone cosa è rimasto e rifà solo i giorni che restano |
 | `lunario:postmortem` | **la domenica** | avanzi e voti dei commensali → ritara porzioni, rotazione e budget |
 
@@ -59,6 +59,13 @@ promozioni e gli sconti fedeltà che hai avuto davvero. E siccome la spesa si
 ritira *prima* di cominciare a cucinare, lo scontrino serve a qualcosa di più
 che ai prezzi: dice cosa non è arrivato, così l'alternativa si trova il lunedì
 e non davanti al frigo il giovedì sera.
+
+Uno scontrino però non è la spesa di Lunario: contiene detersivi, carta casa e
+la spesa fatta per qualcun altro. Le righe alimentari te le presenta come lista
+**con le caselle già spuntate** — «era in lista», «già nel paniere», «mai
+visto» — e tu correggi in una parola. Anche a metà: sei yogurt di cui tre della
+suocera valgono mezza riga. E ciò che compri altrove — il pane dal panettiere,
+le uova dal contadino — dopo la prima volta smette di risultare mancante.
 
 ## Installazione
 
@@ -95,6 +102,8 @@ Un sistema AI affidabile si progetta prima di tutto per ciò che gli è vietato:
 
 - mai inventare prodotti, formati, prezzi o valori nutrizionali — ciò che non
   si trova si dichiara mancante
+- mai un prezzo senza data e provenienza: uno letto dallo scontrino e uno detto
+  a voce valgono entrambi, purché si sappia quale è quale
 - mai piani sotto le 1200 kcal al giorno a persona: sotto quella soglia serve
   un medico, non un modello
 - mai ignorare un'esclusione alimentare, nemmeno come ingrediente nascosto
