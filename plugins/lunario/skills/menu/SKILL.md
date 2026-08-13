@@ -88,9 +88,9 @@ nel markdown, nell'HTML e in `storico.yaml`.
 
 Tre cose, in quest'ordine:
 
-1. **`settimane/<anno>-W<settimana>.md`** — la fonte: titolo, i 7 giorni con
-   pranzo, cena, kcal per persona e base neutra dove serve, poi la lista per
-   reparto in confezioni col totale.
+1. **`settimane/<anno>-W<settimana>.md`** — la fonte: in testa `stato: bozza`,
+   poi titolo, i 7 giorni con pranzo, cena, kcal per persona e base neutra
+   dove serve, poi la lista per reparto in confezioni col totale.
 
    Ogni pasto e ogni riga della spesa si scrivono come **caselle da spuntare**
    (`- [ ]`): `lunario:prepara` le marca man mano che si cucina e si consuma,
@@ -108,6 +108,14 @@ Tre cose, in quest'ordine:
 In chat: il titolo, il menu, la lista, il totale, e dove hai salvato l'HTML.
 Stop. Le spiegazioni solo dove la scelta non e' ovvia, una riga ciascuna.
 
-Chiudi ricordando **una riga sola**: quando la spesa e' ritirata, `lunario:spesa`
-con lo scontrino: e' li' che i prezzi diventano veri e le mancanze si scoprono
-prima di cucinare, non davanti al frigo il giovedi' sera.
+**Il menu esce sempre in bozza**, e va detto in chiaro: la lista della spesa e'
+provvisoria finche' chi mangia non ha detto la sua. Chiudi con una riga sola
+che invita a portarla in famiglia e a tornare per le contestazioni — «fammi
+sapere cosa ne pensano» — non con un invito a fare la spesa.
+
+L'HTML si genera lo stesso in bozza, perche' e' il formato con cui si mostra il
+menu agli altri, ma va marcato **BOZZA** nell'intestazione: un foglio stampato
+senza quella parola finisce sul frigo e diventa definitivo per sbaglio.
+
+Alla conferma — che gestisce `lunario:correggi` — lista e HTML si rigenerano
+puliti, e da li' si va a fare la spesa.

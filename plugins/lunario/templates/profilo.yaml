@@ -21,6 +21,11 @@ preferenze:
   max_pasti_carne_settimana: 2
   max_carne_rossa_settimana: 1
   minuti_max_cena: 30
-supermercato:
-  nome: Esselunga
-  dominio: spesaonline.esselunga.it
+calendario:
+  # Lunario legge sempre il calendario, se ne trova uno collegato, per capire
+  # quando si pranza fuori o si cena tardi. Questi campi riguardano invece la
+  # scrittura, che non avviene mai senza un si' esplicito.
+  scrivi: false            # true per vedere la settimana del menu in agenda
+  id: null                 # su quale calendario: meglio uno personale, non
+                           # quello di lavoro condiviso coi colleghi
+  modo: settimana          # settimana (un evento coi 7 giorni) | pasti (uno per cena)

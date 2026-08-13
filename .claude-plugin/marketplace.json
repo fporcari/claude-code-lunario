@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Lunario: menu settimanale ipocalorico di famiglia e lista della spesa in confezioni reali, con postmortem che ritara porzioni, piatti e prezzi. Motore pubblico, dati di famiglia locali.",
-    "version": "1.4.0"
+    "version": "1.5.0"
   },
   "plugins": [
     {
       "name": "lunario",
       "source": "./plugins/lunario",
       "description": "Nutrizionista di famiglia: raccoglie impegni e voglie della settimana in conversazione, genera il menu dei 7 giorni ordinato per deperibilita' e la lista della spesa in confezioni reali, poi impara dagli avanzi e dagli scontrini",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "author": {
         "name": "Francesco Porcari"
       },

@@ -1,24 +1,94 @@
 ---
 name: correggi
 description: >-
-  Corregge il menu a settimana gia' iniziata, quando cambia qualcosa in corsa
-  — una cena salta, arrivano ospiti, un piatto non e' piaciuto, e' avanzato
-  qualcosa da smaltire, non c'e' voglia di quello che era previsto. Chiede
-  cosa deve cambiare e cosa c'e' in frigo, poi ripropone solo i giorni che
-  restano riusando la spesa gia' fatta. Da invocare quando l'utente dice
-  "cambio idea", "stasera non mi va", "ho ospiti giovedi'", "e' saltata la
-  cena di ieri", "cosa faccio con quello che ho in frigo", "non ho voglia di
-  cucinare stasera".
+  Cambia un menu gia' generato, sia mentre e' ancora in discussione — i figli
+  contestano il giovedi', la moglie propone altro, si aggiusta prima di fare
+  la spesa — sia a settimana iniziata, quando salta una cena, arrivano ospiti
+  o non c'e' voglia di quel che era previsto. Gestisce anche la conferma del
+  menu, che congela la lista della spesa. Da invocare quando l'utente dice
+  "cambia il giovedi'", "non gli piace", "hanno protestato", "confermo il
+  menu", "va bene cosi'", "vado a fare la spesa", "cambio idea", "ho ospiti",
+  "cosa faccio con quello che ho in frigo".
 ---
 
-# Correggi — la settimana e' gia' in corso
+# Correggi — il menu cambia
 
-La differenza con `lunario:settimana` e' tutta qui: **la spesa e' gia' fatta**.
-Il vincolo non e' piu' il budget, e' cosa c'e' in casa. Regole in `CLAUDE.md`.
+Stessa skill per due situazioni molto diverse, e la differenza la fa lo
+`stato` scritto in testa a `settimane/<ISO>.md`. Sbagliarla significa proporre
+un piatto per cui non e' stata comprata roba, o rifare la spesa per niente.
 
-## Prima
+| stato | dove siamo | cosa vincola |
+|---|---|---|
+| `bozza` | il menu e' in discussione, la spesa non e' fatta | **niente**: si cambia liberamente e la lista si rigenera |
+| `confermato` | lista chiusa, spesa non ancora fatta | si puo' cambiare, ma va rifatta la lista: dillo |
+| `in corso` | la spesa e' stata ritirata | **cosa c'e' in casa**: si riusa, non si ricompra |
 
-Leggi `settimane/<ISO>.md` (il menu in corso), `dati/dispensa.yaml`,
+Regole complete in `CLAUDE.md`.
+
+## Se il menu e' in bozza
+
+E' il caso piu' frequente e il piu' semplice: si sta ancora decidendo, spesso
+riportando le obiezioni di chi non e' in questa chat.
+
+- Chiedi cosa non va e **di chi e' l'obiezione**: «al piccolo non piace» e «a
+  me non va» portano a soluzioni diverse — la prima si risolve con una base
+  neutra piu' robusta, la seconda cambiando piatto
+- Cambia quello che serve, ricontrolla i vincoli di sempre (deperibilita',
+  frequenze, ritmi, esclusioni) e **rigenera la lista della spesa**
+- Resta in `bozza`: si esce solo con una conferma esplicita
+- Non riepilogare tutto il menu a ogni giro: mostra i giorni cambiati
+
+Registra le obiezioni raccolte qui: se un piatto viene contestato in bozza
+prima ancora di essere cucinato, e' un segnale buono quanto un voto basso.
+
+## La conferma
+
+Quando l'utente dice che va bene — «confermo», «ok cosi'», «vado a fare la
+spesa» — allora:
+
+1. metti `stato: confermato` con la data
+2. **rigenera lista e HTML definitivi**, che sono quelli che andranno al
+   supermercato
+3. **scrivi la settimana sul calendario**, se l'utente lo vuole (sotto)
+4. dillo in una riga, ricordando `lunario:spesa` al ritiro
+
+### La settimana sul calendario
+
+Se in `dati/profilo.yaml` c'e' `calendario.scrivi: true`, crea un evento di
+sette giorni intitolato col nome della settimana — «🌙 Impressioni di
+settembre» — e il menu completo nella descrizione, cosi' dal telefono si vede
+cosa si mangia senza aprire niente.
+
+Se il profilo non dice niente, **chiedilo una volta sola**, alla prima
+conferma: se vuole gli eventi, su quale calendario, e se preferisce un evento
+solo per tutta la settimana o uno per ogni cena. Poi scrivi la risposta nel
+profilo e non chiedere piu'.
+
+Tre cautele, perche' il calendario e' di tutti e non solo suo:
+
+- **mai scrivere senza avere avuto un si' esplicito**, nemmeno la prima volta:
+  un calendario condiviso lo leggono i colleghi
+- **mai sul calendario primario di default**: proponi quello personale o uno
+  dedicato, che il rumore del menu non finisca fra le riunioni
+- **se il menu cambia dopo la conferma**, aggiorna l'evento invece di crearne
+  un altro: due settimane sovrapposte in agenda sono peggio di nessuna
+
+L'evento e' una comodita', non un pezzo del sistema: se la scrittura fallisce,
+dillo in mezza riga e vai avanti. Il menu e' gia' salvato dove conta.
+
+Non confermare mai d'ufficio, e non dare per approvato il silenzio: qui
+l'approvazione e' di persone che non stanno leggendo la chat.
+
+Se dopo la conferma arriva un'altra modifica, si puo' fare: avvisa in mezza
+riga che la lista cambia, applicala e rigenera.
+
+## Se la settimana e' gia' in corso
+
+Qui la differenza con `lunario:settimana` e' tutta in una cosa: **la spesa e'
+gia' fatta**. Il vincolo non e' piu' il gusto ne' il budget, e' cosa c'e' in
+casa.
+
+Leggi `settimane/<ISO>.md`, `dati/dispensa.yaml`,
 `settimane/<ISO>/contesto.yaml`, e il profilo con le sue esclusioni.
 Stabilisci che giorno e' oggi: **i giorni passati non si toccano mai**, si
 riscrivono solo quelli che restano.

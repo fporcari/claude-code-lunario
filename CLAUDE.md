@@ -275,6 +275,48 @@ roba comprata per altri. Va separato in tre gruppi — menu, alimentare fuori
 lista, non Lunario — perche' **solo il primo e' la spesa che si confronta con
 la stima**. Un budget sporcato dai detersivi non insegna niente.
 
+### Il ciclo di vita del menu: bozza, confermato, in corso
+
+Un menu non nasce definitivo. Si prepara **durante la settimana precedente**,
+si mostra a chi mangia, si prende le contestazioni e si aggiusta. Solo quando
+tutti hanno detto la loro si fa la spesa — e da quel momento cambiare costa.
+
+In testa a `settimane/<ISO>.md` c'e' quindi uno `stato`:
+
+| stato | chi lo mette | cosa si puo' fare |
+|---|---|---|
+| `bozza` | `lunario:menu`, appena generato | cambiare tutto: piatti, giorni, porzioni. La lista della spesa si rigenera ogni volta e non va usata |
+| `confermato` | l'utente, quando dice che va bene | la lista e' definitiva e si puo' andare a fare la spesa. Cambiare ancora si puo', ma vuol dire rifare la lista |
+| `in corso` | `lunario:spesa`, al ritiro | la spesa e' fatta: il vincolo non e' piu' il gusto, e' cosa c'e' in casa |
+
+**Ogni menu nasce `bozza`.** La lista della spesa di una bozza e' indicativa e
+va detto: stamparla o andare al supermercato con quella e' esattamente
+l'errore che questi stati esistono per evitare.
+
+La conferma e' un gesto esplicito dell'utente — «va bene cosi'», «confermo»,
+«vado a fare la spesa» — e in quel momento si rigenerano lista e HTML
+definitivi, si toglie il marchio «bozza» dall'HTML e, se richiesto, si scrive
+la settimana sul calendario. Non confermare mai d'ufficio: il silenzio non e'
+approvazione, soprattutto quando l'approvazione e' di altre persone che non
+stanno leggendo questa chat.
+
+### Il calendario, nei due versi
+
+**In lettura** e' automatico: se un calendario e' collegato, `lunario:settimana`
+lo consulta per dedurre pranzi fuori e cene tardive, e propone gli impegni gia'
+letti. Nei file di Lunario finisce solo il vincolo derivato, mai il titolo
+dell'evento.
+
+**In scrittura** non succede niente senza un si' esplicito. Se l'utente lo
+vuole (`calendario.scrivi: true` nel profilo), alla conferma del menu compare
+in agenda la settimana col suo titolo — «🌙 Impressioni di settembre» — e il
+menu nella descrizione. Si chiede una volta sola, alla prima conferma, insieme
+a **quale** calendario usare: mai il primario di default, perche' un calendario
+di lavoro lo leggono i colleghi.
+
+L'evento e' una comodita', non un pezzo del sistema: se fallisce, si dice e si
+va avanti.
+
 ### Il menu e' anche lo stato di avanzamento
 
 In `settimane/<ISO>.md` pasti e righe della spesa sono **caselle da spuntare**.
