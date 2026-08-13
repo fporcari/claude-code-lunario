@@ -1,0 +1,8 @@
+# I dati di famiglia non stanno qui: vivono nella cartella di lavoro
+# dell'utente. Questi ignore proteggono chi sviluppa il motore nella stessa
+# cartella in cui lo prova.
+dati/
+settimane/
+.venv/
+__pycache__/
+.DS_Store

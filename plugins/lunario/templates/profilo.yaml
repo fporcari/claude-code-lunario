@@ -1,0 +1,26 @@
+# Copia questo file in dati/profilo.yaml e compila.
+# dati/ e' in .gitignore: il profilo compilato non finisce mai nel repo.
+famiglia:
+  - nome: NomeAdulto1
+    altezza_cm: 175
+    peso_kg: 76
+    kcal_giorno: 1650        # mai sotto 1200 senza parere medico
+  - nome: NomeAdulto2
+    altezza_cm: 163
+    peso_kg: 63
+    kcal_giorno: 1200
+bambini:
+  presenti: true
+  selettivi: true            # attiva la regola della base neutra (kb/consigli-pratici.md)
+esclusioni:
+  - tonno                    # vale anche come ingrediente nascosto
+  - acciughe
+preferenze:
+  cucina: mediterranea
+  etnico_facile_a_settimana: 1
+  max_pasti_carne_settimana: 2
+  max_carne_rossa_settimana: 1
+  minuti_max_cena: 30
+supermercato:
+  nome: Esselunga
+  dominio: spesaonline.esselunga.it

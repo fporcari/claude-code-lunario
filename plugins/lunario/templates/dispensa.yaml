@@ -1,0 +1,17 @@
+# Dispensa — cosa e' rimasto in casa.
+# Copia in dati/dispensa.yaml (resta locale, gitignored), oppure lascia che
+# sia il sistema a crearlo: lo aggiorna da solo a ogni menu e a ogni postmortem.
+#
+# Serve a non ricomprare ogni lunedi' la pasta di cui resta mezzo pacco:
+# il fabbisogno della settimana si scala di quello che c'e' gia'.
+
+aggiornata: 2026-08-14
+
+avanzi:
+  # chiave = id del prodotto in dati/prodotti.jsonl
+  trofie-500: 400          # grammi residui (tipo `confezione`)
+  ceci-lessati-400: 2      # pezzi interi (tipo `pezzo`)
+
+# SOLO prodotti non deperibili: dispensa secca, scatolame, surgelati, uova,
+# formaggi stagionati. Mezza busta di rucola NON si scrive qui: fra tre giorni
+# non esiste, e pianificarci sopra la settimana dopo significa cucinare marcio.
