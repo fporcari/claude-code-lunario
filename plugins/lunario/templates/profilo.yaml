@@ -26,6 +26,10 @@ calendario:
   # quando si pranza fuori o si cena tardi. Questi campi riguardano invece la
   # scrittura, che non avviene mai senza un si' esplicito.
   scrivi: false            # true per vedere la settimana del menu in agenda
-  id: null                 # su quale calendario: meglio uno personale, non
-                           # quello di lavoro condiviso coi colleghi
+  id: null                 # id del calendario. La sistemazione migliore e' un
+                           # calendario dedicato chiamato "Lunario", che si
+                           # accende e si spegne con un click e non disturba
+                           # nessuno: va creato a mano una volta, il plugin
+                           # gestisce eventi ma non crea calendari.
+                           # Mai quello di lavoro: lo leggono i colleghi
   modo: settimana          # settimana (un evento coi 7 giorni) | pasti (uno per cena)

@@ -64,6 +64,23 @@ conferma: se vuole gli eventi, su quale calendario, e se preferisce un evento
 solo per tutta la settimana o uno per ogni cena. Poi scrivi la risposta nel
 profilo e non chiedere piu'.
 
+**Dove scrivere.** Elenca i calendari disponibili e cerca prima di tutto se ce
+n'e' uno che si chiama «Lunario» (o che lo contiene nel nome): se c'e', e'
+quello, e non serve chiedere altro. Se non c'e', **proponi di crearlo**,
+perche' e' la sistemazione giusta — si accende e si spegne con un click, non
+disturba nessuno, e sparisce senza lasciare traccia se il sistema non piace.
+
+Un calendario non si puo' creare da qui: il connettore gestisce eventi, non
+calendari. Quindi spiegalo in tre righe, una volta sola:
+
+> Su calendar.google.com, accanto ad «Altri calendari» c'e' un +: «Crea nuovo
+> calendario», nome **Lunario**. Dimmi quando c'e' e lo uso. Sul Mac comparira'
+> anche in Calendario, se l'account e' sincronizzato.
+
+Se preferisce non crearlo, va bene lo stesso: usa un calendario personale
+esistente. **Il primario di lavoro e' l'ultima scelta**, e se e' l'unica
+rimasta dillo esplicitamente prima di scriverci — quello lo leggono i colleghi.
+
 Tre cautele, perche' il calendario e' di tutti e non solo suo:
 
 - **mai scrivere senza avere avuto un si' esplicito**, nemmeno la prima volta:
