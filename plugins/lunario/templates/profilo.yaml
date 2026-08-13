@@ -25,11 +25,12 @@ calendario:
   # Lunario legge sempre il calendario, se ne trova uno collegato, per capire
   # quando si pranza fuori o si cena tardi. Questi campi riguardano invece la
   # scrittura, che non avviene mai senza un si' esplicito.
-  scrivi: false            # true per vedere la settimana del menu in agenda
-  id: null                 # id del calendario. La sistemazione migliore e' un
-                           # calendario dedicato chiamato "Lunario", che si
-                           # accende e si spegne con un click e non disturba
-                           # nessuno: va creato a mano una volta, il plugin
-                           # gestisce eventi ma non crea calendari.
-                           # Mai quello di lavoro: lo leggono i colleghi
+  scrivi: false            # true per vedere la settimana del menu in agenda.
+                           # Lo chiede il setup: se hai detto di no, non te lo
+                           # richiede piu' a ogni menu
+  id: null                 # id del calendario scelto al setup. Un calendario
+                           # dedicato, col nome che vuoi, e' la sistemazione
+                           # piu' comoda: si accende e si spegne con un click.
+                           # Va creato a mano — il plugin scrive eventi, non
+                           # crea calendari
   modo: settimana          # settimana (un evento coi 7 giorni) | pasti (uno per cena)

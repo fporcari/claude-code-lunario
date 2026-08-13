@@ -1,14 +1,16 @@
 ---
 name: profilo
 description: >-
-  Setup di Lunario in una cartella nuova. Intervista la famiglia — chi mangia,
-  con quali obiettivi calorici, quali cibi sono esclusi, quanto tempo c'e' per
-  cucinare — e poi costruisce tutto da sola: sottocartelle, file dei dati e
-  CLAUDE.md della cartella. Da invocare al primo avvio, quando l'utente dice
-  "configuriamo", "setup", "primo avvio", "iniziamo da zero", "installo
-  lunario qui", oppure quando un'altra skill scopre che dati/profilo.yaml
-  manca. Usala anche per modificare un profilo esistente: "e' cambiato il mio
-  peso", "aggiungi una persona", "non mangiamo piu' X", "cambio obiettivo".
+  Setup e aggiornamento di Lunario in una cartella. La prima volta intervista
+  la famiglia — chi mangia, con quali obiettivi calorici, quali cibi sono
+  esclusi, quanto tempo c'e' per cucinare, se si vuole il menu in agenda — e
+  costruisce tutto da sola: sottocartelle, file dei dati e CLAUDE.md della
+  cartella. Rilanciata su una cartella gia' configurata NON ricomincia da
+  capo: aggiorna solo cio' che e' cambiato e propone le novita' del motore che
+  il profilo non ha ancora. Da invocare per "configuriamo", "setup", "primo
+  avvio", "installo lunario qui", "aggiorna il setup", "e' cambiato il mio
+  peso", "aggiungi una persona", "non mangiamo piu' X", "cambio obiettivo",
+  oppure quando un'altra skill scopre che dati/profilo.yaml manca.
 ---
 
 # Profilo — il setup della cartella
@@ -27,12 +29,38 @@ Guarda la cartella di lavoro corrente:
 | cosa trovi | dove sei | cosa fai |
 |---|---|---|
 | `plugins/lunario/` o `.claude-plugin/marketplace.json` | nel **repo del motore** | fermati: spiega che qui ci sta il codice, non la famiglia, e chiedi di aprire (o creare) una cartella personale |
-| `dati/profilo.yaml` | in una casa **gia' configurata** | non rifare l'intervista: vai al punto 4 |
-| niente di tutto questo | cartella **nuova** | e' il caso normale: procedi, e alla fine costruisci qui |
+| `dati/profilo.yaml` | in una casa **gia' configurata** | e' un **aggiornamento**: salta l'intervista e vai alla sezione qui sotto |
+| niente di tutto questo | cartella **nuova** | e' il caso normale: procedi con l'intervista, e alla fine costruisci qui |
 
 Nel caso normale non chiedere conferma sul percorso: l'utente ha gia' scelto
 dove stare aprendo quella cartella. Chiedere «dove creo i file?» a chi si trova
 gia' nella cartella giusta e' una domanda in piu' che non serve a niente.
+
+## 1a. Se il profilo esiste gia': aggiornamento
+
+Rilanciare questa skill su una casa configurata **non ricomincia da capo**.
+Nessuno vuole rifare l'intervista perche' e' cambiato un peso.
+
+Fai tre cose, in quest'ordine:
+
+1. **Riepiloga in tre righe** cosa c'e' adesso: chi mangia, target calorici,
+   esclusioni. Serve a far vedere all'utente cosa sta per cambiare
+2. **Chiedi cosa cambia** e tocca solo quello. «E' cambiato il mio peso» si
+   risolve con un numero e il ricalcolo delle calorie, non con un questionario
+3. **Controlla se il profilo e' rimasto indietro**: confronta le sezioni
+   presenti con `${CLAUDE_PLUGIN_ROOT}/templates/profilo.yaml`. Le versioni
+   nuove del motore aggiungono campi, e un profilo scritto mesi fa non li ha
+
+Sul punto 3: **proponi solo le novita' che cambiano qualcosa per l'utente**,
+una riga ciascuna, e accetta un no senza insistere. Per esempio, a chi non ha
+mai avuto la sezione `calendario`: «e' nuova la possibilita' di ritrovare il
+menu in agenda — ti interessa?». Un campo aggiunto in silenzio con un default
+va bene; una funzione che scrive da qualche parte va chiesta.
+
+Controlla allo stesso modo che la casa sia completa: se mancano file che oggi
+fanno parte del corredo — per esempio `dati/storico.yaml` o il `CLAUDE.md`
+della cartella — copiali dai templates con `cp -n`, che non sovrascrive niente,
+e dillo in mezza riga.
 
 ## 2. L'intervista
 
@@ -72,6 +100,25 @@ congelatore capiente), quante volte a settimana si mangia pesce o carne.
 vedranno mai, quanta voglia c'e' di provare cose nuove. Serve a filtrare
 `${CLAUDE_PLUGIN_ROOT}/kb/piatti.md` dal primo menu invece che dopo tre
 postmortem.
+
+**Il menu in agenda.** Chiedi se vuole ritrovare la settimana sul calendario:
+un evento col titolo del menu, che dal telefono dice cosa si mangia.
+
+Se dice di si', **elenca i calendari che ha davvero** e fagli scegliere — non
+dare per scontato nessun nome. Due cose da dire mentre sceglie, brevi:
+
+- un **calendario dedicato** e' la sistemazione piu' comoda, col nome che
+  preferisce: si accende e si spegne con un click e sparisce senza lasciare
+  traccia se la cosa non piace. Va creato a mano (su calendar.google.com,
+  accanto ad «Altri calendari», il + → «Crea nuovo calendario»), perche' il
+  plugin gestisce eventi ma non crea calendari: se lo vuole, aspetta che lo
+  abbia fatto e poi rileggi l'elenco
+- se sceglie un calendario **condiviso o di lavoro**, dillo una volta: quello
+  lo leggono altre persone
+
+Chiedi anche se preferisce **un evento per tutta la settimana** o **uno per
+ogni cena**, e salva tutto in `calendario` nel profilo. Se non gli interessa,
+`scrivi: false` e non se ne parla piu'.
 
 ## 3. Costruire la casa
 

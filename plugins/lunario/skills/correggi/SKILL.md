@@ -54,39 +54,22 @@ spesa» — allora:
 
 ### La settimana sul calendario
 
-Se in `dati/profilo.yaml` c'e' `calendario.scrivi: true`, crea un evento di
-sette giorni intitolato col nome della settimana — «🌙 Impressioni di
-settembre» — e il menu completo nella descrizione, cosi' dal telefono si vede
-cosa si mangia senza aprire niente.
+La decisione e' gia' stata presa al setup: leggi `calendario` in
+`dati/profilo.yaml` e limitati a eseguire.
 
-Se il profilo non dice niente, **chiedilo una volta sola**, alla prima
-conferma: se vuole gli eventi, su quale calendario, e se preferisce un evento
-solo per tutta la settimana o uno per ogni cena. Poi scrivi la risposta nel
-profilo e non chiedere piu'.
+- `scrivi: false` o campo assente -> **non scrivere niente e non chiedere**.
+  Chi ha detto di no al setup non va risollecitato ogni settimana
+- `scrivi: true` -> crea l'evento sul calendario indicato da `id`, nel modo
+  indicato da `modo`: un evento di sette giorni col titolo della settimana —
+  «🌙 Impressioni di settembre» — e il menu nella descrizione, oppure un
+  evento per ogni cena
 
-**Dove scrivere.** Elenca i calendari disponibili e cerca prima di tutto se ce
-n'e' uno che si chiama «Lunario» (o che lo contiene nel nome): se c'e', e'
-quello, e non serve chiedere altro. Se non c'e', **proponi di crearlo**,
-perche' e' la sistemazione giusta — si accende e si spegne con un click, non
-disturba nessuno, e sparisce senza lasciare traccia se il sistema non piace.
+Se `scrivi: true` ma `id` e' vuoto o non esiste piu', allora chiedi: elenca i
+calendari disponibili e fai scegliere, poi salva la scelta nel profilo.
 
-Un calendario non si puo' creare da qui: il connettore gestisce eventi, non
-calendari. Quindi spiegalo in tre righe, una volta sola:
+Due cautele, perche' un'agenda la leggono anche altri:
 
-> Su calendar.google.com, accanto ad «Altri calendari» c'e' un +: «Crea nuovo
-> calendario», nome **Lunario**. Dimmi quando c'e' e lo uso. Sul Mac comparira'
-> anche in Calendario, se l'account e' sincronizzato.
-
-Se preferisce non crearlo, va bene lo stesso: usa un calendario personale
-esistente. **Il primario di lavoro e' l'ultima scelta**, e se e' l'unica
-rimasta dillo esplicitamente prima di scriverci — quello lo leggono i colleghi.
-
-Tre cautele, perche' il calendario e' di tutti e non solo suo:
-
-- **mai scrivere senza avere avuto un si' esplicito**, nemmeno la prima volta:
-  un calendario condiviso lo leggono i colleghi
-- **mai sul calendario primario di default**: proponi quello personale o uno
-  dedicato, che il rumore del menu non finisca fra le riunioni
+- **mai scrivere senza che il profilo lo dica**, nemmeno «per comodita'»
 - **se il menu cambia dopo la conferma**, aggiorna l'evento invece di crearne
   un altro: due settimane sovrapposte in agenda sono peggio di nessuna
 
