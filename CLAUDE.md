@@ -148,6 +148,11 @@ compra davvero. Si popola da solo, settimana dopo settimana.
  "fonte_nutrienti": "openfoodfacts:8002330121556"}
 ```
 
+Un campo che si impara al primo scontrino: `"fuori_scontrino": true` per cio'
+che si compra altrove — il pane dal panettiere, le uova dal contadino. Resta
+nella lista della spesa, ma non viene cercato nello scontrino ne' segnalato
+come mancante.
+
 - `tipo`: `confezione` (formato fisso, l'avanzo va in dispensa) ·
   `peso` (banco: si compra al grammo, nessun arrotondamento) ·
   `pezzo` (uova, vasetti: l'unita' e' il pezzo)

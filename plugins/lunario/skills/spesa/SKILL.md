@@ -32,27 +32,62 @@ col documento la riconciliazione e' esatta, a memoria e' approssimativa.
 per l'igiene, cose comprate per qualcun altro. Quella roba non e' spesa
 alimentare e non deve inquinare ne' il budget ne' il paniere.
 
-Classifica ogni riga in tre gruppi, facendolo tu, senza interrogare l'utente
-riga per riga:
+**Il non alimentare lo scarti tu**, in silenzio: detersivi, carta casa,
+igiene, animali, cartoleria si riconoscono dalla descrizione e non entrano
+nemmeno nella lista che mostri. Se sei incerto su una riga, tienila: e' meno
+fastidioso togliere una riga di troppo che scoprire dopo che ne mancava una.
 
-| gruppo | cosa ci finisce | dove va |
-|---|---|---|
-| **menu** | quello che era in lista | `spesa_reale`, prezzi nel paniere |
-| **alimentare fuori lista** | cibo comprato ma non previsto: frutta, snack, bevande | `spesa_extra_alimentare`, prezzi nel paniere |
-| **non Lunario** | detersivi, casa, igiene, animali, regali, roba per altri | fuori da tutto: nessun prezzo, nessun totale |
+Quello che **non** si puo' dedurre e' cosa di alimentare e' davvero di questa
+casa: la spesa per la suocera sta sullo stesso scontrino, a volte sulla stessa
+riga. Quindi presenta le righe alimentari come una **lista numerata con le
+caselle gia' spuntate da te**, e falla correggere:
 
-Il non alimentare si riconosce dalla descrizione. Quello che **non** si puo'
-dedurre e' il «comprato per altri»: un pane e' un pane anche se e' della
-vicina. Per quello non tirare a indovinare.
+```
+Alimentari sullo scontrino — ho spuntato quello che mi risulta vostro:
 
-Poi presenta il riepilogo **in una domanda sola**, non tre:
+ 1. [x] Fusilli integrali 500 g × 2      2,38 €   (era in lista)
+ 2. [x] Zucchine 600 g                   1,49 €   (era in lista)
+ 3. [x] Yogurt greco 125 g × 6           3,60 €   (gia' nel paniere)
+ 4. [ ] Biscotti frollini 700 g          2,90 €   (mai visto)
 
-> Su 118,40 € di scontrino: **89,40 di spesa del menu**, 12,00 di alimentari
-> fuori lista (frutta, yogurt), 17,00 non alimentari (detersivi, carta).
-> Torna, o c'e' qualcosa che ho messo nel posto sbagliato?
+Togli, aggiungi o dimmi se di qualcosa e' vostra solo una parte.
+```
 
-Una correzione dell'utente basta a riclassificare. Solo `spesa_reale` si
-confronta con `spesa_stimata`: il budget riguarda il menu, non lo scontrino.
+Come pre-spuntare, in ordine di certezza:
+
+| riga | casella |
+|---|---|
+| era nella lista della spesa di questa settimana | `[x]`, con «era in lista» |
+| non era in lista ma e' gia' nel paniere | `[x]`, con «gia' nel paniere» |
+| mai vista prima | `[ ]`, con «mai visto» |
+
+Il motivo fra parentesi conta quanto la casella: dice all'utente **perche'** hai
+deciso cosi', e gli permette di correggerti in una parola.
+
+**Le quantita' parziali sono la regola, non l'eccezione.** «Degli yogurt tre
+sono nostri» significa che la riga vale per meta': registra 3 pezzi e la meta'
+del prezzo nella spesa di casa, e lascia fuori il resto. Non chiedere di
+dividere ogni riga: chiedilo solo dove l'utente lo dice.
+
+Le righe spuntate diventano `spesa_reale` (se erano in lista) o
+`spesa_extra_alimentare` (se no). Solo la prima si confronta con
+`spesa_stimata`: il budget riguarda il menu, non lo scontrino.
+
+## 2a. Quello che non passa dallo scontrino
+
+Alcune cose del menu si comprano altrove — il pane dal panettiere sotto casa,
+le uova dal contadino, la frutta al mercato. Non sono **mancanti**: sono solo
+comprate da un'altra parte.
+
+La prima volta che un ingrediente del menu non compare sullo scontrino,
+chiedilo insieme alle altre domande: «il pane non c'e' sullo scontrino — lo
+prendi altrove o e' saltato?». Se la risposta e' «altrove», scrivi
+`"fuori_scontrino": true` sul prodotto in `dati/prodotti.jsonl` e **non
+chiederlo mai piu'**: da li' in poi resta in lista della spesa ma non viene
+cercato nello scontrino ne' segnalato come mancante.
+
+Il prezzo di quei prodotti resta quello che l'utente dichiara, quando gli va:
+meglio un prezzo vecchio dichiarato tale che una riga vuota.
 
 ## 2b. Riconcilia con la lista
 
