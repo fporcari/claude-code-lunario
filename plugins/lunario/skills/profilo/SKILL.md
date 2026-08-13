@@ -1,88 +1,133 @@
 ---
 name: profilo
 description: >-
-  Prima configurazione di Lunario — intervista la famiglia per capire chi
-  mangia, con quali obiettivi calorici, quali cibi sono esclusi e quanto tempo
-  c'e' per cucinare, e scrive dati/profilo.yaml. Da invocare al primo avvio
-  del sistema, quando l'utente dice "configuriamo", "setup", "primo avvio",
-  "iniziamo da zero", "non ho ancora il profilo", oppure quando una skill
-  scopre che dati/profilo.yaml manca. Usala anche per modificare il profilo
-  esistente: "e' cambiato il mio peso", "aggiungi una persona", "non mangiamo
-  piu' X", "cambio obiettivo".
+  Setup di Lunario in una cartella nuova. Intervista la famiglia — chi mangia,
+  con quali obiettivi calorici, quali cibi sono esclusi, quanto tempo c'e' per
+  cucinare — e poi costruisce tutto da sola: sottocartelle, file dei dati e
+  CLAUDE.md della cartella. Da invocare al primo avvio, quando l'utente dice
+  "configuriamo", "setup", "primo avvio", "iniziamo da zero", "installo
+  lunario qui", oppure quando un'altra skill scopre che dati/profilo.yaml
+  manca. Usala anche per modificare un profilo esistente: "e' cambiato il mio
+  peso", "aggiungi una persona", "non mangiamo piu' X", "cambio obiettivo".
 ---
 
-# Profilo — chi siete
+# Profilo — il setup della cartella
 
-Scrive il livello **stabile**: il vincolo che cambia una volta l'anno.
-Contratti e regole in `CLAUDE.md`, registro conversazionale incluso.
+Scrive il livello **stabile** e, la prima volta, costruisce la casa attorno.
+Contratti e registro conversazionale in `CLAUDE.md` del motore.
 
-## Se il profilo esiste gia'
+**L'utente crea solo la cartella e la apre.** Tutto il resto — sottocartelle,
+file, CLAUDE.md — lo fai tu. Non chiedergli mai di lanciare `mkdir` o di
+copiare template a mano.
 
-Non rifare l'intervista. Mostra un riepilogo di tre righe (chi, target kcal,
-esclusioni), chiedi cosa cambia, tocca solo quello.
+## 1. Capire dove sei, prima di ogni altra cosa
 
-## L'intervista
+Guarda la cartella di lavoro corrente:
 
-Una domanda per volta, tono da prima visita: si ascolta, non si compila. Non
-chiedere tutto — i campi non essenziali hanno un default sensato e si
-correggono strada facendo.
+| cosa trovi | dove sei | cosa fai |
+|---|---|---|
+| `plugins/lunario/` o `.claude-plugin/marketplace.json` | nel **repo del motore** | fermati: spiega che qui ci sta il codice, non la famiglia, e chiedi di aprire (o creare) una cartella personale |
+| `dati/profilo.yaml` | in una casa **gia' configurata** | non rifare l'intervista: vai al punto 4 |
+| niente di tutto questo | cartella **nuova** | e' il caso normale: procedi, e alla fine costruisci qui |
 
-**1. Chi mangia a questa tavola.** Nome (anche solo l'iniziale), eta'
-indicativa, chi e' a dieta e chi no. Basta il racconto: «io e mia moglie a
-dieta, due bambini che mangiano normale».
+Nel caso normale non chiedere conferma sul percorso: l'utente ha gia' scelto
+dove stare aprendo quella cartella. Chiedere «dove creo i file?» a chi si trova
+gia' nella cartella giusta e' una domanda in piu' che non serve a niente.
 
-**2. L'obiettivo, per chi e' a dieta.** Non chiedere le kcal: chiedi il
-peso di adesso, l'altezza e dove vorrebbero arrivare. Dai numeri calcola tu il
-fabbisogno e proponilo, spiegando in una riga da dove viene.
+## 2. L'intervista
 
-Il calcolo: metabolismo basale con Mifflin-St Jeor, moltiplicato per un
-fattore di attivita' (sedentario 1,2 · leggermente attivo 1,375 · attivo
-1,55), meno un deficit ragionevole (300-500 kcal/giorno, cioe' circa 0,3-0,5
-kg a settimana).
+Una domanda per volta, tono da prima visita: si ascolta, non si compila. I
+campi non essenziali hanno un default sensato e si correggono strada facendo.
 
-- **Mai proporre sotto 1200 kcal/giorno.** Se il calcolo ci va sotto, fermati:
-  proponi 1200 e di' chiaramente che per scendere oltre serve un medico
-- Se l'utente chiede un target piu' aggressivo di quello calcolato, dillo una
-  volta e poi rispetta la sua scelta, sempre col pavimento delle 1200
+**Chi mangia a questa tavola.** Nome (anche solo l'iniziale), eta' indicativa,
+chi e' a dieta e chi no. Basta il racconto: «io e mia moglie a dieta, due
+bambini che mangiano normale».
 
-**3. Cosa non entra in casa.** Esclusioni: allergie, intolleranze, cose
-odiate, scelte etiche. Non chiedere il perche' — al motore non serve. Chiedi
-invece se valgono per tutti o per una persona sola, e ricorda che varranno
-anche come ingrediente nascosto.
+**L'obiettivo, per chi e' a dieta.** Non chiedere le calorie: chiedi peso
+attuale, altezza e dove vorrebbero arrivare, e calcola tu proponendo il
+risultato con una riga di spiegazione.
 
-**4. I bambini, se ci sono.** Domanda secca: sono selettivi? Se si', si
-attiva la regola della base neutra (`${CLAUDE_PLUGIN_ROOT}/kb/consigli-pratici.md`) e ogni cena avra'
+Il calcolo: metabolismo basale con Mifflin-St Jeor, per un fattore di attivita'
+(sedentario 1,2 · leggermente attivo 1,375 · attivo 1,55), meno un deficit di
+300-500 kcal al giorno — circa 0,3-0,5 kg a settimana.
+
+- **Mai proporre sotto 1200 kcal al giorno.** Se il calcolo ci va sotto,
+  fermati: proponi 1200 e di' chiaramente che per scendere serve un medico
+- Se l'utente vuole un target piu' aggressivo, dillo una volta sola e poi
+  rispetta la sua scelta, sempre col pavimento delle 1200
+
+**Cosa non entra in casa.** Allergie, intolleranze, cose odiate, scelte
+etiche. Non chiedere il perche'. Chiedi invece se valgono per tutti o per una
+persona sola, e ricorda che varranno anche come ingrediente nascosto.
+
+**I bambini, se ci sono.** Sono selettivi? Se si', si attiva la regola della
+base neutra (`${CLAUDE_PLUGIN_ROOT}/kb/consigli-pratici.md`) e ogni cena avra'
 una versione semplice estraibile.
 
-**5. Come si cucina qui.** Quanti minuti realistici per la cena nei giorni
-feriali, cosa c'e' in cucina che cambia le ricette (forno, friggitrice ad
-aria, pentola a pressione, congelatore capiente), quante volte a settimana si
-mangia pesce o carne per abitudine.
+**Come si cucina qui.** Minuti realistici per la cena nei feriali, cosa c'e' in
+cucina che cambia le ricette (forno, friggitrice ad aria, pentola a pressione,
+congelatore capiente), quante volte a settimana si mangia pesce o carne.
 
-**6. Gusti e stanchezze.** Cucine che piacciono, piatti che in questa casa non
-si vedranno mai, quanta voglia c'e' di provare cose nuove. Serve a filtrare
-`${CLAUDE_PLUGIN_ROOT}/kb/piatti.md` fin dal primo menu invece che dopo tre postmortem.
+**Gusti e stanchezze.** Cucine che piacciono, piatti che in questa casa non si
+vedranno mai, quanta voglia c'e' di provare cose nuove. Serve a filtrare
+`${CLAUDE_PLUGIN_ROOT}/kb/piatti.md` dal primo menu invece che dopo tre
+postmortem.
 
-## Chiusura
+## 3. Costruire la casa
 
-Riepiloga in poche righe cio' che hai capito e fatti confermare. Poi crea la
-cartella dei dati **nella cartella di lavoro corrente**, se non c'e' gia',
-copiandoci i modelli commentati del plugin:
+Riepiloga in poche righe cio' che hai capito e fatti confermare. **Poi** crea
+tutto, nella cartella corrente, senza altre domande:
 
-```
+```bash
 mkdir -p dati settimane
-cp -n ${CLAUDE_PLUGIN_ROOT}/templates/*.yaml ${CLAUDE_PLUGIN_ROOT}/templates/*.md \
-      ${CLAUDE_PLUGIN_ROOT}/templates/*.jsonl dati/
+cp -n ${CLAUDE_PLUGIN_ROOT}/templates/profilo.yaml \
+      ${CLAUDE_PLUGIN_ROOT}/templates/ritmi.yaml \
+      ${CLAUDE_PLUGIN_ROOT}/templates/note.md \
+      ${CLAUDE_PLUGIN_ROOT}/templates/prodotti.jsonl \
+      ${CLAUDE_PLUGIN_ROOT}/templates/dispensa.yaml \
+      ${CLAUDE_PLUGIN_ROOT}/templates/storico.yaml dati/
+cp -n ${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md ./CLAUDE.md
 ```
 
-`cp -n` non sovrascrive mai: se l'utente rilancia questa skill, i suoi dati
-restano intatti. Poi compila `dati/profilo.yaml` con quello che ti ha detto e
-lascia gli altri file ai loro modelli, che si riempiranno da soli.
+`cp -n` non sovrascrive mai: se la skill viene rilanciata, i dati restano.
 
-Se l'utente vuole tenere i dati altrove (per esempio in una cartella
-sincronizzata), la variabile `LUNARIO_DATI` punta dove vuole lui: diglielo
-solo se la cartella di lavoro sembra un posto di passaggio.
+Poi:
 
-Chiudi indicando il passo successivo — `lunario:ritmi` per gli orari, oppure
-direttamente `lunario:settimana` se l'utente ha fretta di vedere un menu: i
-ritmi si possono aggiungere dopo.
+1. **Compila `dati/profilo.yaml`** con quello che ti ha detto, sostituendo i
+   valori del modello e togliendo i commenti che non servono piu'
+2. **Svuota `dati/prodotti.jsonl`** dalle righe di esempio: il paniere e' suo e
+   si riempira' dai suoi scontrini
+3. **Personalizza `./CLAUDE.md`**: nella prima riga il nome che l'utente da' a
+   questa situazione («la famiglia Rossi», «quando sono solo»), cosi' chi apre
+   la cartella fra sei mesi capisce subito dove si trova
+4. Se dall'intervista sono emersi **orari ricorrenti**, scrivili in
+   `dati/ritmi.yaml`; se sono emersi **vincoli liberi**, in `dati/note.md`.
+   Quello che non e' emerso resta il modello commentato, e va bene cosi'
+
+## 4. Se accanto c'e' un'altra casa Lunario
+
+Guarda le cartelle sorelle (`../*/dati/prodotti.jsonl`). Se ne trovi una, e'
+la stessa persona in un'altra situazione — la famiglia, o la settimana da solo.
+
+In quel caso **proponi di condividere paniere e dispensa**, spiegando perche'
+in una riga: il supermercato e il frigo sono gli stessi, duplicarli significa
+catalogare due volte gli stessi prodotti e credere di avere pasta che qualcun
+altro ha gia' finito.
+
+```bash
+mkdir -p ../lunario-comune
+mv ../<altra-casa>/dati/prodotti.jsonl ../lunario-comune/ 2>/dev/null
+ln -sf ../../lunario-comune/prodotti.jsonl dati/prodotti.jsonl
+ln -sf ../../lunario-comune/dispensa.yaml dati/dispensa.yaml
+```
+
+Profilo, ritmi e storico restano separati: sono legati a chi mangia, e mischiarli
+falserebbe le tarature. Se l'utente preferisce due mondi del tutto separati,
+va benissimo: non insistere.
+
+## 5. Chiusura
+
+Di' cosa hai creato — la cartella, i file, dove sono — e cosa succede adesso:
+`lunario:settimana` il lunedi'. Se l'intervista non ha coperto gli orari,
+segnala che `lunario:ritmi` li raccoglie quando ha voglia: non e' obbligatorio
+per il primo menu.

@@ -99,8 +99,17 @@ claude plugin install lunario@claude-code-lunario
 Da locale, durante lo sviluppo, al posto della prima riga:
 `claude plugin marketplace add ./` dalla radice del repo.
 
-Poi, nella cartella dove si vuole tenere i propri dati, si lancia
-`lunario:profilo` e il sistema guida il resto.
+Poi l'utente crea **una cartella qualsiasi**, dove vuole e col nome che vuole,
+la apre con Claude Code e lancia `lunario:profilo`. Da li' in poi non tocca
+piu' niente a mano: la skill intervista e costruisce `dati/`, `settimane/`, i
+file dai templates e il `CLAUDE.md` di quella cartella.
+
+La cartella **e'** il contesto: una per famiglia, una per «quando sono solo».
+Profilo, ritmi e storico restano separati; paniere e dispensa si possono
+condividere, perche' il supermercato e il frigo sono gli stessi.
+
+Il setup riconosce dove viene lanciato: dentro il repo del motore si ferma e
+lo dice, in una cartella gia' configurata aggiorna invece di ricominciare.
 
 ## Contratti dati
 

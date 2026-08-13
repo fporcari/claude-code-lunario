@@ -1,0 +1,21 @@
+# Storico — quello che il sistema ha imparato.
+# Lo scrive `lunario:postmortem`, non tu. Leggerlo va benissimo, correggerlo a
+# mano anche: se una taratura ti sembra sbagliata, cambiala e diglielo.
+
+tarature:
+  # Porzioni personalizzate, in grammi, per persona e alimento. Vuoto = si
+  # usano le porzioni standard CREA scalate sulle calorie del profilo.
+  # Si riempie da solo: se un piatto avanza per due settimane, la porzione cala.
+  porzioni_g: {}
+
+  # Piatti usciti definitivamente di scena (bocciati due volte).
+  piatti_esclusi: []
+
+  # Piatti promossi: hanno priorita' nella rotazione.
+  piatti_preferiti: []
+
+  # Budget settimanale in euro. null = nessun tetto, il sistema non commenta.
+  budget_settimana_eur: null
+
+# Una voce per settimana, aggiunta dal menu e completata dal postmortem.
+settimane: []
