@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- MODELLO — la skill lunario:menu lo copia e ne sostituisce i contenuti.
+     I commenti RIPETI dicono quali blocchi vanno replicati.
+     Tutto e' inline di proposito: il file deve funzionare da solo, offline,
+     inviato per messaggio o aperto da una chiavetta. Niente font o immagini
+     da scaricare. -->
+<title>Lunario — {{TITOLO_SETTIMANA}}</title>
+<style>
+  :root{
+    --fondo:#1E2732; --carta:#26313E; --chiaro:#F6F8FA;
+    --tenue:#B8C4D0; --luna:#E8660D; --riga:rgba(246,248,250,.14);
+    --inizio:#7FA98B; --meta:#E0A32E; --fine:#C4643A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--fondo);color:var(--chiaro);
+    line-height:1.5;padding:32px 24px;
+  }
+  .foglio{max-width:940px;margin:0 auto}
+
+  header{border-bottom:2px solid var(--luna);padding-bottom:14px;margin-bottom:24px}
+  .occhiello{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--luna)}
+  h1{font-size:2rem;line-height:1.15;margin:.2rem 0 .3rem;font-weight:700}
+  .date{font-size:.86rem;color:var(--tenue)}
+
+  h2{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;
+     color:var(--luna);margin:28px 0 10px}
+
+  /* ---- i sette giorni ---- */
+  .giorni{display:grid;gap:8px}
+  .giorno{
+    display:grid;grid-template-columns:76px 1fr;gap:14px;
+    background:var(--carta);border-radius:8px;padding:12px 16px;
+    border-left:4px solid var(--riga);
+  }
+  .giorno.inizio{border-left-color:var(--inizio)}
+  .giorno.meta{border-left-color:var(--meta)}
+  .giorno.fine{border-left-color:var(--fine)}
+  .g-nome{font-weight:700;font-size:1rem}
+  .g-data{font-size:.74rem;color:var(--tenue);font-weight:400}
+  .pasto{display:flex;gap:10px;align-items:baseline;padding:2px 0}
+  .pasto .et{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;
+             color:var(--tenue);min-width:52px}
+  .pasto .piatto{flex:1}
+  .kcal{font-size:.76rem;color:var(--tenue);white-space:nowrap}
+  .bimbi{font-size:.78rem;color:var(--tenue);font-style:italic;padding-left:62px}
+
+  /* ---- la spesa ---- */
+  .spesa{columns:2;column-gap:32px}
+  .reparto{break-inside:avoid;margin-bottom:14px}
+  .reparto h3{font-size:.82rem;color:var(--luna);margin-bottom:4px;
+              text-transform:uppercase;letter-spacing:.06em}
+  .riga{display:flex;justify-content:space-between;gap:10px;
+        font-size:.88rem;padding:2px 0;border-bottom:1px dotted var(--riga)}
+  .riga .q{color:var(--tenue);white-space:nowrap}
+  .totale{margin-top:8px;padding-top:10px;border-top:2px solid var(--luna);
+          display:flex;justify-content:space-between;font-weight:700}
+
+  footer{margin-top:26px;padding-top:12px;border-top:1px solid var(--riga);
+         font-size:.72rem;color:var(--tenue)}
+
+  /* I quadratini da spuntare servono su carta, non a schermo. Questa regola
+     sta PRIMA del blocco @media print: altrimenti, a parita' di specificita',
+     vincerebbe lei e in stampa non comparirebbero. */
+  .quadratino{display:none;margin-right:5px}
+
+  /* ---- stampa: bianco, una pagina A4, niente inchiostro sprecato ---- */
+  @media print{
+    @page{size:A4 portrait;margin:12mm}
+    :root{
+      --fondo:#fff; --carta:#fff; --chiaro:#111;
+      --tenue:#555; --luna:#B4500A; --riga:#ccc;
+    }
+    body{padding:0;font-size:10.5pt;line-height:1.35}
+    .giorno{border:1px solid #ddd;border-left-width:4px;padding:7px 10px;
+            border-radius:0;break-inside:avoid}
+    .giorni{gap:4px}
+    h1{font-size:1.6rem}
+    h2{margin:16px 0 6px}
+    .spesa{columns:3;column-gap:18px}
+    .riga{font-size:9.5pt}
+    .quadratino{display:inline-block}
+    footer{margin-top:14px}
+  }
+</style>
+</head>
+<body>
+<div class="foglio">
+
+  <header>
+    <p class="occhiello">Lunario · settimana {{ISO}}</p>
+    <h1>{{TITOLO_SETTIMANA}}</h1>
+    <p class="date">{{DA_LUNEDI}} — {{A_DOMENICA}} · {{N_PERSONE}} a tavola</p>
+  </header>
+
+  <h2>I sette giorni</h2>
+  <div class="giorni">
+
+    <!-- RIPETI questo blocco per ogni giorno.
+         La classe del giorno segue la fascia di deperibilita':
+         inizio (lun-mar) · meta (mer-gio) · fine (ven-dom).
+         Righe .bimbi solo se il profilo ha bambini selettivi.
+         Un pasto fuori casa si scrive lo stesso, marcato "fuori". -->
+    <div class="giorno inizio">
+      <div>
+        <div class="g-nome">Lunedì</div>
+        <div class="g-data">18 agosto</div>
+      </div>
+      <div>
+        <div class="pasto">
+          <span class="et">pranzo</span>
+          <span class="piatto">Insalata di farro, pomodorini e mozzarella</span>
+          <span class="kcal">450 / 380 kcal</span>
+        </div>
+        <div class="pasto">
+          <span class="et">cena</span>
+          <span class="piatto">Orata al forno con patate</span>
+          <span class="kcal">520 / 430 kcal</span>
+        </div>
+        <div class="bimbi">bimbi: patate al forno e orata semplice</div>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>La spesa</h2>
+  <div class="spesa">
+
+    <!-- RIPETI un .reparto per ogni reparto, nell'ordine in cui si gira il
+         negozio: ortofrutta, banco, latticini, dispensa, surgelati.
+         Le quantita' sono SEMPRE in confezioni reali per i prodotti a
+         confezione ("2 pacchi da 500 g"), in grammi solo per il banco.
+         Una riga senza prezzo noto si marca [prezzo ignoto] e resta fuori
+         dal totale. -->
+    <div class="reparto">
+      <h3>Ortofrutta</h3>
+      <div class="riga"><span><span class="quadratino">☐</span>Zucchine</span><span class="q">600 g · 1,49 €</span></div>
+      <div class="riga"><span><span class="quadratino">☐</span>Rucola</span><span class="q">2 buste · 2,18 €</span></div>
+    </div>
+
+    <div class="reparto">
+      <h3>Dispensa</h3>
+      <div class="riga"><span><span class="quadratino">☐</span>Fusilli integrali</span><span class="q">2 × 500 g · 2,38 €</span></div>
+    </div>
+
+  </div>
+
+  <div class="totale">
+    <span>Totale stimato</span>
+    <span>{{TOTALE}} €</span>
+  </div>
+
+  <footer>
+    Calorie indicative, stimate dalle tabelle CREA e arrotondate alle decine —
+    non sono misure. Prezzi dagli ultimi scontrini registrati.
+    <!-- Se qualche riga non ha prezzo, dirlo qui: il totale e' parziale. -->
+  </footer>
+
+</div>
+</body>
+</html>

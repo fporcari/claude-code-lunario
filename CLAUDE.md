@@ -32,13 +32,20 @@ non impara. Ogni skill scrive un livello solo.
 | `lunario:profilo` | stabile | `dati/profilo.yaml` | una volta |
 | `lunario:ritmi` | dichiarato | `dati/ritmi.yaml`, `dati/note.md` | quando cambia la vita |
 | `lunario:settimana` | effimero | `settimane/<ISO>/contesto.yaml` | ogni lunedi' |
-| `lunario:menu` | — (consuma tutto) | `settimane/<ISO>.md`, `dati/dispensa.yaml` | ogni lunedi' |
+| `lunario:menu` | — (consuma tutto) | `settimane/<ISO>.md` + `.html`, `dati/dispensa.yaml` | ogni lunedi' |
+| `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina` | mentre si cucina |
 | `lunario:correggi` | effimero | `settimane/<ISO>.md` (giorni residui) | quando cambia qualcosa |
-| `lunario:postmortem` | appreso | `dati/storico.yaml`, `dati/prodotti.jsonl` | domenica |
+| `lunario:postmortem` | appreso (tavola) | `dati/storico.yaml`, `dati/prodotti.jsonl` | domenica |
 
-L'utente ne invoca due: `lunario:settimana` il lunedi' e `lunario:postmortem`
-la domenica. `lunario:menu` viene chiamata dalla prima e non va invocata a
-mano; le altre servono quando serve.
+L'utente ne invoca tre: `lunario:settimana` il lunedi', `lunario:prepara`
+quando cucina e `lunario:postmortem` la domenica. `lunario:menu` viene
+chiamata dalla prima e non va invocata a mano; le altre servono quando serve.
+
+**I due voti non sono lo stesso voto.** Chi cucina valuta difficolta' e resa
+appena finito, e quel dato decide **dove** un piatto puo' stare nella
+settimana; i commensali votano al postmortem, e quel dato decide **se** il
+piatto resta in rotazione. Un piatto amato a tavola puo' essere insostenibile
+il mercoledi' sera: il primo voto lo sposta nel weekend, non lo elimina.
 
 Regola di confine: **il sistema non tocca mai i livelli dichiarati**. Profilo,
 ritmi e note li scrive solo l'utente (la skill puo' proporre). Tarature,
@@ -168,20 +175,32 @@ ai ritmi. Effimero per design: non si accumula, non si impara.
 ```yaml
 tarature:                  # stato appreso: letto SEMPRE prima di generare
   porzioni_g: {}           # per persona e alimento, default da kb/porzioni-standard.md
-  piatti_esclusi: []       # bocciati definitivamente
-  piatti_preferiti: []
+  piatti_esclusi: []       # media a tavola sotto 2 per due volte
   budget_settimana_eur: null
+  voti:
+    Pasta e ceci:
+      cucina:              # da lunario:prepara, appena cucinato
+        difficolta: 1      # 1-5
+        minuti_reali: 25   # smaschera le ricette "da 20 minuti"
+        voto_cuoco: 4      # 1-5, quanto e' venuto bene
+        volte: 3
+      tavola:              # da lunario:postmortem, dopo l'assaggio
+        media: 4.3
+        voti: [{data: 2026-08-17, chi: Bimbo1, voto: 3}]
 settimane:
   - settimana: 2026-W34
+    titolo: "La settimana dei legumi coraggiosi"
     menu: settimane/2026-W34.md
     spesa_stimata: 92.50
     spesa_reale: null      # dallo scontrino, al postmortem
     scarto_per_riga: []    # dove la stima ha sbagliato, non solo di quanto
     avanzi: []
-    bocciati: []           # piatto + chi l'ha bocciato
-    promossi: []
     note: ""
 ```
+
+Niente lista `piatti_preferiti` separata: la media di `tavola` la sostituisce
+— sopra 4 e' un preferito, sotto 2 un bocciato. Due meccanismi paralleli si
+disallineano, uno solo no.
 
 ## Come si parla con l'utente
 
@@ -218,6 +237,17 @@ per niente pedante, che ascolta prima di prescrivere.
    `kb/confezioni.md`. La lista dice «2 pacchi da 500 g», mai «1050 g»
 5. Salva `settimane/<ISO>.md`, aggiorna `dispensa.yaml` con gli avanzi
    previsti, aggiungi la voce a storico con `spesa_stimata`
+
+### Il menu e' anche lo stato di avanzamento
+
+In `settimane/<ISO>.md` pasti e righe della spesa sono **caselle da spuntare**.
+`lunario:prepara` le marca mentre si cucina: il pasto fatto esce dai candidati
+del lancio successivo, gli ingredienti consumati spariscono da cio' che si
+presume in casa.
+
+Non serve un file di stato in piu': il menu **e'** lo stato, e si legge a
+occhio. Ci si appoggiano `lunario:correggi`, che propone cosa e' rimasto invece
+di chiederlo, e il postmortem, che corregge la dispensa sul consumo reale.
 
 ### Correzione in corsa (lunario:correggi)
 

@@ -24,9 +24,18 @@ un'intervista.
 non aperte. Distingui le due cose: la prima e' una porzione sbagliata, la
 seconda e' un fabbisogno sbagliato.
 
-**2. Cosa e' piaciuto e cosa no — e a chi?** Il «chi» non e' un dettaglio: un
-piatto bocciato dai bambini si risolve con la base neutra, uno bocciato
-dall'adulto esce dalla rotazione.
+**2. I voti.** Per i piatti della settimana, un voto **da 1 a 5** e da chi
+viene. Non chiederli uno per uno come un esame: proponi i piatti della
+settimana e lascia che l'utente voti quelli che gli sono rimasti in mente —
+il silenzio su un piatto vale «nella media», e va bene cosi'.
+
+Il «chi» non e' un dettaglio: un 2 dei bambini su un piatto che gli adulti
+hanno votato 4 si risolve con una base neutra piu' generosa, non togliendo il
+piatto. Un 2 di tutti e' un piatto che esce.
+
+Registra i voti in `tarature.voti` di `dati/storico.yaml`: media, numero di
+voti e chi ha votato cosa. La media guida la rotazione — sopra 4 e' un
+preferito, sotto 2 un bocciato — quindi non servono liste separate.
 
 **3. Lo scontrino.** Se l'utente ha il PDF, chiedilo. Se non ce l'ha o non gli
 va, basta il totale speso: il resto si fa lo stesso, con meno precisione.
@@ -63,9 +72,10 @@ Applicala e dichiarala, senza chiedere permesso per le regole automatiche:
 | osservazione | conseguenza |
 |---|---|
 | stesso avanzo per 2+ settimane | riduci la porzione in `tarature.porzioni_g` |
-| piatto bocciato 1 volta | fuori rotazione 3 settimane |
-| piatto bocciato 2 volte | in `piatti_esclusi` — questa **chiedila**, e' definitiva |
-| piatto promosso | in `piatti_preferiti`, priorita' nella rotazione |
+| media del piatto **sotto 2** | fuori rotazione 3 settimane |
+| media sotto 2 per la seconda volta | in `piatti_esclusi` — questa **chiedila**, e' definitiva |
+| media **sopra 4** | priorita' nella rotazione |
+| voto basso dei soli bambini | non toccare il piatto: rinforza la base neutra |
 | confezione avanzata 2 volte di fila | il formato e' sbagliato: proponi di cercarne uno piu' piccolo |
 | sforo del budget | privilegia i piatti a miglior €/100 g di proteine (`${CLAUDE_PLUGIN_ROOT}/kb/consigli-pratici.md`) |
 

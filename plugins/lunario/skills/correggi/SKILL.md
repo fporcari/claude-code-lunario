@@ -32,14 +32,18 @@ un piatto rifiutato, ospiti in piu', o solo mancanza di voglia. Se e' un
 rifiuto, chiedi di chi — serve al postmortem, e un piatto bocciato dai
 bambini non e' la stessa cosa di un piatto bocciato dall'adulto.
 
-**2. Cosa c'e' in frigo?** E' la domanda che decide la proposta. Chiedi cosa
-e' rimasto dei freschi della spesa e cosa e' gia' aperto: mezzo pacco di
-qualcosa, una confezione avviata, verdura che sta girando. Non serve un
-inventario, serve quello che scade prima.
+**2. Cosa c'e' in frigo?** E' la domanda che decide la proposta — ma non
+farla alla cieca. Nel menu, `lunario:prepara` ha spuntato i pasti fatti e gli
+ingredienti consumati: quello che resta **non** spuntato e' quello che c'e'
+ancora in casa.
 
-Se l'utente e' vago («boh, un po' di roba»), proponi tu la lista degli
-ingredienti che il menu prevedeva per i giorni saltati e fatteli confermare a
-gruppi: e' piu' rapido che farglieli elencare.
+Quindi non chiedere l'inventario: **proponi la lista che hai gia**, e fatti
+solo correggere. «Dovrebbero esserti rimasti 400 g di straccetti, le zucchine
+e mezza busta di rucola — torna?». Una domanda sola invece di dieci.
+
+Se il menu non e' stato spuntato (capita: si cucina senza lanciare la skill),
+allora chiedi, partendo dagli ingredienti dei giorni saltati e facendoli
+confermare a gruppi.
 
 ## La proposta
 

@@ -71,11 +71,39 @@ Se c'e' un `budget_settimana_eur` nelle tarature e la stima lo supera,
 segnalalo in una riga e proponi la sostituzione a miglior €/100 g di proteine
 (`${CLAUDE_PLUGIN_ROOT}/kb/consigli-pratici.md`).
 
-## 4. Output
+## 4. Il titolo della settimana
 
-Salva `settimane/<anno>-W<settimana>.md`: i 7 giorni con pranzo, cena, kcal
-per persona e base neutra dove serve; poi la lista per reparto in confezioni,
-con il totale. Aggiungi la voce a `dati/storico.yaml` con `spesa_stimata`.
+Dai un nome a questa settimana, ricavato dal menu che e' venuto fuori: «la
+settimana dei legumi coraggiosi», «tre pesci e un forno acceso», «la
+settimana che smaltisce il congelatore».
 
-In chat: il menu, la lista, il totale. Stop. Le spiegazioni solo dove la
-scelta non e' ovvia, una riga ciascuna.
+Regole: nasce dai **piatti veri** di questi sette giorni, mai da una formula
+generica; una riga sola; ironico va bene, furbo no. Se il menu non suggerisce
+niente di caratteristico, un titolo piano e' meglio di uno forzato.
+
+Serve a ricordarsi le settimane per nome invece che per numero ISO, e finisce
+nel markdown, nell'HTML e in `storico.yaml`.
+
+## 5. Output
+
+Tre cose, in quest'ordine:
+
+1. **`settimane/<anno>-W<settimana>.md`** — la fonte: titolo, i 7 giorni con
+   pranzo, cena, kcal per persona e base neutra dove serve, poi la lista per
+   reparto in confezioni col totale.
+
+   Ogni pasto e ogni riga della spesa si scrivono come **caselle da spuntare**
+   (`- [ ]`): `lunario:prepara` le marca man mano che si cucina e si consuma,
+   e da quel momento il file dice non solo cosa era previsto, ma **a che punto
+   e' la settimana**. E' lo stato su cui si appoggiano `lunario:correggi` e il
+   postmortem
+2. **`settimane/<anno>-W<settimana>.html`** — da
+   `${CLAUDE_PLUGIN_ROOT}/templates/menu.html`, sostituendo i segnaposto
+   `{{...}}` e ripetendo i blocchi marcati `RIPETI`. E' la copia che si stampa
+   e si attacca al frigo: scuro a schermo, bianco in stampa, coi quadratini da
+   spuntare al supermercato. I reparti vanno nell'ordine in cui si gira il
+   negozio, non in ordine alfabetico
+3. **Voce in `dati/storico.yaml`** con `titolo` e `spesa_stimata`
+
+In chat: il titolo, il menu, la lista, il totale, e dove hai salvato l'HTML.
+Stop. Le spiegazioni solo dove la scelta non e' ovvia, una riga ciascuna.

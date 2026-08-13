@@ -8,11 +8,21 @@ tarature:
   # Si riempie da solo: se un piatto avanza per due settimane, la porzione cala.
   porzioni_g: {}
 
-  # Piatti usciti definitivamente di scena (bocciati due volte).
+  # Piatti usciti definitivamente di scena (media a tavola sotto 2, due volte).
   piatti_esclusi: []
 
-  # Piatti promossi: hanno priorita' nella rotazione.
-  piatti_preferiti: []
+  # I voti, che sono due cose diverse e non vanno mescolate:
+  #   cucina  -> lo da' chi ha cucinato, appena finito (lunario:prepara)
+  #              difficolta' 1-5 e minuti veri: tarano DOVE va il piatto nella
+  #              settimana, non se ci va
+  #   tavola  -> lo danno i commensali al postmortem (lunario:postmortem)
+  #              media 1-5: tara SE il piatto resta in rotazione
+  # Un piatto puo' essere ottimo a tavola e insostenibile il mercoledi' sera.
+  voti: {}
+  # esempio:
+  #   Pasta e ceci:
+  #     cucina: {difficolta: 1, minuti_reali: 25, voto_cuoco: 4, volte: 3}
+  #     tavola: {media: 4.3, voti: [{data: 2026-08-17, chi: Bimbo1, voto: 3}]}
 
   # Budget settimanale in euro. null = nessun tetto, il sistema non commenta.
   budget_settimana_eur: null
