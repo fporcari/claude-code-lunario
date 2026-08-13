@@ -1,7 +1,7 @@
 {
   "name": "lunario",
   "description": "Menu settimanale di famiglia e lista della spesa in confezioni reali. Otto skill: profilo, ritmi, settimana, menu, spesa, prepara, correggi, postmortem. Nessuna dipendenza da supermercati: formati e nutrienti da Open Food Facts, prezzi dagli scontrini dell'utente.",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "author": {
     "name": "Francesco Porcari"
   }

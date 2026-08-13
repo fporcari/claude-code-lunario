@@ -144,9 +144,13 @@ compra davvero. Si popola da solo, settimana dopo settimana.
  "formato_g": 500, "tipo": "confezione", "reparto": "dispensa",
  "kcal_100g": 348, "proteine_100g": 13.5,
  "alias_scontrino": ["FUSILLI INTGR 500", "PASTA INT.500G"],
- "prezzi": [{"data": "2026-08-14", "eur": 1.19}],
+ "prezzi": [{"data": "2026-08-14", "eur": 1.19, "fonte": "scontrino"}],
  "fonte_nutrienti": "openfoodfacts:8002330121556"}
 ```
+
+`fonte` del prezzo: `scontrino` (letto da un PDF) oppure `dichiarato` (detto
+dall'utente, per esempio mentre cucina). Un prezzo dichiarato vale, purche' si
+sappia che lo e'. Un prezzo senza fonte no.
 
 Un campo che si impara al primo scontrino: `"fuori_scontrino": true` per cio'
 che si compra altrove — il pane dal panettiere, le uova dal contadino. Resta

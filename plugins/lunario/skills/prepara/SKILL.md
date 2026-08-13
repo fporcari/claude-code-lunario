@@ -51,8 +51,38 @@ Segnala subito le due cose che fanno fallire una cena:
 - cosa va tirato fuori **adesso** (carne da scongelare, burro da ammorbidire)
 - cosa richiede attesa non comprimibile (lievitazione, ammollo, marinatura)
 
-Se qualcosa manca in dispensa, dillo ora e proponi la sostituzione, non a
-meta' cottura.
+## 2a. Se qualcosa risulta mancante
+
+Prima di far accendere il fuoco, controlla gli ingredienti contro quello che il
+sistema crede di sapere: la dispensa, le righe di spesa spuntate al ritiro, i
+prodotti marcati `fuori_scontrino`. Se qualcosa non risulta, **dillo adesso** —
+a meta' cottura e' un guaio, prima e' un'informazione.
+
+Dillo come un dubbio del sistema, non come un'accusa:
+
+> Non mi risulta la panna da cucina: ce l'hai?
+
+Le risposte possibili sono tre, e portano a tre cose diverse:
+
+| risposta | cosa fai |
+|---|---|
+| **«ce l'ho»** | bene: il sistema non lo sapeva, ora si'. Registralo in `dati/dispensa.yaml` e vai avanti, senza altre domande |
+| **«ce l'ho, e costava X»** | come sopra, e aggiungi il prezzo alla serie con `fonte: dichiarato` e la data di oggi |
+| **«non ce l'ho»** | proponi la sostituzione con quello che c'e', oppure la variante del piatto che ne fa a meno |
+
+**Se non sa il prezzo, amen**: si registra la presenza e basta. Un ingrediente
+senza prezzo e' normale e non va inseguito — meglio un buco dichiarato che un
+numero inventato, che e' la regola di tutto il sistema.
+
+Chiedi il prezzo **una volta sola e di sfuggita**, mai insistendo: l'utente ha
+una padella sul fuoco. Se non risponde, hai gia' la cosa che conta, cioe' che
+l'ingrediente c'e'.
+
+Un segnale da cogliere, non subito ma col tempo: se un prodotto risulta
+«mancante» e l'utente risponde «ce l'ho» per **due o tre settimane di fila**,
+non e' un buco di tracciamento — e' una scorta di casa che il sistema continua
+a mettere in lista senza motivo (olio, sale, spezie, farina). Proponi di
+trattarlo come tale invece di comprarlo ogni volta.
 
 ## 3. Il procedimento
 
