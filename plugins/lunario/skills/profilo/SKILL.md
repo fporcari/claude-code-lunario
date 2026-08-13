@@ -68,7 +68,7 @@ Una domanda per volta, tono da prima visita: si ascolta, non si compila. I
 campi non essenziali hanno un default sensato e si correggono strada facendo.
 
 **Chi mangia a questa tavola.** Nome (anche solo l'iniziale), eta' indicativa,
-chi e' a dieta e chi no. Basta il racconto: «io e mia moglie a dieta, due
+chi e' a dieta e chi no. Basta il racconto: «noi due adulti a dieta, due
 bambini che mangiano normale».
 
 **L'obiettivo, per chi e' a dieta.** Non chiedere le calorie: chiedi peso
