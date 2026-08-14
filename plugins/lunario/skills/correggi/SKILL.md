@@ -58,7 +58,10 @@ La decisione e' gia' stata presa al setup: leggi `calendario` in
 `dati/profilo.yaml` e limitati a eseguire.
 
 - `scrivi: false` o campo assente -> **non scrivere niente e non chiedere**.
-  Chi ha detto di no al setup non va risollecitato ogni settimana
+  Chi ha detto di no al setup non va risollecitato ogni settimana. Un'eccezione
+  sola: se il profilo e' `intervista: minima`, la domanda al setup non e' mai
+  stata fatta — proponila **alla prima conferma**, una volta, e scrivi la
+  risposta nel profilo, qualunque sia
 - `scrivi: true` -> crea l'evento sul calendario indicato da `id`, nel modo
   indicato da `modo`: un evento di sette giorni col titolo della settimana —
   «🌙 Impressioni di settembre» — e il menu nella descrizione, oppure un

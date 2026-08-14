@@ -86,6 +86,7 @@ Convertili **tu**, senza far ricompilare niente:
 | `pranzo: fuori_trasportabile` | `pranzo: trasportabile` |
 | `pranzo: fuori_autonomo` | `pranzo: fuori` |
 | nessun `git` | `git: locale` |
+| nessun `intervista` | `completa`: chi ha un profilo vecchio l'intervista l'ha gia' fatta |
 | persona a dieta senza `peso_obiettivo_kg` | chiedilo: senza, non si sa mai quando si e' arrivati |
 | nessun `pesata_settimanale` | `false`. **Chiedilo**, non attivarlo in silenzio: e' una domanda in piu' ogni domenica |
 
@@ -106,12 +107,58 @@ fanno parte del corredo — per esempio `dati/storico.yaml` o il `CLAUDE.md`
 della cartella — copiali dai templates con `cp -n`, che non sovrascrive niente,
 e dillo in mezza riga.
 
-## 2. L'intervista
+## 2. L'intervista, e i suoi due passi
 
-E' **la prima visita, e si fa una volta sola**: puo' durare, e va bene che
-duri. Meglio venti minuti adesso che tre postmortem per scoprire che il
-mercoledi' nessuno cena a casa. Dillo in una riga all'inizio — «ti faccio un
-po' di domande, poi non te le faccio piu'» — e poi vai a fondo davvero.
+La prima visita da un nutrizionista vero non misura tutto: **fa partire**.
+Quindi l'intervista ha un nucleo — le domande senza cui il primo menu non
+puo' uscire — e un approfondimento che puo' aspettare. Offri la scelta in una
+riga, all'inizio: «tre domande e partiamo col primo menu, il resto me lo
+racconti strada facendo — oppure facciamo tutto adesso». Chi ha voglia di
+raccontare racconti; chi vuole vedere il menu lo vede in cinque minuti.
+
+### Il nucleo: senza queste non si parte
+
+1. **Chi mangia a questa tavola** — nome e chi e' a dieta. Per chi e' a
+   dieta, peso, altezza e obiettivo, col calcolo di cui sotto; se preferisce
+   non dirlo adesso, `dieta: false` e porzioni standard, si cambia quando
+   vuole
+2. **Cosa non entra in casa** — allergie, intolleranze, esclusioni. Questa
+   non si rimanda mai: un menu senza le esclusioni non e' incompleto, e'
+   pericoloso
+3. **Quali pasti si fanno** — non un interrogatorio, una proposta da
+   correggere: «direi colazione a casa per tutti, merenda ai bimbi, pranzo
+   feriale fuori per chi lavora — torna?»
+
+Tutto il resto ha un default che regge: 30 minuti per cucinare nei feriali,
+titoli descrittivi dai piatti, niente calendario, niente pesata. Scrivi nel
+profilo `intervista: minima` e chiudi: e' il segnale, per te e per le skill a
+valle, che i default sono default e non scelte.
+
+### Il profilo minimo non e' un profilo dimezzato
+
+Il primo menu esce identico — griglia, deperibilita', confezioni. Quello che
+manca arriva **al momento in cui serve**, una domanda per volta, dalla skill
+che ci sbatte contro:
+
+| cosa manca | chi lo chiede, e quando |
+|---|---|
+| gusti e stanchezze | `lunario:settimana`, che gia' chiede voglie e stufaggini |
+| selettivita' a tavola | `lunario:postmortem`, al primo piatto bocciato solo dai bambini |
+| la pesata settimanale | `lunario:postmortem`, alla prima domenica con qualcuno a dieta |
+| il menu in agenda | `lunario:correggi`, alla prima conferma del menu |
+| il tempo vero per cucinare | `lunario:prepara`, quando i minuti reali smentiscono il default |
+
+La risposta e' dell'utente e tu la metti in forma nel profilo — lo stesso
+patto di `ricette.md`. Quando i buchi sono finiti, togli `intervista: minima`.
+E mai piu' di una di queste domande per volta: il percorso breve promette che
+il resto non arriva tutto insieme.
+
+### L'intervista completa
+
+Chi la sceglie fa **la prima visita vera, una volta sola**: puo' durare, e va
+bene che duri. Meglio venti minuti adesso che tre postmortem per scoprire che
+il mercoledi' nessuno cena a casa. Dillo in una riga all'inizio — «ti faccio
+un po' di domande, poi non te le faccio piu'» — e poi vai a fondo davvero.
 
 Quello che rende sopportabile un'intervista lunga non e' farla corta: e'
 **una domanda per volta**, e **arrivare con la proposta gia' pronta** da
@@ -120,7 +167,8 @@ per tutti, merenda solo per i bimbi — torna?» si risponde in una parola.
 
 I campi non essenziali hanno un default sensato e si correggono strada
 facendo. Se l'utente taglia corto («fai tu»), fermati: prendi i default,
-dillo in mezza riga e va bene cosi'.
+dillo in mezza riga e va bene cosi' — e' il percorso breve, ci si arriva
+anche da qui.
 
 **Chi mangia a questa tavola.** Nome (anche solo l'iniziale), eta' indicativa,
 chi e' a dieta e chi no. Basta il racconto: «noi due adulti a dieta, due

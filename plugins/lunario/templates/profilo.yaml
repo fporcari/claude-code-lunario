@@ -6,6 +6,13 @@
 # Non serve compilarlo a mano: `lunario:profilo` lo scrive da una
 # conversazione. Questo file mostra solo la forma.
 
+intervista: completa
+  # completa = l'intervista lunga e' stata fatta: quello che c'e' scritto e'
+  #            una scelta, anche dove coincide col default
+  # minima   = setup col percorso breve: tre domande e primo menu subito.
+  #            I campi non chiesti sono default, e le skill a valle propongono
+  #            il pezzo mancante al momento giusto, una domanda per volta
+
 famiglia:
   # Una voce per persona, bambini compresi: hanno un nome, i loro pasti e la
   # loro selettivita'. Non esiste una sezione "bambini" a parte.

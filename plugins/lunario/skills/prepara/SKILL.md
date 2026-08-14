@@ -142,7 +142,10 @@ Chiedile insieme, in due righe. E' il momento giusto: fra due ore si ricordera'
 solo se e' piaciuto agli altri.
 
 Chiedi anche i **minuti veri**, se lo sa: e' il dato che smaschera le ricette
-«da 20 minuti» che ne prendono 45.
+«da 20 minuti» che ne prendono 45. E se il profilo e' `intervista: minima` e i
+minuti veri smentiscono sistematicamente il default dei 30, proponi di
+scrivere nel profilo il tempo che c'e' davvero: e' l'unico modo perche' i menu
+smettano di prometterne di meno.
 
 Scrivi in `tarature.voti[<piatto>].cucina` di `dati/storico.yaml`:
 `difficolta`, `voto_cuoco`, `minuti_reali`, `volte`.

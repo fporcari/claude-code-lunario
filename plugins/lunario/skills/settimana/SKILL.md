@@ -30,6 +30,14 @@ Leggi, in silenzio, senza riepilogare all'utente cio' che gia' sa:
 
 Note scadute: segnalale in una riga e proponi di toglierle. Non toglierle tu.
 
+Se il profilo dice `intervista: minima`, il setup e' stato il percorso breve:
+i campi non chiesti sono default, non scelte. Le domande di questa skill —
+voglie, stufaggini, gusti — sono gia' il modo naturale di colmarli: quello
+che emerge va messo in forma nel profilo, e quando i buchi sono finiti si
+toglie il marcatore. **Mai piu' di una domanda di completamento per lancio**,
+e mai prima del menu: il percorso breve ha promesso che il resto non arriva
+tutto insieme.
+
 ## Il calendario, se c'e'
 
 Se in sessione e' collegato un calendario, leggi gli eventi dei sette giorni

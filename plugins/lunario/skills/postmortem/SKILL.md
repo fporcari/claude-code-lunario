@@ -76,7 +76,11 @@ costa la spesa, e quanto costa mangiare. La seconda non la sa nessun altro
 campo del sistema.
 
 **5. La pesata**, e solo per chi nel profilo ha `dieta: true` **e**
-`pesata_settimanale: true`. Ultima, breve, e senza cerimonie:
+`pesata_settimanale: true`. Se il profilo e' `intervista: minima` e nessuno a
+dieta ha ancora quel campo, questa e' la domenica in cui proporla, una volta:
+«vuoi che la domenica ti chieda il peso? Serve a vedere il trend, e si puo'
+sempre saltare». La risposta va messa in forma nel profilo, e un no vale per
+sempre. Poi, per chi la vuole: ultima, breve, e senza cerimonie:
 
 > Peso della domenica, se ti va: Adulto1?
 
@@ -131,7 +135,7 @@ Applicala e dichiarala, senza chiedere permesso per le regole automatiche:
 | media del piatto **sotto 2** | fuori rotazione 3 settimane |
 | media sotto 2 per la seconda volta | in `piatti_esclusi` — questa **chiedila**, e' definitiva |
 | media **sopra 4** | priorita' nella rotazione |
-| voto basso dei soli bambini | non toccare il piatto: rinforza la base neutra |
+| voto basso dei soli bambini | non toccare il piatto: rinforza la base neutra — e se quel bambino non ha ancora `selettivo` nel profilo, proponi di attivarlo |
 | confezione avanzata 2 volte di fila | il formato e' sbagliato: proponi di cercarne uno piu' piccolo |
 | sforo del budget | privilegia i piatti a miglior €/100 g di proteine (`${CLAUDE_PLUGIN_ROOT}/kb/consigli-pratici.md`) |
 | stessa cella disattesa 3 volte | **proponi** un ritmo nuovo in `ritmi.yaml`, non scriverlo |
