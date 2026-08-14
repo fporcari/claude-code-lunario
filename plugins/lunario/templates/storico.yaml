@@ -24,6 +24,17 @@ tarature:
   #     cucina: {difficolta: 1, minuti_reali: 25, voto_cuoco: 4, volte: 3}
   #     tavola: {media: 4.3, voti: [{data: 2026-08-17, chi: Bimbo1, voto: 3}]}
 
+  # Le pesate, per chi ha `pesata_settimanale: true` nel profilo. Le chiede il
+  # postmortem, una domanda sola e saltabile. Servono a vedere il TREND, non
+  # il numero: il peso oscilla di 1-2 kg per acqua, sale e sonno, e leggere la
+  # singola pesata come un voto e' il modo migliore per mollare tutto.
+  # Formato: una riga per pesata, mai sovrascritta.
+  pesate: {}
+  # esempio:
+  #   Adulto1:
+  #     - {data: 2026-08-16, kg: 75.4}
+  #     - {data: 2026-08-23, kg: 75.1}
+
   # Budget settimanale in euro. null = nessun tetto, il sistema non commenta.
   # Riguarda la spesa del menu: quello che si mangia fuori sta per conto suo,
   # in `spesa_fuori_casa` di ogni settimana.

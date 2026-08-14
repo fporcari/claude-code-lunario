@@ -86,6 +86,8 @@ Convertili **tu**, senza far ricompilare niente:
 | `pranzo: fuori_trasportabile` | `pranzo: trasportabile` |
 | `pranzo: fuori_autonomo` | `pranzo: fuori` |
 | nessun `git` | `git: locale` |
+| persona a dieta senza `peso_obiettivo_kg` | chiedilo: senza, non si sa mai quando si e' arrivati |
+| nessun `pesata_settimanale` | `false`. **Chiedilo**, non attivarlo in silenzio: e' una domanda in piu' ogni domenica |
 
 I nomi dei bambini non li sai: chiedili, e' una domanda sola. Il resto lo
 deduci e lo mostri in tre righe per conferma — «ho riscritto il profilo cosi',
@@ -137,6 +139,17 @@ Il calcolo: metabolismo basale con Mifflin-St Jeor, per un fattore di attivita'
   fermati: proponi 1200 e di' chiaramente che per scendere serve un medico
 - Se l'utente vuole un target piu' aggressivo, dillo una volta sola e poi
   rispetta la sua scelta, sempre col pavimento delle 1200
+
+Salva il peso di partenza in `peso_kg` e la meta' in `peso_obiettivo_kg`: il
+secondo serve a sapere quando si e' arrivati, ed e' l'unico modo di proporre
+il passaggio a mantenimento invece di tenere qualcuno a dieta per sempre.
+
+**La pesata settimanale.** Chiedi, per ogni persona a dieta, se vuole che il
+postmortem della domenica chieda il peso: serve a vedere il trend, che e'
+l'unica cosa che dice se la taratura funziona. Dillo per quello che e' — «una
+domanda la domenica, si puo' sempre saltare, e guardo l'andamento su tre
+settimane, mai la singola pesata» — e accetta il no senza tornarci. Va in
+`pesata_settimanale`.
 
 **Chi non e' a dieta** ha `dieta: false` e `kcal_giorno: null`: porzioni
 standard, nessun deficit. Non chiedergli il peso, non commentare il suo, non

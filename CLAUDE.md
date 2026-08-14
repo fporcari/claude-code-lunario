@@ -89,6 +89,44 @@ famiglia: nella stessa casa un adulto puo' dimagrire e un bambino crescere.
 Se nessuno e' a dieta, Lunario resta un pianificatore equilibrato: la parola
 «deficit» non compare, i piatti non vengono alleggeriti d'ufficio.
 
+### Le pesate, e come si leggono
+
+Chi ha `dieta: true` e `pesata_settimanale: true` riceve **una domanda al
+postmortem**: quanto pesa. Va in `tarature.pesate.<persona>` di
+`storico.yaml`, serie storica mai sovrascritta.
+
+**Il profilo non si tocca**: `peso_kg` li' dentro e' il peso **di partenza**,
+quello su cui e' stato calcolato il target, e resta fermo finche' non lo
+cambia l'utente. Il peso corrente e' l'ultima riga delle pesate. Due campi
+diversi per due cose diverse: sovrascrivere il primo col secondo cancellerebbe
+l'unico riferimento rispetto a cui misurare il progresso.
+
+**Il numero singolo non si commenta mai.** Il peso oscilla di 1-2 kg per
+acqua, sale, sonno, ciclo e ora della pesata: leggere la singola misura come
+un voto e' il modo piu' rapido di far mollare tutto. Si guarda solo il trend,
+e solo quando c'e' abbastanza roba per parlarne:
+
+| condizione | cosa fa il sistema |
+|---|---|
+| meno di 3 pesate | registra e tace. Non c'e' ancora un trend |
+| da 3 in su | media mobile su 3 settimane, confrontata con le 3 precedenti |
+| calo 0,3-0,5 kg/sett | e' il ritmo previsto: mezza riga, una volta ogni tanto, non ogni domenica |
+| calo oltre 1 kg/sett per 3 settimane | **dillo e rimanda al medico**: e' troppo in fretta, e a queste velocita' si perde muscolo |
+| fermo o in salita per 3+ settimane | proponi di rivedere porzioni o target. Come ipotesi, non come diagnosi, e senza cercare un colpevole |
+| obiettivo raggiunto | proponi il passaggio a mantenimento: `dieta: false`, o kcal senza deficit |
+
+Cosa **non** si fa, mai: commentare il corpo di qualcuno, congratularsi o
+consolare, usare parole come «bravo», «sgarro», «recuperare». Il sistema
+riporta un andamento, non giudica una persona. E se qualcuno salta la domanda,
+si va avanti in silenzio: saltare non e' un dato da registrare.
+
+Ricalcolare le kcal a ogni pesata sarebbe rumore — venti calorie in piu' o in
+meno ogni domenica. Quando l'ultima pesata si e' spostata di **3 kg** da
+`peso_kg`, il target e' invecchiato: **proponi** il ricalcolo, e se l'utente
+accetta aggiorna insieme `peso_kg` e `kcal_giorno`. E' una modifica al livello
+dichiarato, quindi si chiede — ed e' anche l'unico momento in cui il peso di
+partenza si sposta.
+
 ### Il pasto libero non si compensa
 
 Una cella `libero` non fa risparmiare calorie alle altre. Non si taglia il
@@ -114,12 +152,12 @@ non impara. Ogni skill scrive un livello solo.
 |---|---|---|---|
 | `lunario:profilo` | stabile | `dati/profilo.yaml` | una volta |
 | `lunario:ritmi` | dichiarato | `dati/ritmi.yaml`, `dati/note.md` | quando cambia la vita |
-| `lunario:settimana` | effimero | `settimane/<ISO>/contesto.yaml` | ogni lunedi' |
+| `lunario:settimana` | effimero | `settimane/<ISO>/contesto.yaml`, `dati/ricette.md` | ogni lunedi' |
 | `lunario:menu` | — (consuma tutto) | `settimane/<ISO>.md` + `.html`, `dati/dispensa.yaml` | ogni lunedi' |
 | `lunario:spesa` | appreso (prezzi) | `dati/prodotti.jsonl`, `dispensa.yaml`, `storico.yaml` | al ritiro della spesa |
 | `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina` | mentre si cucina |
 | `lunario:correggi` | effimero | `settimane/<ISO>.md` (giorni residui) | quando cambia qualcosa |
-| `lunario:postmortem` | appreso (tavola) | `dati/storico.yaml` | domenica |
+| `lunario:postmortem` | appreso (tavola, pesate) | `dati/storico.yaml` | domenica |
 
 L'utente ne invoca quattro: `lunario:settimana` il lunedi', `lunario:spesa`
 quando ritira la spesa, `lunario:prepara` quando cucina e
@@ -324,8 +362,10 @@ famiglia:
   - nome: Adulto1
     dieta: true              # false = mantenimento, nessun deficit
     altezza_cm: 175
-    peso_kg: 76
+    peso_kg: 76              # di PARTENZA: il corrente e' l'ultima pesata
+    peso_obiettivo_kg: 70    # serve a sapere quando si passa a mantenimento
     kcal_giorno: 1650        # null se dieta: false
+    pesata_settimanale: true # il postmortem chiede il peso, e si puo' saltare
     selettivo: false         # attiva la base neutra per questa persona
     pasti:                   # quali pasti fa di norma. Assente = casa
       spuntino: no
@@ -338,7 +378,6 @@ famiglia:
       merenda: casa
 titoli:
   serie: "canzoni dei Beatles"   # null = titolo descrittivo dai piatti
-  usati: ["Norwegian Wood"]      # per non ripetersi
 ```
 
 `titoli.serie` e' il filone da cui esce il nome della settimana — fiori, pesci
@@ -346,6 +385,11 @@ tropicali, costellazioni. Si sceglie una volta al setup e da' un filo alle
 settimane: `lunario:menu` pesca l'elemento che risuona col menu quando ce n'e'
 uno («Yellow Submarine» sulla settimana dei tre pesci) e altrimenti prosegue
 nella serie, senza forzare agganci inventati.
+
+Cosa e' gia' uscito **non si tiene in una lista a parte**: sta in
+`storico.settimane[].titolo`, che e' l'unico posto dove i titoli vivono
+davvero. Una seconda lista si disallineerebbe alla prima settimana cancellata,
+esattamente come farebbe un elenco di piatti preferiti accanto ai voti.
 
 I bambini sono persone della lista, non una sezione a parte: hanno un nome, i
 loro pasti e la loro selettivita'. `selettivo` era `bambini.selettivi` ed era
@@ -569,6 +613,9 @@ nota non e' una taratura: la tocca solo l'utente, la skill puo' solo proporre.
 
 - Mai piani sotto 1200 kcal/giorno/persona, e mai un deficit a chi ha
   `dieta: false`: quella persona mangia standard, e il peso non si nomina
+- Mai commentare il corpo di qualcuno, nemmeno per complimento: delle pesate
+  si legge il trend su tre settimane, mai la singola misura, e chi salta la
+  domanda non riceve insistenze
 - Un pasto `libero` non si compensa altrove, ne' prima ne' dopo
 - Colazioni, spuntini e merende contano nelle kcal e nella spesa come i pasti
   principali: un pasto fuori dal conto e' un target sbagliato

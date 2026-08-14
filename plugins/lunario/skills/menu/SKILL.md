@@ -17,7 +17,7 @@ hanno raccolto. Contratti e regole non negoziabili in `CLAUDE.md`.
 ## Input
 
 `dati/profilo.yaml` · `dati/ritmi.yaml` · `dati/note.md` ·
-`dati/storico.yaml` (tarature) · `dati/dispensa.yaml` ·
+`dati/ricette.md` · `dati/storico.yaml` (tarature) · `dati/dispensa.yaml` ·
 `settimane/<ISO>/contesto.yaml`. Se il contesto manca, chiama
 `lunario:settimana` invece di indovinare.
 
@@ -54,13 +54,13 @@ va bene: la settimana ne ha altri sei.
 
 ## 2. I sette giorni
 
-Ordine di applicazione dei vincoli — chi viene prima vince:
-
 Il pool da cui peschi e' **doppio**: `${CLAUDE_PLUGIN_ROOT}/kb/piatti.md` e
 `dati/ricette.md`, i piatti di questa casa. Trattali allo stesso modo — stessa
 rotazione, stessi voti, stesse esclusioni. Se in `ricette.md` c'e' qualcosa di
 nuovo mai cucinato, **mettilo in un giorno con tempo** e dillo in mezza riga:
 una ricetta mai provata il mercoledi' sera e' un rischio inutile.
+
+Ordine di applicazione dei vincoli — chi viene prima vince:
 
 1. **Esclusioni del profilo** — anche come ingrediente nascosto
 2. **La griglia risolta** — una cella `trasportabile` riceve un piatto che
@@ -136,8 +136,8 @@ che un titolo descrittivo non ha. Come si sceglie l'elemento:
    la scelta migliore: il nome si ricorda perche' ha un aggancio
 2. **Se non risuona niente, vai avanti nella serie** senza forzare. Un legame
    inventato e' peggio di nessun legame
-3. **Mai ripetere** cio' che e' in `titoli.usati`: aggiungi il nome scelto a
-   quella lista dopo averlo usato
+3. **Mai ripetere** un titolo gia' uscito: l'elenco e' `titolo` delle voci in
+   `storico.settimane`, non serve una lista a parte
 4. Se la serie e' finita — capita dopo qualche mese — dillo in mezza riga e
    proponi di sceglierne un'altra. Non ricominciare da capo di tua iniziativa
 

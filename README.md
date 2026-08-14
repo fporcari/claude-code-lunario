@@ -66,7 +66,26 @@ nessun altro risponde — quanto costa mangiare, non quanto costa la spesa.
 | `lunario:spesa` | **al ritiro** | dallo scontrino: prezzi veri, cosa manca, alternative subito. Separa il menu dai detersivi |
 | `lunario:prepara` | **mentre cucini** | ingredienti, procedimento, un video se serve. Ti avverte se manca qualcosa, poi chiede difficoltà e voto del cuoco |
 | `lunario:correggi` | a settimana in corso | cambi idea? Ti propone cosa è rimasto e rifà solo i giorni che restano |
-| `lunario:postmortem` | **la domenica** | avanzi e voti dei commensali → ritara porzioni, rotazione e budget |
+| `lunario:postmortem` | **la domenica** | avanzi, voti dei commensali, pasti saltati e — se vuoi — il peso → ritara porzioni, rotazione e budget |
+
+## Il peso, se lo vuoi — e come non diventa un giudizio
+
+Chi è a dieta può farsi chiedere il peso dal postmortem della domenica. È
+opzionale, si sceglie al setup e **si può saltare ogni volta**, senza dover
+spiegare niente: se non rispondi, Lunario va avanti e non registra nemmeno che
+hai saltato.
+
+Quello che ne fa è l'unica cosa che ha senso farne: **il trend su tre
+settimane**, mai la singola misura. Il peso oscilla di 1-2 kg per acqua, sale
+e sonno, e leggere la pesata di stamattina come un voto è il modo più rapido
+di mollare tutto a febbraio. Sotto le tre pesate registra e tace. Se il calo va
+troppo veloce — oltre un chilo a settimana per tre settimane — te lo dice e ti
+manda dal medico, perché lì il ruolo di questo sistema finisce. E se
+l'obiettivo è raggiunto, propone il passaggio a mantenimento invece di tenerti
+a dieta per sempre.
+
+Non commenta mai il numero. Niente «bravo», niente «sgarro», niente
+«recuperare»: riporta un andamento, non giudica una persona.
 
 ## Le ricette che vi passano, e i nomi delle settimane
 
@@ -115,6 +134,17 @@ claude plugin install lunario@claude-code-lunario
 Poi apri con Claude Code la cartella dove vuoi tenere i tuoi dati e lancia
 `lunario:profilo`: l'intervista crea `dati/` e `settimane/` e ti guida.
 
+Per aggiornare il motore quando esce una versione nuova:
+
+```bash
+claude plugin marketplace update claude-code-lunario && claude plugin update lunario@claude-code-lunario
+```
+
+Poi **riavvia Claude Code**: le skill si caricano all'avvio, e una sessione già
+aperta continuerebbe con quelle vecchie. Se il tuo `dati/profilo.yaml` è
+rimasto indietro di qualche versione, `lunario:profilo` lo aggiorna da solo —
+converte i campi vecchi e ti chiede solo quello che non può dedurre.
+
 ## Dove finiscono i tuoi dati
 
 Nella tua cartella, mai in questo repo. Il motore è pubblico, la tua famiglia
@@ -157,6 +187,9 @@ Un sistema AI affidabile si progetta prima di tutto per ciò che gli è vietato:
   un medico, non un modello
 - mai ignorare un'esclusione alimentare, nemmeno come ingrediente nascosto
 - mai toccare le note che hai scritto tu: il sistema può solo proporre
+- mai commentare il corpo di qualcuno: delle pesate si guarda il trend su tre
+  settimane, mai la singola misura, e la domanda della domenica si può sempre
+  saltare senza spiegazioni
 
 ## Crediti
 

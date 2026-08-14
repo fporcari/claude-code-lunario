@@ -27,7 +27,7 @@ fabbisogno − dispensa = mancante → confezioni
 ```
 
 1. **Fabbisogno**: somma dei grammi dell'ingrediente su tutti i pasti della
-   settimana (porzione × persone × occorrenze), con le porzioni gia' scalate
+   settimana (porzione × celle che lo mangiano davvero), con le porzioni scalate
    sulle tarature.
 2. **Meno la dispensa**: `dati/dispensa.yaml` dice cosa c'e' gia' in casa.
    Sottrarlo e' l'anello che evita di ricomprare ogni lunedi' la pasta di cui

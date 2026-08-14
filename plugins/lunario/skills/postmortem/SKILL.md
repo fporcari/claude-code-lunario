@@ -4,8 +4,9 @@ description: >-
   Chiusura della settimana, la domenica. Quattro domande — cosa e' avanzato,
   che voto danno i commensali ai piatti e da chi viene, quali pasti non sono
   andati come previsto, che spesa c'e' stata fuori dalla lista (negozio o
-  ristorante) — poi ritara porzioni, rotazione dei piatti, griglia dei pasti e
-  budget per la settimana successiva. Da invocare quando l'utente dice "postmortem",
+  ristorante) e — per chi e' a dieta e lo vuole — il peso della domenica, per
+  vederne il trend. Poi ritara porzioni, rotazione dei piatti, griglia dei
+  pasti e budget per la settimana successiva. Da invocare quando l'utente dice "postmortem",
   "com'e' andata la settimana", "chiudiamo la settimana", "e' avanzato...",
   "ai bimbi non e' piaciuto...", o la domenica. NON e' la skill dello
   scontrino della spesa grande: quello si registra al ritiro, con
@@ -17,7 +18,7 @@ description: >-
 E' il pezzo che distingue il sistema da un generatore di menu qualsiasi.
 Scrive il livello **appreso**. Regole di ritaratura in `CLAUDE.md`.
 
-## Le quattro domande
+## Le cinque domande, e due si possono saltare
 
 Una per volta, secche. L'utente e' a fine settimana, non ha voglia di
 un'intervista.
@@ -68,6 +69,35 @@ Il senso di tenerle separate e' che rispondono a due domande diverse: quanto
 costa la spesa, e quanto costa mangiare. La seconda non la sa nessun altro
 campo del sistema.
 
+**5. La pesata**, e solo per chi nel profilo ha `dieta: true` **e**
+`pesata_settimanale: true`. Ultima, breve, e senza cerimonie:
+
+> Peso della domenica, se ti va: Adulto1?
+
+Tre regole, tutte importanti quanto il dato:
+
+- **si puo' saltare.** Se l'utente non risponde, cambia discorso o dice di no,
+  vai avanti senza commentare e **non registrare niente** — nemmeno il fatto
+  che ha saltato. Non richiederlo piu' in questa sessione
+- **non commentare il numero**, mai. Ne' «bene» ne' «peccato». Registra e basta
+- se in casa ci sono piu' persone che si pesano, chiedile **in una riga sola**,
+  non una domanda a testa
+
+Scrivi in `tarature.pesate.<persona>` di `dati/storico.yaml` — `{data, kg}`,
+serie mai sovrascritta. **Il profilo non lo tocchi**: `peso_kg` li' e' il peso
+di partenza, il riferimento rispetto a cui si misura tutto, e lo cambia solo
+l'utente.
+
+Il trend si legge secondo la tabella in `CLAUDE.md`, e **si dice solo se c'e'
+qualcosa da dire**: sotto le tre pesate non c'e' trend, e con l'andamento
+previsto basta nominarlo ogni tanto, non ogni domenica. Quello che va detto
+sempre, invece, e' un calo troppo rapido — oltre 1 kg a settimana per tre
+settimane — e li' si rimanda al medico, perche' qui il ruolo e' nutrizionale e
+si ferma prima.
+
+Se l'obiettivo e' stato raggiunto, proponi il passaggio a mantenimento: e' una
+modifica al profilo, quindi si chiede, non si applica.
+
 Se c'e' uno scontrino della spesa integrativa, leggilo con `read-document` e
 applica le stesse regole di `lunario:spesa`: prezzi nella serie con la data,
 sigle nuove in `alias_scontrino`, totale sommato a `spesa_reale`. Lo scontrino
@@ -93,6 +123,9 @@ Applicala e dichiarala, senza chiedere permesso per le regole automatiche:
 | stessa cella disattesa 3 volte | **proponi** un ritmo nuovo in `ritmi.yaml`, non scriverlo |
 | merenda comprata e mai consumata | la cella e' `casa` ma nessuno la fa: proponi di metterla a `no` |
 | `spesa_fuori_casa` sopra la spesa del menu | dillo una volta, come dato. Nessun commento morale: non e' il ruolo di questo sistema |
+| peso fermo o in salita per 3+ settimane | proponi di rivedere porzioni o target, come ipotesi. Mai cercare un colpevole |
+| calo oltre 1 kg/settimana per 3 settimane | dillo e **rimanda al medico**: troppo in fretta |
+| ultima pesata a 3 kg da `peso_kg` | **proponi** il ricalcolo di `kcal_giorno`: e' il profilo, quindi si chiede. Sotto i 3 kg no, sarebbe rumore |
 
 Correggi anche `dati/dispensa.yaml` sul reale: gli avanzi previsti dal menu
 sono una stima, quello che c'e' davvero lo sa solo l'utente.

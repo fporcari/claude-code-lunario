@@ -1,6 +1,9 @@
 # Consigli pratici
 
-## Bambini selettivi: la base neutra
+## Chi e' selettivo: la base neutra
+
+Vale per chiunque abbia `selettivo: true` nel profilo — di solito i bambini,
+ma non solo, e nella stessa casa puo' valere per uno e non per l'altro.
 
 Ogni cena si costruisce in due tempi: prima una base semplice e riconoscibile
 (pasta al pomodoro o in bianco, riso, patate, pollo/pesce non conditi), poi

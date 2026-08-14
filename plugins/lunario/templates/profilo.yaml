@@ -12,8 +12,13 @@ famiglia:
   - nome: NomeAdulto1
     dieta: true              # true = obiettivo di dimagrimento, con deficit
     altezza_cm: 175
-    peso_kg: 76
+    peso_kg: 76              # di PARTENZA: il riferimento del target. Il peso
+                             # corrente e' l'ultima pesata in storico.yaml
+    peso_obiettivo_kg: 70    # dove vuole arrivare. null se non c'e' un numero
     kcal_giorno: 1650        # mai sotto 1200 senza parere medico
+    pesata_settimanale: true # il postmortem chiede il peso la domenica.
+                             # false = non lo chiede mai. Si puo' saltare una
+                             # domenica senza dire niente: non insiste
     selettivo: false
     # Quali pasti fa questa persona, di norma. Quello che non scrivi vale
     # `casa`. Stati possibili, uno solo per cella:
@@ -31,7 +36,9 @@ famiglia:
     dieta: true
     altezza_cm: 163
     peso_kg: 63
+    peso_obiettivo_kg: 58
     kcal_giorno: 1200
+    pesata_settimanale: false   # non tutti vogliono pesarsi ogni domenica
     selettivo: false
     pasti:
       spuntino: no
@@ -62,7 +69,8 @@ titoli:
   # che ti pare. Si sceglie una volta, e per mesi le settimane hanno un filo.
   serie: null              # null = titolo descrittivo ricavato dai piatti
                            # («la settimana dei legumi coraggiosi»)
-  usati: []                # cosa e' gia' uscito, per non ripetersi
+                           # Cosa e' gia' uscito si legge da storico.yaml:
+                           # niente seconda lista da tenere allineata
 
 git: locale
   # locale = la cartella e' un repo git senza remote, e le skill committano

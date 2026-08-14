@@ -74,9 +74,11 @@ o una foto — e ci finisce dentro, con ingredienti, quantita' e calorie. Da
 quel momento e' un piatto come tutti gli altri: entra nel menu, prende i voti,
 esce di rotazione se non piace.
 
-**La regola di confine**: il sistema non tocca mai i primi tre. Puo' proporre
-una modifica, ma li scrivi tu. Gli ultimi tre sono suoi: puoi leggerli e
-correggerli, ma si riempiono da soli.
+**La regola di confine**: i file marcati «lo scrivi tu» il sistema non li
+tocca mai — puo' proporre una modifica, ma li cambi tu. Quelli marcati «lo
+scrive il sistema» sono suoi: puoi leggerli e correggerli, ma si riempiono da
+soli. `ricette.md` sta in mezzo, ed e' l'unico: il contenuto e' tuo, lo detti
+a voce, e il sistema lo mette in forma.
 
 ## Se tieni piu' di una cartella
 
