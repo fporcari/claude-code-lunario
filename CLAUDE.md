@@ -670,3 +670,6 @@ nota non e' una taratura: la tocca solo l'utente, la skill puo' solo proporre.
 - `dati/` e `settimane/` sono gitignored: il repo resta pulito da dati personali
 - La cartella dei dati si puo' spostare con `LUNARIO_DATI=/percorso`; senza,
   e' `dati/` nella cartella di lavoro
+- L'evoluzione futura — dati su un server di casa, MCP in combo con le skill,
+  uso condiviso dalla famiglia — e' pianificata ma non in corso: rotta,
+  vincoli e tappe in `docs/piano-server.md`
