@@ -36,6 +36,52 @@ personale si scala dal profilo (`dati/profilo.yaml`).
 | Uova | 2-4 |
 | Formaggi | 2-3 volte |
 
+## Colazione, spuntini e merende
+
+Sono pasti, non contorno del sistema: se la cella e' `casa`, hanno una
+porzione, entrano nel conto calorico e generano una riga di spesa. Ignorarli
+e' il modo piu' rapido di scrivere un target che nessuno rispetta.
+
+| pasto | quota della giornata | composizione tipica |
+|---|---|---|
+| Colazione | 20-25% | latte o yogurt + cereali/pane + frutta |
+| Spuntino (mattina) | 5-10% | un frutto, oppure yogurt bianco |
+| Merenda (pomeriggio) | 5-10% | frutta + 20-30 g pane, o yogurt, o 20 g frutta secca |
+
+Porzioni degli spuntini, oltre a quelle della tabella sopra:
+
+| Alimento | Porzione | Note |
+|---|---|---|
+| Frutta secca a guscio | 20 g | una manciata piccola |
+| Fette biscottate | 20 g | due fette |
+| Biscotti secchi | 30 g | |
+| Cracker / gallette | 25 g | |
+| Marmellata / miele | 15 g | un cucchiaino colmo |
+| Cereali da colazione | 40 g | integrali, senza zuccheri aggiunti |
+| Cioccolato fondente | 15 g | |
+
+Regole d'uso:
+
+- Bambini e adolescenti fanno **due** spuntini, gli adulti spesso nessuno: e'
+  una scelta per persona, non per famiglia, e sta in `pasti` nel profilo.
+- La merenda dei bambini si compra come tutto il resto: se e' `casa`, sta
+  nella lista della spesa in confezioni, non «prendi qualcosa per merenda».
+- Uno spuntino non e' un premio ne' una deroga: se c'e', e' dentro il conto
+  della giornata fin dall'inizio.
+
+## Chi e' a dieta e chi no
+
+Nella stessa casa convivono i due casi, e vanno trattati diversamente **nella
+stessa cena**: stesso piatto, porzioni diverse.
+
+- `dieta: false` → porzioni standard di questa tabella, scalate solo su eta' e
+  corporatura. Nessun deficit, nessun alleggerimento d'ufficio, e il peso non
+  si nomina.
+- `dieta: true` → porzioni scalate sul target kcal, col taglio fatto secondo
+  la sezione qui sotto.
+- Un pasto `libero` non entra nel conto e non si compensa altrove: ne' con un
+  pranzo piu' magro lo stesso giorno, ne' col giorno dopo.
+
 ## Regole per diete ipocaloriche
 
 - Il taglio calorico si fa su condimenti, porzioni di cereali e frequenza di

@@ -1,10 +1,11 @@
 ---
 name: postmortem
 description: >-
-  Chiusura della settimana, la domenica. Tre domande — cosa e' avanzato, che
-  voto danno i commensali ai piatti e da chi viene, se c'e' stata spesa
-  integrativa — poi ritara porzioni, rotazione dei piatti e budget per la
-  settimana successiva. Da invocare quando l'utente dice "postmortem",
+  Chiusura della settimana, la domenica. Quattro domande — cosa e' avanzato,
+  che voto danno i commensali ai piatti e da chi viene, quali pasti non sono
+  andati come previsto, che spesa c'e' stata fuori dalla lista (negozio o
+  ristorante) — poi ritara porzioni, rotazione dei piatti, griglia dei pasti e
+  budget per la settimana successiva. Da invocare quando l'utente dice "postmortem",
   "com'e' andata la settimana", "chiudiamo la settimana", "e' avanzato...",
   "ai bimbi non e' piaciuto...", o la domenica. NON e' la skill dello
   scontrino della spesa grande: quello si registra al ritiro, con
@@ -16,7 +17,7 @@ description: >-
 E' il pezzo che distingue il sistema da un generatore di menu qualsiasi.
 Scrive il livello **appreso**. Regole di ritaratura in `CLAUDE.md`.
 
-## Le tre domande
+## Le quattro domande
 
 Una per volta, secche. L'utente e' a fine settimana, non ha voglia di
 un'intervista.
@@ -38,15 +39,40 @@ Registra i voti in `tarature.voti` di `dati/storico.yaml`: media, numero di
 voti e chi ha votato cosa. La media guida la rotazione — sopra 4 e' un
 preferito, sotto 2 un bocciato — quindi non servono liste separate.
 
-**3. C'e' stata altra spesa in settimana?** Non lo scontrino grande: quello e'
-gia' stato registrato da `lunario:spesa` il giorno del ritiro, e i prezzi sono
-gia' nel paniere. Qui interessa solo la spesa **integrativa** — il salto al
-negozio del giovedi' — perche' se ricorre significa che la lista del lunedi'
-sbaglia sistematicamente qualcosa.
+**3. La settimana e' andata come previsto?** Non chiederlo cosi': guarda il
+menu spuntato e **proponi tu lo scarto**. «Risulta che giovedi' non avete
+cenato a casa e sabato la pizza e' saltata — torna?». Interessa solo dove la
+griglia ha sbagliato:
 
-Se c'e' uno scontrino anche per quella, leggilo con `read-document` e applica
-le stesse regole di `lunario:spesa`: prezzi nella serie con la data, sigle
-nuove in `alias_scontrino`, totale sommato a `spesa_reale`.
+- previsto a casa, finito fuori → un piatto cucinato per nessuno, o buttato
+- previsto fuori, finito a casa → una cena improvvisata, spesso male
+
+Registra in `celle_disattese` della settimana: pasto, giorno, cosa era
+previsto, cosa e' successo. Un dato solo, che serve a una cosa sola: se la
+**stessa** cella salta tre settimane di fila, non e' sfortuna, e' un ritmo che
+nessuno ha scritto. In quel caso proponi di metterlo in `ritmi.yaml` —
+proponi, non scrivere: i ritmi sono livello dichiarato.
+
+**4. C'e' stata altra spesa in settimana?** Due cose diverse, e vanno tenute
+separate:
+
+- **spesa integrativa** — il salto al negozio del giovedi'. Non lo scontrino
+  grande: quello e' gia' stato registrato da `lunario:spesa` il giorno del
+  ritiro. Se ricorre, la lista del lunedi' sbaglia sistematicamente qualcosa
+- **mangiate fuori** — ristorante, pizzeria, bar. Chiedile solo se la griglia
+  aveva celle `ristorante`, e chiedi solo il totale, non il dettaglio: va in
+  `spesa_fuori_casa`, **mai** dentro `spesa_reale`. Sommarle romperebbe
+  l'unica cosa che `spesa_reale` sa fare, cioe' il confronto con la stima
+
+Il senso di tenerle separate e' che rispondono a due domande diverse: quanto
+costa la spesa, e quanto costa mangiare. La seconda non la sa nessun altro
+campo del sistema.
+
+Se c'e' uno scontrino della spesa integrativa, leggilo con `read-document` e
+applica le stesse regole di `lunario:spesa`: prezzi nella serie con la data,
+sigle nuove in `alias_scontrino`, totale sommato a `spesa_reale`. Lo scontrino
+del ristorante no: quello e' un numero solo in `spesa_fuori_casa`, e non
+insegna niente al paniere.
 
 Se invece il ritiro non e' mai passato da `lunario:spesa` — capita — allora
 chiedi lo scontrino principale qui, e trattalo come farebbe quella skill.
@@ -64,6 +90,9 @@ Applicala e dichiarala, senza chiedere permesso per le regole automatiche:
 | voto basso dei soli bambini | non toccare il piatto: rinforza la base neutra |
 | confezione avanzata 2 volte di fila | il formato e' sbagliato: proponi di cercarne uno piu' piccolo |
 | sforo del budget | privilegia i piatti a miglior €/100 g di proteine (`${CLAUDE_PLUGIN_ROOT}/kb/consigli-pratici.md`) |
+| stessa cella disattesa 3 volte | **proponi** un ritmo nuovo in `ritmi.yaml`, non scriverlo |
+| merenda comprata e mai consumata | la cella e' `casa` ma nessuno la fa: proponi di metterla a `no` |
+| `spesa_fuori_casa` sopra la spesa del menu | dillo una volta, come dato. Nessun commento morale: non e' il ruolo di questo sistema |
 
 Correggi anche `dati/dispensa.yaml` sul reale: gli avanzi previsti dal menu
 sono una stima, quello che c'e' davvero lo sa solo l'utente.

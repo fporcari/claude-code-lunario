@@ -1,5 +1,5 @@
 # Ritmi — la settimana tipo, cio' che si ripete ogni settimana.
-# Copia in dati/ritmi.yaml (resta locale, gitignored).
+# Copia in dati/ritmi.yaml.
 #
 # Non serve compilarlo a mano: la skill `lunario:ritmi` lo scrive da una
 # conversazione. Questo file mostra solo la forma.
@@ -8,18 +8,23 @@
 #   qui                     -> "il martedi' pranzo SEMPRE fuori"
 #   settimane/<ISO>/        -> "QUESTO martedi' pranzo fuori"
 # Un ritmo sbagliato inquina i menu per mesi.
+#
+# Gli stati di una cella sono gli stessi del profilo:
+#   casa · trasportabile · libero · ristorante · fuori · no
 
 settimana:
   martedi:
     Adulto2:
-      # casa | fuori_trasportabile | fuori_autonomo
-      pranzo: fuori_trasportabile
+      pranzo: trasportabile
       # minuti veri ai fornelli quella sera, se meno del solito
       cena_entro_min: 25
       nota: piscina dopo il lavoro, si cena tardi
   mercoledi:
     Adulto1:
-      pranzo: fuori_autonomo      # mensa: il sistema non se ne occupa
+      pranzo: fuori               # mensa: il sistema non se ne occupa
+  sabato:
+    tutti:                        # `tutti` vale per l'intera tavola
+      cena: libero                # la pizza del sabato: si compra, non si conta
   venerdi:
     tutti:
       nota: cena leggera, si mangia presto per i bambini

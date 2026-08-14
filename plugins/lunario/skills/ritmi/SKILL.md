@@ -27,18 +27,37 @@ sbagliato inquina i menu per mesi; un contesto sbagliato dura sette giorni.
 
 ## Cosa raccogliere
 
-Per persona e per giorno, solo dove c'e' qualcosa da dire — un giorno senza
-vincoli non si scrive:
+La griglia **pasto × persona**, per giorno, solo dove c'e' qualcosa da dire —
+un giorno senza vincoli non si scrive. Gli stati di una cella sono quelli di
+`CLAUDE.md`:
 
-- **pranzo**: `casa` · `fuori_trasportabile` (serve qualcosa che viaggi e si
-  mangi freddo) · `fuori_autonomo` (mensa o bar: il sistema non se ne occupa)
+| stato | quando |
+|---|---|
+| `casa` | il default: si cucina e si compra |
+| `trasportabile` | deve viaggiare e mangiarsi freddo |
+| `libero` | si cucina e si compra, ma non conta: la pizza del sabato |
+| `ristorante` | fuori, e si paga: non si cucina ma la spesa esiste |
+| `fuori` | mensa, bar, dai nonni: fuori dal sistema |
+| `no` | quella persona quel pasto non lo fa |
+
+Oltre alla griglia, per ogni giorno:
+
 - **cena_entro_min**: i minuti veri ai fornelli quella sera, se sono meno del
   solito. La sera della piscina non e' la sera del risotto
 - **note del giorno**: rientro tardi, cena presto per i bambini, chi manca
 
+`tutti` al posto di un nome vale per l'intera tavola: «il sabato sera pizza
+per tutti» si scrive una volta.
+
 Chiedi in modo discorsivo — «raccontami una settimana tipo» — e ricostruisci
 tu la griglia, invece di interrogare giorno per giorno. Poi rileggi quello che
 hai capito e fatti correggere.
+
+**I pasti fuori casa ricorrenti sono la meta' del valore di questo file.** Un
+pranzo in mensa il mercoledi' e una pizzeria fissa il venerdi' sono due piatti
+cucinati per nessuno ogni settimana, piu' la spesa relativa. Se l'utente
+racconta la settimana senza nominarli, chiediglielo una volta: «c'e' qualche
+pasto che di regola non si fa a casa?».
 
 ## I vincoli che non sono orari
 

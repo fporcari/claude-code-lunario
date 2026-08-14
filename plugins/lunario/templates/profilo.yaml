@@ -1,26 +1,79 @@
 # Copia questo file in dati/profilo.yaml e compila.
-# dati/ e' in .gitignore: il profilo compilato non finisce mai nel repo.
+# dati/ e' in .gitignore del MOTORE: il profilo compilato non finisce mai nel
+# repo pubblico. Nella tua cartella di casa, invece, e' versionato: e' il
+# punto del git locale.
+#
+# Non serve compilarlo a mano: `lunario:profilo` lo scrive da una
+# conversazione. Questo file mostra solo la forma.
+
 famiglia:
+  # Una voce per persona, bambini compresi: hanno un nome, i loro pasti e la
+  # loro selettivita'. Non esiste una sezione "bambini" a parte.
   - nome: NomeAdulto1
+    dieta: true              # true = obiettivo di dimagrimento, con deficit
     altezza_cm: 175
     peso_kg: 76
     kcal_giorno: 1650        # mai sotto 1200 senza parere medico
+    selettivo: false
+    # Quali pasti fa questa persona, di norma. Quello che non scrivi vale
+    # `casa`. Stati possibili, uno solo per cella:
+    #   casa           -> si pianifica, si compra, conta nelle kcal
+    #   trasportabile  -> idem, ma deve viaggiare e mangiarsi freddo
+    #   libero         -> si pianifica e si compra, NON conta nelle kcal
+    #   ristorante     -> non si cucina, non si compra, ma si paga
+    #   fuori          -> mensa, bar, ospite altrui: fuori dal sistema
+    #   no             -> questa persona quel pasto non lo fa
+    pasti:
+      spuntino: no
+      merenda: no
+
   - nome: NomeAdulto2
+    dieta: true
     altezza_cm: 163
     peso_kg: 63
     kcal_giorno: 1200
-bambini:
-  presenti: true
-  selettivi: true            # attiva la regola della base neutra (kb/consigli-pratici.md)
+    selettivo: false
+    pasti:
+      spuntino: no
+      merenda: no
+
+  - nome: NomeBimbo1
+    dieta: false             # cresce: porzioni standard, nessun deficit
+    kcal_giorno: null        # null quando dieta: false
+    selettivo: true          # attiva la base neutra per lui (kb/consigli-pratici.md)
+    pasti:
+      merenda: casa
+
 esclusioni:
   - tonno                    # vale anche come ingrediente nascosto
   - acciughe
+
 preferenze:
   cucina: mediterranea
   etnico_facile_a_settimana: 1
   max_pasti_carne_settimana: 2
   max_carne_rossa_settimana: 1
   minuti_max_cena: 30
+
+titoli:
+  # Ogni settimana ha un nome, e serve a ricordarsela per nome invece che per
+  # numero ISO. La `serie` e' il filone da cui pescarlo: canzoni dei Beatles,
+  # fiori, pesci tropicali, montagne, costellazioni, film di Miyazaki, quello
+  # che ti pare. Si sceglie una volta, e per mesi le settimane hanno un filo.
+  serie: null              # null = titolo descrittivo ricavato dai piatti
+                           # («la settimana dei legumi coraggiosi»)
+  usati: []                # cosa e' gia' uscito, per non ripetersi
+
+git: locale
+  # locale = la cartella e' un repo git senza remote, e le skill committano
+  #          da sole a fine lavoro. E' il default: serve a vedere cosa e'
+  #          cambiato e a tornare indietro, senza mandare niente fuori di qui
+  # no     = nessun git, nessun commit
+  #
+  # Un remote non c'e' e non viene proposto: qui dentro ci sono pesi e
+  # abitudini di persone reali. Per lavorare dal telefono non serve —
+  # `claude remote-control` tiene i file su questa macchina.
+
 calendario:
   # Lunario legge sempre il calendario, se ne trova uno collegato, per capire
   # quando si pranza fuori o si cena tardi. Questi campi riguardano invece la

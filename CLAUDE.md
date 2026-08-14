@@ -1,8 +1,11 @@
 # Lunario — menu settimanale e spesa
 
-Sistema per generare ogni settimana un menu ipocalorico di famiglia e la lista
-della spesa in **confezioni reali da comprare**, non in grammi astratti, con
+Sistema per generare ogni settimana il menu di una famiglia e la lista della
+spesa in **confezioni reali da comprare**, non in grammi astratti, con
 postmortem settimanale per ritarare quantita', piatti, prezzi e budget.
+
+Ipocalorico per chi lo vuole e per chi lo vuole soltanto: la dieta e' un
+attributo della persona, non della casa.
 
 Questo repo contiene SOLO il motore, condivisibile. Tutti i dati personali
 (profilo, ritmi, prodotti, storico, menu generati) vivono in `dati/` e
@@ -34,6 +37,74 @@ Resta un limite, ed e' accettato: il menu del lunedi' si costruisce comunque
 sui prezzi della settimana precedente, perche' viene prima della spesa. Le
 offerte del volantino corrente non entrano nella scelta dei piatti.
 
+## La griglia dei pasti
+
+Il giorno non e' «pranzo e cena»: e' una **griglia pasto × persona**, e ogni
+cella ha uno stato. E' il modello che regge insieme quattro cose che sembrano
+diverse — chi e' a dieta e chi no, il pasto libero, la sera al ristorante, la
+merenda che un figlio fa e l'altro no — e che modellate una per una
+diventerebbero quattro toppe.
+
+I cinque pasti: `colazione` · `spuntino` · `pranzo` · `merenda` · `cena`.
+
+Gli stati di una cella, uno scalare, mai una combinazione:
+
+| stato | Lunario lo pianifica | lo compra | conta nelle kcal | e' spesa |
+|---|---|---|---|---|
+| `casa` | si | si | si | nel menu |
+| `trasportabile` | si, ma deve viaggiare e mangiarsi freddo | si | si | nel menu |
+| `libero` | si, **senza vincolo calorico** | si | no | nel menu |
+| `ristorante` | no | no | no | **fuori menu, da registrare** |
+| `fuori` | no | no | no | no (mensa, bar, ospite altrui) |
+| `no` | no | no | no | no (questa persona quel pasto non lo fa) |
+
+`ristorante` e `fuori` si somigliano e non sono la stessa cosa: la differenza
+e' **chi paga**. La mensa aziendale esce dal sistema e basta; la pizzeria del
+sabato e' spesa alimentare vera, e se non entra da nessuna parte il budget
+settimanale racconta una bugia per difetto.
+
+### I tre livelli, dal generale al particolare
+
+La stessa griglia vive in tre file, e vince sempre il piu' specifico:
+
+| file | cosa dice | esempio |
+|---|---|---|
+| `dati/profilo.yaml` | **quali pasti fa** ognuno, di norma | «i bimbi fanno merenda, gli adulti no» |
+| `dati/ritmi.yaml` | l'override **ricorrente**, per giorno | «il martedi' Adulto2 pranza fuori» |
+| `settimane/<ISO>/contesto.yaml` | l'override di **questa settimana** | «giovedi' cena al ristorante» |
+
+Una cella non dichiarata da nessuno vale `casa`, tranne quelle che il profilo
+ha messo a `no`: quelle restano `no` finche' il profilo non cambia.
+
+### Dieta o no
+
+`dieta: true|false` per persona, nel profilo. Non e' un attributo della
+famiglia: nella stessa casa un adulto puo' dimagrire e un bambino crescere.
+
+- `dieta: true` → `kcal_giorno` calcolato, porzioni scalate, deficit
+- `dieta: false` → `kcal_giorno: null`, porzioni standard CREA, **nessun
+  commento sul peso, mai**. Il sistema non fa la morale a chi non ha chiesto
+  niente
+
+Se nessuno e' a dieta, Lunario resta un pianificatore equilibrato: la parola
+«deficit» non compare, i piatti non vengono alleggeriti d'ufficio.
+
+### Il pasto libero non si compensa
+
+Una cella `libero` non fa risparmiare calorie alle altre. Non si taglia il
+pranzo perche' la sera c'e' la pizza, e non si recupera il giorno dopo: e'
+esattamente il meccanismo che rende insopportabili le diete, e il pavimento
+delle 1200 kcal resta valido comunque. Il piatto libero si pianifica e si
+compra come gli altri — semplicemente, non porta un conto.
+
+### Colazioni, spuntini e merende contano
+
+Finche' erano fuori dal modello, i target calorici erano **falsi per
+difetto**: due merende da 200 kcal, due persone, sette giorni fanno 2800 kcal
+a settimana che nessuno contava. Una cella `casa` genera fabbisogno e riga
+della spesa qualunque pasto sia, e le porzioni stanno in
+`kb/porzioni-standard.md` come tutte le altre.
+
 ## I livelli di stato, una skill ciascuno
 
 Confonderli e' il modo piu' rapido di ottenere un sistema che dimentica o che
@@ -63,7 +134,9 @@ il mercoledi' sera: il primo voto lo sposta nel weekend, non lo elimina.
 
 Regola di confine: **il sistema non tocca mai i livelli dichiarati**. Profilo,
 ritmi e note li scrive solo l'utente (la skill puo' proporre). Tarature,
-dispensa e prezzi li scrive solo il sistema.
+dispensa e prezzi li scrive solo il sistema. Unica eccezione, `ricette.md`: il
+contenuto e' dell'utente ma lo scrive il sistema sotto dettatura, perche' la
+forma serve al motore.
 
 ## Struttura
 
@@ -99,6 +172,7 @@ famiglia non appartengono al motore. Vivono nella cartella da cui si lavora:
 │   ├── profilo.yaml          # famiglia, kcal, esclusioni
 │   ├── ritmi.yaml            # orari ricorrenti per persona e giorno
 │   ├── note.md               # vincoli liberi, letti a OGNI lancio
+│   ├── ricette.md            # i piatti di casa, accanto a kb/piatti.md
 │   ├── prodotti.jsonl        # il paniere: formato, nutrienti, prezzi
 │   ├── dispensa.yaml         # cosa e' rimasto in casa
 │   └── storico.yaml          # settimane e tarature
@@ -131,6 +205,43 @@ condividere, perche' il supermercato e il frigo sono gli stessi.
 
 Il setup riconosce dove viene lanciato: dentro il repo del motore si ferma e
 lo dice, in una cartella gia' configurata aggiorna invece di ricominciare.
+
+## Git, e perche' resta locale
+
+La cartella di casa e' **un repo git locale, senza remote**, creato dal setup
+e mantenuto dalle skill: ogni skill che ha scritto qualcosa chiude con un
+commit. L'utente non digita mai un comando git.
+
+Serve a una cosa sola, ma vera: **vedere cosa e' cambiato e tornare indietro**.
+Le tarature si spostano di poco alla volta, e senza storia una porzione
+sbagliata da tre settimane e' impossibile da attribuire.
+
+**Nessun remote, ed e' una scelta.** Qui dentro ci sono pesi, obiettivi di
+dimagrimento e abitudini alimentari di persone reali, minori compresi:
+spingerli su un host — anche in un repo privato — e' un dato che esce di casa
+e che non si fa rientrare. Se l'utente lo chiede esplicitamente:
+
+- dire in chiaro cosa sta caricando, una riga, senza fare la predica
+- se accetta, il minimo serio e' cifrare i valori con SOPS + age, non
+  affidarsi alla privatezza del repo
+- non proporlo mai per primo, e mai come «cosi' lo usi dal telefono»: per
+  quello c'e' `claude remote-control`, che tiene i file su questa macchina e
+  ci si connette dal telefono senza spostare niente
+
+Il commit non e' negoziabile con l'utente a ogni giro: e' rumore. Si dice una
+volta al setup che c'e', e chi non lo vuole mette `git: no` nel profilo.
+
+**Come committa una skill.** Ultima cosa che fa, dopo aver scritto i file e
+prima di rispondere in chat, e solo se `git: locale` e qualcosa e' cambiato:
+
+```bash
+git add -A && git commit -q -m "<skill>: <cosa e' successo>"
+```
+
+Messaggi che si leggono a distanza di mesi — `menu: 2026-W34, bozza` ·
+`spesa: scontrino del 14/08, 89,40 €` · `postmortem: 2026-W34, tre tarature`.
+Se il commit fallisce, non dire niente all'utente e vai avanti: e' una rete di
+sicurezza, non un pezzo del flusso. In chat il commit non si nomina mai.
 
 ## Contratti dati
 
@@ -166,6 +277,34 @@ come mancante.
 - `fonte_nutrienti`: `openfoodfacts:<ean>` oppure `crea` se generico. Un campo
   nutrizionale senza fonte non esiste
 
+### dati/ricette.md — i piatti di questa casa
+
+Il pool dei piatti e' **due file, non uno**: `kb/piatti.md` nel motore, uguale
+per tutti, e `dati/ricette.md` nella cartella di casa, che e' vostro. Il menu
+pesca dai due indifferentemente, e i piatti di casa entrano in rotazione,
+prendono i voti e si escludono come gli altri.
+
+```markdown
+## Pasta con crema di zucchine e menta [meta] (B: pasta in bianco)
+- kcal: 520 a porzione — dichiarate dalla fonte
+- per 4: 320 g di pasta, 800 g di zucchine, mezzo mazzetto di menta, 60 g di grana
+- fonte: me l'ha passata Marta
+- nota: le zucchine vanno frullate calde
+```
+
+Le calorie seguono **la stessa regola dei prezzi**: `dichiarate dalla fonte`
+(c'erano scritte) o `stimate CREA` (le ha calcolate Lunario dagli
+ingredienti). Un valore dichiarato incerto vale; un numero senza provenienza
+no — e in quel caso si stima e si dice che e' una stima.
+
+Senza la riga `per N` il piatto non genera lista della spesa: quando la
+ricetta arriva senza quantita', si chiedono, oppure si ricostruiscono dalle
+porzioni standard e si dichiara che sono state ricostruite.
+
+Chi scrive questo file: **lo scrive il sistema, su dettatura dell'utente**. E'
+l'unica eccezione alla regola di confine, e regge perche' il contenuto e' suo
+mentre la forma serve al motore. L'utente puo' sempre editarlo a mano.
+
 ### dati/dispensa.yaml — cosa e' rimasto
 
 ```yaml
@@ -178,20 +317,73 @@ avanzi:
 Solo prodotti non deperibili (fascia `[fine]` di `kb/deperibilita.md`). Il
 fresco avanzato non e' un credito: e' immondizia fra tre giorni.
 
-### dati/ritmi.yaml — gli orari ricorrenti
+### dati/profilo.yaml — chi mangia, e quali pasti fa
+
+```yaml
+famiglia:
+  - nome: Adulto1
+    dieta: true              # false = mantenimento, nessun deficit
+    altezza_cm: 175
+    peso_kg: 76
+    kcal_giorno: 1650        # null se dieta: false
+    selettivo: false         # attiva la base neutra per questa persona
+    pasti:                   # quali pasti fa di norma. Assente = casa
+      spuntino: no
+      merenda: no
+  - nome: Bimbo1
+    dieta: false
+    kcal_giorno: null
+    selettivo: true
+    pasti:
+      merenda: casa
+titoli:
+  serie: "canzoni dei Beatles"   # null = titolo descrittivo dai piatti
+  usati: ["Norwegian Wood"]      # per non ripetersi
+```
+
+`titoli.serie` e' il filone da cui esce il nome della settimana — fiori, pesci
+tropicali, costellazioni. Si sceglie una volta al setup e da' un filo alle
+settimane: `lunario:menu` pesca l'elemento che risuona col menu quando ce n'e'
+uno («Yellow Submarine» sulla settimana dei tre pesci) e altrimenti prosegue
+nella serie, senza forzare agganci inventati.
+
+I bambini sono persone della lista, non una sezione a parte: hanno un nome, i
+loro pasti e la loro selettivita'. `selettivo` era `bambini.selettivi` ed era
+un interruttore per tutta la casa — sbagliato appena i figli sono due e uno
+mangia tutto.
+
+### dati/ritmi.yaml — la griglia ricorrente
 
 ```yaml
 settimana:
   martedi:
     Adulto2:
-      pranzo: fuori_trasportabile   # fuori_trasportabile | fuori_autonomo | casa
+      pranzo: trasportabile         # gli stati della griglia dei pasti
       cena_entro_min: 25            # tempo reale ai fornelli quel giorno
+  sabato:
+    tutti:
+      cena: libero                  # la pizza del sabato, senza conto
 ```
+
+`tutti` vale per l'intera tavola e si scrive una volta sola. I valori
+`fuori_trasportabile` e `fuori_autonomo` sono la vecchia grammatica: valgono
+ancora in lettura, e `lunario:profilo` li converte in `trasportabile` e
+`fuori` al primo aggiornamento.
 
 ### settimane/<ISO>/contesto.yaml — l'eccezione di questa settimana
 
 Stessa grammatica di `ritmi.yaml`, ma vale una settimana sola e si sovrappone
 ai ritmi. Effimero per design: non si accumula, non si impara.
+
+```yaml
+settimana:
+  giovedi:
+    tutti:
+      cena: ristorante        # non si cucina, non si compra, ma si paga
+  venerdi:
+    Adulto1:
+      pranzo: fuori
+```
 
 ### dati/storico.yaml
 
@@ -217,11 +409,22 @@ settimane:
     spesa_stimata: 92.50
     spesa_reale: null      # SOLO il menu, dallo scontrino del ritiro
     spesa_extra_alimentare: null   # cibo comprato ma non previsto
+    spesa_fuori_casa: null # ristorante, pizzeria, bar: alimentare, non spesa
     totale_scontrino: null # per memoria: include detersivi e non alimentari
     scarto_per_riga: []    # dove la stima ha sbagliato, non solo di quanto
+    celle_disattese: []    # previsto casa, fatto fuori (o viceversa)
     avanzi: []
     note: ""
 ```
+
+`spesa_fuori_casa` sta accanto agli altri e non dentro: mangiare fuori e'
+spesa alimentare vera, ma non e' spesa di Lunario, e sommarla a `spesa_reale`
+falserebbe il confronto con la stima. Serve a rispondere a una domanda sola,
+che nessun altro campo risponde: **quanto e' costato mangiare, davvero**.
+
+`celle_disattese` e' il dato che tara la griglia: tre giovedi' di fila
+previsti a casa e finiti in pizzeria non sono sfortuna, sono un ritmo che
+nessuno ha scritto.
 
 Niente lista `piatti_preferiti` separata: la media di `tavola` la sostituisce
 — sopra 4 e' un preferito, sotto 2 un bocciato. Due meccanismi paralleli si
@@ -253,14 +456,20 @@ per niente pedante, che ascolta prima di prescrivere.
 1. Contesto: `profilo.yaml`, `ritmi.yaml`, `note.md`, `storico.yaml` (tarature
    e piatti delle ultime 2 settimane), `dispensa.yaml`, e il contesto della
    settimana (se manca, chiamare `lunario:settimana`)
-2. Menu 7 giorni: piatti da `kb/piatti.md` meno le esclusioni, ordine dei
-   giorni da `kb/deperibilita.md`, porzioni da `kb/porzioni-standard.md`
-   scalate su tarature e kcal. Ritmi e contesto vincolano PRIMA della scelta:
-   un giorno con pranzo fuori trasportabile non riceve un piatto da scaldare
-3. Fabbisogno: per ogni ingrediente, grammi totali della settimana
-4. **Confezioni**: fabbisogno − dispensa → confezioni da comprare, secondo
+2. **Risolvi la griglia** dei sette giorni: per ogni pasto e ogni persona,
+   profilo → ritmi → contesto, vince il piu' specifico. Da qui in poi si
+   lavora sulle celle risolte, non sui giorni: solo `casa`, `trasportabile` e
+   `libero` ricevono un piatto e generano spesa
+3. Menu: piatti da `kb/piatti.md` meno le esclusioni, ordine dei giorni da
+   `kb/deperibilita.md`, porzioni da `kb/porzioni-standard.md` scalate su
+   tarature e kcal di **chi mangia davvero quel pasto**. La griglia vincola
+   PRIMA della scelta: una cella `trasportabile` non riceve un piatto da
+   scaldare, una cella `libero` non riceve un piatto ipocalorico
+4. Fabbisogno: per ogni ingrediente, grammi totali della settimana — contando
+   colazioni, spuntini e merende, che sono celle come le altre
+5. **Confezioni**: fabbisogno − dispensa → confezioni da comprare, secondo
    `kb/confezioni.md`. La lista dice «2 pacchi da 500 g», mai «1050 g»
-5. Salva `settimane/<ISO>.md`, aggiorna `dispensa.yaml` con gli avanzi
+6. Salva `settimane/<ISO>.md`, aggiorna `dispensa.yaml` con gli avanzi
    previsti, aggiungi la voce a storico con `spesa_stimata`
 
 ### Il ritiro della spesa (lunario:spesa)
@@ -339,9 +548,13 @@ come tali. I giorni gia' passati non si riscrivono mai.
 
 ### Postmortem (lunario:postmortem)
 
-Tre domande — avanzi, bocciati/promossi e da chi, scontrino — poi ritara:
+Quattro domande — avanzi, bocciati/promossi e da chi, la griglia che non ha
+tenuto, spesa integrativa e mangiate fuori — poi ritara:
 - stesso avanzo per 2+ settimane -> riduci la porzione in `tarature`
 - piatto bocciato 1 volta -> fuori rotazione 3 settimane; 2 volte -> escluso
+- stessa cella disattesa per 3 settimane -> non e' sfortuna, e' un ritmo:
+  proponi di scriverlo in `ritmi.yaml`. Proponi, non scrivere
+- ristorante e pizzeria -> `spesa_fuori_casa`, mai dentro `spesa_reale`
 - scontrino PDF -> prezzi in `prodotti.jsonl`, `spesa_reale` e
   `scarto_per_riga` in storico, dispensa corretta sul reale
 
@@ -354,7 +567,11 @@ nota non e' una taratura: la tocca solo l'utente, la skill puo' solo proporre.
 
 ## Regole non negoziabili
 
-- Mai piani sotto 1200 kcal/giorno/persona
+- Mai piani sotto 1200 kcal/giorno/persona, e mai un deficit a chi ha
+  `dieta: false`: quella persona mangia standard, e il peso non si nomina
+- Un pasto `libero` non si compensa altrove, ne' prima ne' dopo
+- Colazioni, spuntini e merende contano nelle kcal e nella spesa come i pasti
+  principali: un pasto fuori dal conto e' un target sbagliato
 - Mai prodotti, formati, prezzi o valori nutrizionali inventati: cio' che non
   e' in `prodotti.jsonl`, in Open Food Facts o nelle tabelle CREA si dichiara
   mancante e si marca `[da verificare]`

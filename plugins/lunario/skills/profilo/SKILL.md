@@ -2,7 +2,8 @@
 name: profilo
 description: >-
   Setup e aggiornamento di Lunario in una cartella. La prima volta intervista
-  la famiglia — chi mangia, con quali obiettivi calorici, quali cibi sono
+  la famiglia — chi mangia, chi e' a dieta e chi no, quali pasti fa ognuno
+  (colazione, spuntini, merende, pasti liberi e fuori casa), quali cibi sono
   esclusi, quanto tempo c'e' per cucinare, se si vuole il menu in agenda — e
   costruisce tutto da sola: sottocartelle, file dei dati e CLAUDE.md della
   cartella. Rilanciata su una cartella gia' configurata NON ricomincia da
@@ -41,21 +42,62 @@ gia' nella cartella giusta e' una domanda in piu' che non serve a niente.
 Rilanciare questa skill su una casa configurata **non ricomincia da capo**.
 Nessuno vuole rifare l'intervista perche' e' cambiato un peso.
 
-Fai tre cose, in quest'ordine:
+**Una domanda sola, poi si scende in un ramo solo.** Se l'utente ha gia' detto
+cosa vuole cambiare («e' cambiato il mio peso»), quella domanda non si fa
+nemmeno: sei gia' nel ramo.
 
-1. **Riepiloga in tre righe** cosa c'e' adesso: chi mangia, target calorici,
-   esclusioni. Serve a far vedere all'utente cosa sta per cambiare
-2. **Chiedi cosa cambia** e tocca solo quello. «E' cambiato il mio peso» si
-   risolve con un numero e il ricalcolo delle calorie, non con un questionario
-3. **Controlla se il profilo e' rimasto indietro**: confronta le sezioni
-   presenti con `${CLAUDE_PLUGIN_ROOT}/templates/profilo.yaml`. Le versioni
-   nuove del motore aggiungono campi, e un profilo scritto mesi fa non li ha
+Riepiloga in due righe cosa c'e' adesso — chi mangia, target, esclusioni — e
+chiedi **cosa vuole rivedere**, offrendo i rami come opzioni:
 
-Sul punto 3: **proponi solo le novita' che cambiano qualcosa per l'utente**,
-una riga ciascuna, e accetta un no senza insistere. Per esempio, a chi non ha
+| ramo | cosa tocchi, e nient'altro |
+|---|---|
+| **chi mangia** | persone, pesi, obiettivi, chi e' a dieta e chi no |
+| **i pasti** | la griglia: chi fa colazione, spuntino, merenda; pasti liberi fissi |
+| **cosa non entra in casa** | esclusioni e intolleranze |
+| **come si cucina** | minuti, attrezzatura, frequenze di carne e pesce |
+| **agenda e git** | calendario del menu, versionamento della cartella |
+| **novita' del motore** | cio' che il profilo non ha ancora (sotto) |
+
+Dentro il ramo scelto vale l'intervista normale: una domanda per volta, e si
+chiude appena il ramo e' coperto. **Non passare al ramo successivo di tua
+iniziativa** — se l'utente voleva rivedere due cose, lo dice lui.
+
+Poi, in ogni caso, **controlla se il profilo e' rimasto indietro**: confronta
+le sezioni presenti con `${CLAUDE_PLUGIN_ROOT}/templates/profilo.yaml`. Le
+versioni nuove del motore aggiungono campi, e un profilo scritto mesi fa non
+li ha.
+
+Anche qui, **proponi solo le novita' che cambiano qualcosa per l'utente**, una
+riga ciascuna, e accetta un no senza insistere. Per esempio, a chi non ha
 mai avuto la sezione `calendario`: «e' nuova la possibilita' di ritrovare il
 menu in agenda — ti interessa?». Un campo aggiunto in silenzio con un default
 va bene; una funzione che scrive da qualche parte va chiesta.
+
+### Migrazione dal vecchio schema
+
+I profili scritti prima della griglia dei pasti hanno una forma diversa.
+Convertili **tu**, senza far ricompilare niente:
+
+| vecchio | nuovo |
+|---|---|
+| `bambini: {presenti, selettivi}` | una voce in `famiglia` per ogni bambino, con `selettivo` suo |
+| persona senza `dieta` | `dieta: true` se ha un `kcal_giorno`, `false` altrimenti |
+| persona senza `pasti` | `pasti` assente = tutto `casa`: chiedi solo di spuntini e merende |
+| `pranzo: fuori_trasportabile` | `pranzo: trasportabile` |
+| `pranzo: fuori_autonomo` | `pranzo: fuori` |
+| nessun `git` | `git: locale` |
+
+I nomi dei bambini non li sai: chiedili, e' una domanda sola. Il resto lo
+deduci e lo mostri in tre righe per conferma — «ho riscritto il profilo cosi',
+i bimbi ora hanno un nome e la merenda: torna?».
+
+Due cose vanno **chieste**, perche' cambiano il menu e non si deducono:
+
+- se qualcuno fa spuntino o merenda, e chi
+- se c'e' un pasto libero fisso in settimana
+
+Il git invece si attiva e basta, con una riga di avviso: e' un `git init`
+locale che non manda niente da nessuna parte.
 
 Controlla allo stesso modo che la casa sia completa: se mancano file che oggi
 fanno parte del corredo — per esempio `dati/storico.yaml` o il `CLAUDE.md`
@@ -64,12 +106,24 @@ e dillo in mezza riga.
 
 ## 2. L'intervista
 
-Una domanda per volta, tono da prima visita: si ascolta, non si compila. I
-campi non essenziali hanno un default sensato e si correggono strada facendo.
+E' **la prima visita, e si fa una volta sola**: puo' durare, e va bene che
+duri. Meglio venti minuti adesso che tre postmortem per scoprire che il
+mercoledi' nessuno cena a casa. Dillo in una riga all'inizio — «ti faccio un
+po' di domande, poi non te le faccio piu'» — e poi vai a fondo davvero.
+
+Quello che rende sopportabile un'intervista lunga non e' farla corta: e'
+**una domanda per volta**, e **arrivare con la proposta gia' pronta** da
+correggere invece che con un campo vuoto da riempire. «Direi colazione a casa
+per tutti, merenda solo per i bimbi — torna?» si risponde in una parola.
+
+I campi non essenziali hanno un default sensato e si correggono strada
+facendo. Se l'utente taglia corto («fai tu»), fermati: prendi i default,
+dillo in mezza riga e va bene cosi'.
 
 **Chi mangia a questa tavola.** Nome (anche solo l'iniziale), eta' indicativa,
 chi e' a dieta e chi no. Basta il racconto: «noi due adulti a dieta, due
-bambini che mangiano normale».
+bambini che mangiano normale». **I bambini sono persone della lista**, con
+nome e pasti loro: non una casella «ci sono i bambini».
 
 **L'obiettivo, per chi e' a dieta.** Non chiedere le calorie: chiedi peso
 attuale, altezza e dove vorrebbero arrivare, e calcola tu proponendo il
@@ -84,22 +138,75 @@ Il calcolo: metabolismo basale con Mifflin-St Jeor, per un fattore di attivita'
 - Se l'utente vuole un target piu' aggressivo, dillo una volta sola e poi
   rispetta la sua scelta, sempre col pavimento delle 1200
 
+**Chi non e' a dieta** ha `dieta: false` e `kcal_giorno: null`: porzioni
+standard, nessun deficit. Non chiedergli il peso, non commentare il suo, non
+proporgli di mettersi a dieta. Se **nessuno** e' a dieta va benissimo: Lunario
+diventa un pianificatore equilibrato e la parola «deficit» non compare piu'.
+
+> **Chi scrive non e' sempre chi mangia.** Al setup di solito c'e' una persona
+> alla tastiera che risponde anche per gli altri, e peso e obiettivo sono la
+> cosa piu' privata che questo sistema tocca. Quindi: chiedili una volta, in
+> modo piano, e offri **subito** la via d'uscita — «se preferisce dirmelo
+> dopo, o scriverlo lei nel file, il menu parte lo stesso con le porzioni
+> standard». Se la risposta e' evasiva, non insistere e non tornarci: metti
+> `dieta: false` e vai avanti. Un numero in meno costa una taratura; una
+> domanda di troppo davanti a qualcuno costa il sistema intero.
+
+**Quali pasti si fanno in questa casa.** E' la griglia, ed e' la parte che
+cambia di piu' il menu. Chiedila per pasto, non per persona — «chi fa
+colazione a casa?» si risponde meglio di «Luca cosa fa a colazione?»:
+
+- **colazione** — chi la fa a casa, chi la salta, chi la fa al bar
+- **spuntino di meta' mattina e merenda** — di solito i bambini si', gli
+  adulti no. E' la domanda che nessun sistema fa e che sballa tutti i conti:
+  una merenda da 200 kcal per due bambini e' 2800 kcal a settimana
+- **pranzo** — a casa, da portarsi dietro, o mensa. Se la risposta cambia col
+  giorno, non insistere qui: e' materia di `lunario:ritmi`
+- **cena** — quasi sempre a casa; chiedi solo se c'e' una sera fissa che non
+  lo e'
+
+**Il pasto libero.** Chiedilo esplicitamente, perche' nessuno lo dichiara da
+solo e tutti ce l'hanno: «c'e' un pasto in settimana in cui si mangia quel che
+si vuole — la pizza del sabato, il pranzo della domenica?». Diventa una cella
+`libero`: si cucina e si compra come gli altri, ma non si conta e **non si
+compensa**. Dillo, perche' e' esattamente il contrario di quello che la gente
+si aspetta da un sistema di diete — e' la ragione per cui questo si regge.
+
+**Chi va assecondato a tavola.** Per ogni persona, se e' selettiva: bambini
+che rifiutano il nuovo, ma anche adulti. Se si', per quella persona ogni cena
+avra' una base neutra estraibile
+(`${CLAUDE_PLUGIN_ROOT}/kb/consigli-pratici.md`). E' per persona, non per
+casa: con due figli, uno che mangia tutto e uno no, un interruttore solo
+sbaglia sempre.
+
 **Cosa non entra in casa.** Allergie, intolleranze, cose odiate, scelte
 etiche. Non chiedere il perche'. Chiedi invece se valgono per tutti o per una
 persona sola, e ricorda che varranno anche come ingrediente nascosto.
-
-**I bambini, se ci sono.** Sono selettivi? Se si', si attiva la regola della
-base neutra (`${CLAUDE_PLUGIN_ROOT}/kb/consigli-pratici.md`) e ogni cena avra'
-una versione semplice estraibile.
 
 **Come si cucina qui.** Minuti realistici per la cena nei feriali, cosa c'e' in
 cucina che cambia le ricette (forno, friggitrice ad aria, pentola a pressione,
 congelatore capiente), quante volte a settimana si mangia pesce o carne.
 
+**Quanto si mangia fuori.** Non per giudicare: per non cucinare per chi non
+c'e'. Se e' una cosa fissa — «il venerdi' pizza fuori» — e' un ritmo; se
+capita e basta, lo chiedera' `lunario:settimana` ogni lunedi'.
+
 **Gusti e stanchezze.** Cucine che piacciono, piatti che in questa casa non si
 vedranno mai, quanta voglia c'e' di provare cose nuove. Serve a filtrare
 `${CLAUDE_PLUGIN_ROOT}/kb/piatti.md` dal primo menu invece che dopo tre
 postmortem.
+
+**Come si chiamano le settimane.** Ogni settimana prende un nome, per
+ritrovarla senza contare i numeri ISO. Chiedi se vuole un **filone** da cui
+pescarlo, e **proponi tre o quattro esempi concreti**, non la categoria
+astratta: canzoni dei Beatles, fiori, pesci tropicali, costellazioni, cime
+delle Alpi, film di Miyazaki, vini, isole greche. Meglio se e' una cosa che in
+questa casa qualcuno ama gia': funziona come una playlist, non come
+un'etichetta.
+
+Va in `titoli.serie`. Se non gli interessa, `null`, e i titoli nascono dai
+piatti della settimana come sempre — «la settimana dei legumi coraggiosi». Si
+cambia quando si vuole, e quando la serie finisce se ne sceglie un'altra.
 
 **Il menu in agenda.** Chiedi se vuole ritrovare la settimana sul calendario:
 un evento col titolo del menu, che dal telefono dice cosa si mangia.
@@ -120,6 +227,31 @@ Chiedi anche se preferisce **un evento per tutta la settimana** o **uno per
 ogni cena**, e salva tutto in `calendario` nel profilo. Se non gli interessa,
 `scrivi: false` e non se ne parla piu'.
 
+**Il git.** **Non e' una domanda.** Si attiva e basta, e se ne da' notizia in
+mezza riga alla fine, mentre si dice cosa e' stato creato:
+
+> «La cartella la tengo sotto git in locale, cosi' si puo' sempre tornare
+> indietro. Resta tutto qui.»
+
+`git: locale` e' il default e non si chiede: e' un repo locale senza remote,
+non manda niente da nessuna parte e non ha controindicazioni — chiederlo
+sarebbe solo una domanda in piu' in un'intervista gia' lunga. Chi non lo vuole
+mette `git: no` nel profilo, e lo scopre da questa riga.
+
+Non spiegare git a chi non ha chiesto, non elencare i vantaggi, non tornarci
+sopra ai lanci successivi.
+
+Se l'utente chiede un **remote** — GitHub, un server suo, «cosi' lo uso dal
+telefono» — allora si', qui si parla, una volta e senza predica:
+
+- di' cosa ci sarebbe dentro: pesi, obiettivi e abitudini alimentari di
+  persone reali, minori compresi. Un repo privato riduce il rischio, non lo
+  toglie: un dato caricato non rientra
+- se il motivo e' il telefono, la risposta e' `claude remote-control` sul
+  computer di casa: si guida la sessione dal telefono e i file non si spostano
+- se dopo questo lo vuole lo stesso, e' una sua scelta legittima: aiutalo, e
+  proponi SOPS + age per cifrare i valori. Non sabotare, non ripetere l'avviso
+
 ## 3. Costruire la casa
 
 Riepiloga in poche righe cio' che hai capito e fatti confermare. **Poi** crea
@@ -130,6 +262,7 @@ mkdir -p dati settimane
 cp -n ${CLAUDE_PLUGIN_ROOT}/templates/profilo.yaml \
       ${CLAUDE_PLUGIN_ROOT}/templates/ritmi.yaml \
       ${CLAUDE_PLUGIN_ROOT}/templates/note.md \
+      ${CLAUDE_PLUGIN_ROOT}/templates/ricette.md \
       ${CLAUDE_PLUGIN_ROOT}/templates/prodotti.jsonl \
       ${CLAUDE_PLUGIN_ROOT}/templates/dispensa.yaml \
       ${CLAUDE_PLUGIN_ROOT}/templates/storico.yaml dati/
@@ -138,10 +271,10 @@ cp -n ${CLAUDE_PLUGIN_ROOT}/templates/CLAUDE.md ./CLAUDE.md
 
 `cp -n` non sovrascrive mai: se la skill viene rilanciata, i dati restano.
 
-Poi:
+Poi, **prima di toccare git**, compila quello che hai raccolto:
 
-1. **Compila `dati/profilo.yaml`** con quello che ti ha detto, sostituendo i
-   valori del modello e togliendo i commenti che non servono piu'
+1. **`dati/profilo.yaml`** con quello che ti ha detto, sostituendo i valori
+   del modello e togliendo i commenti che non servono piu'
 2. **Svuota `dati/prodotti.jsonl`** dalle righe di esempio: il paniere e' suo e
    si riempira' dai suoi scontrini
 3. **Personalizza `./CLAUDE.md`**: nella prima riga il nome che l'utente da' a
@@ -150,6 +283,25 @@ Poi:
 4. Se dall'intervista sono emersi **orari ricorrenti**, scrivili in
    `dati/ritmi.yaml`; se sono emersi **vincoli liberi**, in `dati/note.md`.
    Quello che non e' emerso resta il modello commentato, e va bene cosi'
+
+**Solo adesso** il git locale, se `git: locale` (il default), cosi' il primo
+commit contiene la casa vera e non i template vuoti:
+
+```bash
+git init -q 2>/dev/null
+printf '.DS_Store\n*.pdf\n' > .gitignore
+git add -A && git commit -q -m "Lunario: setup della casa"
+```
+
+Il `.gitignore` tiene fuori due sole cose: la robaccia di sistema e gli
+scontrini PDF, che pesano e il cui contenuto utile e' gia' finito in
+`prodotti.jsonl`. **Tutto il resto va versionato**: `dati/` e `settimane/`
+sono esattamente cio' che ha senso avere sotto storia. Nessun `git remote`,
+mai, se non lo chiede l'utente.
+
+Se `git` non e' installato, se `git init` fallisce, o se la cartella sta gia'
+dentro un altro repo, non e' un problema: dillo in mezza riga e vai avanti.
+Lunario funziona identico senza.
 
 ## 4. Se accanto c'e' un'altra casa Lunario
 
@@ -174,7 +326,24 @@ va benissimo: non insistere.
 
 ## 5. Chiusura
 
-Di' cosa hai creato — la cartella, i file, dove sono — e cosa succede adesso:
-`lunario:settimana` il lunedi'. Se l'intervista non ha coperto gli orari,
-segnala che `lunario:ritmi` li raccoglie quando ha voglia: non e' obbligatorio
-per il primo menu.
+**Chiudi con qualcosa da vedere, non con un elenco di file creati.** Chi ha
+appena risposto a venti domande vuole sapere se ne e' valsa la pena, e a volte
+non e' nemmeno solo: al setup c'e' spesso un'altra persona che guarda ed e'
+quella da convincere.
+
+Quindi, in quest'ordine e stretto:
+
+1. **due righe** su cosa hai capito e dove vive adesso — la cartella, non
+   l'elenco dei file uno per uno
+2. **proponi di generare subito il primo menu**: «vuoi che proviamo con la
+   settimana che viene?». Se dice di si', passa a `lunario:settimana` e vai:
+   quello e' il momento in cui il sistema si spiega da solo
+3. se dice di no, una riga su cosa succede il lunedi' e stop
+
+Se l'intervista non ha coperto gli orari, non e' un problema e non va detto
+come una mancanza: `lunario:ritmi` li raccoglie quando capita, e il primo menu
+si fa lo stesso.
+
+Il primo menu **non avra' i prezzi**, perche' il paniere e' vuoto: dillo prima
+che lo scopra da solo, in mezza riga — «i prezzi arrivano col primo
+scontrino» — cosi' un totale mancante e' una cosa attesa e non un difetto.

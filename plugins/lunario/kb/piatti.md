@@ -40,7 +40,38 @@ Tag: [inizio] = ingredienti deperibili, mettere lun-mar · [metà] = mer-gio · 
 - Riso freddo con piselli, prosciutto cotto a dadini, scamorza [metà]
 - Pane integrale, bresaola, rucola e grana [inizio per la rucola]
 
-## Colazione fissa (proposta iniziale, ~250-300 kcal)
+## Colazioni (~250-350 kcal)
+
+Si sceglie una volta e si ripete: la colazione e' un'abitudine, non una
+variazione settimanale. Cambia solo se qualcuno se ne stufa.
 
 - Yogurt greco bianco + frutta fresca + 3 fette biscottate integrali con velo di marmellata
-- Alternativa: latte parzialmente scremato + 40 g cereali integrali + frutta
+- Latte parzialmente scremato + 40 g cereali integrali + frutta
+- Pane integrale tostato + ricotta + miele + frutta
+- Porridge di avena col latte, frutta a pezzi e 10 g di frutta secca [fine]
+- Yogurt + granola fatta in casa (avena, frutta secca, miele al forno) [fine]
+
+## Spuntini e merende (~100-200 kcal)
+
+Voci di spesa a tutti gli effetti: si comprano in confezioni come il resto.
+
+- Un frutto di stagione
+- Yogurt bianco o alla frutta, un vasetto
+- 20 g di frutta secca a guscio (mandorle, noci) [fine]
+- Pane e cioccolato fondente — 30 g di pane, 15 g di cioccolato
+- Cracker integrali o gallette con formaggio spalmabile
+- Carote o finocchi a bastoncini con hummus [inizio per la verdura]
+- Yogurt greco con miele e cannella
+- Pane e marmellata, la merenda che nessun bambino ha mai contestato
+
+## Pasti liberi (cella `libero`)
+
+Non si contano e non si compensano, ma **si comprano**: se la pizza si fa in
+casa, la farina e la mozzarella stanno in lista come tutto il resto.
+
+- Pizza fatta in casa [fine per la farina, inizio per la mozzarella]
+- Hamburger col pane e patate al forno
+- Pasta al forno o lasagne
+- Fritto di pesce o di verdure
+- Piadina romagnola farcita come pare
+- Serata «avanzi e formaggi», che smaltisce il frigo e non chiede niente

@@ -25,7 +25,17 @@ tarature:
   #     tavola: {media: 4.3, voti: [{data: 2026-08-17, chi: Bimbo1, voto: 3}]}
 
   # Budget settimanale in euro. null = nessun tetto, il sistema non commenta.
+  # Riguarda la spesa del menu: quello che si mangia fuori sta per conto suo,
+  # in `spesa_fuori_casa` di ogni settimana.
   budget_settimana_eur: null
 
 # Una voce per settimana, aggiunta dal menu e completata dal postmortem.
+# Oltre a titolo, spesa stimata e reale, ogni voce porta due campi che
+# riguardano la griglia dei pasti:
+#   spesa_fuori_casa -> ristorante, pizzeria, bar. Alimentare, ma non spesa di
+#                       Lunario: non si somma a spesa_reale, altrimenti il
+#                       confronto con la stima non vuol dire piu' niente
+#   celle_disattese  -> previsto a casa, finito fuori (o il contrario). Tre
+#                       volte la stessa cella non e' sfortuna: e' un ritmo che
+#                       nessuno ha ancora scritto in ritmi.yaml
 settimane: []

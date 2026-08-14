@@ -20,6 +20,40 @@ menu e chiudere la settimana.
 Non serve ricordarsi i nomi: basta dire «prepariamo la settimana» o «com'e'
 andata», e la skill giusta parte da sola.
 
+## La griglia dei pasti
+
+Il giorno non e' «pranzo e cena»: e' una griglia **pasto × persona**, e ogni
+cella dice cosa succede a quel pasto per quella persona.
+
+| stato | vuol dire |
+|---|---|
+| `casa` | si cucina, si compra, conta nelle calorie |
+| `trasportabile` | idem, ma deve viaggiare e mangiarsi freddo |
+| `libero` | si cucina e si compra, ma non conta: la pizza del sabato |
+| `ristorante` | non si cucina, non si compra — pero' si paga, e si registra |
+| `fuori` | mensa, bar, ospite: fuori dal sistema |
+| `no` | quel pasto quella persona non lo fa |
+
+Tre file la scrivono, e vince sempre il piu' specifico: `profilo.yaml` dice
+quali pasti fai di solito, `ritmi.yaml` cosa cambia ogni settimana,
+`settimane/<ISO>/contesto.yaml` cosa cambia solo questa volta.
+
+Colazione, spuntino e merenda sono pasti come gli altri: se sono `casa`,
+finiscono nel conto delle calorie e nella lista della spesa. Un pasto fuori
+dal conto e' un obiettivo calorico sbagliato.
+
+## Git: c'e', ed e' solo tuo
+
+Questa cartella e' un repo git **locale, senza remote**: le skill committano
+da sole quando hanno finito, e tu non digiti mai un comando. Serve a vedere
+cosa e' cambiato e a tornare indietro — `git log`, `git diff` — quando una
+taratura ti sembra andata storta.
+
+Non c'e' nessun remote e non te lo proporra' nessuno: qui dentro ci sono pesi
+e abitudini di persone vere. Per lavorare dal telefono non serve — `claude
+remote-control` sul computer di casa fa esattamente quello, lasciando i file
+dove sono. Se il git non lo vuoi, `git: no` in `profilo.yaml`.
+
 ## Cosa c'e' dentro
 
 ```
@@ -27,11 +61,18 @@ dati/
 ├── profilo.yaml      chi siete, calorie, esclusioni       <- lo scrivi tu
 ├── ritmi.yaml        gli orari che si ripetono            <- lo scrivi tu
 ├── note.md           i vincoli che detti a voce           <- lo scrivi tu
+├── ricette.md        i piatti vostri, non del motore       <- lo detti tu
 ├── prodotti.jsonl    il paniere: formati, valori, prezzi  <- lo scrive il sistema
 ├── dispensa.yaml     cosa e' rimasto in casa              <- lo scrive il sistema
 └── storico.yaml      settimane passate e tarature         <- lo scrive il sistema
 settimane/            i menu generati, uno per settimana
 ```
+
+`ricette.md` e' l'unico file misto: il contenuto e' tuo, la forma serve al
+motore. Basta dire in chat «mi hanno dato questa ricetta» — anche con un link
+o una foto — e ci finisce dentro, con ingredienti, quantita' e calorie. Da
+quel momento e' un piatto come tutti gli altri: entra nel menu, prende i voti,
+esce di rotazione se non piace.
 
 **La regola di confine**: il sistema non tocca mai i primi tre. Puo' proporre
 una modifica, ma li scrivi tu. Gli ultimi tre sono suoi: puoi leggerli e
@@ -46,6 +87,7 @@ stessi. Chiedilo a `lunario:profilo`, che li collega senza duplicarli.
 
 ## Privacy
 
-Qui dentro ci sono i pesi, gli obiettivi e le abitudini di persone reali.
-Questa cartella non va su GitHub: se la metti sotto git, tienila privata.
-Il motore, quello si', e' pubblico e non contiene niente di tuo.
+Qui dentro ci sono i pesi, gli obiettivi e le abitudini di persone reali,
+minori compresi. **Questa cartella non va su GitHub**, nemmeno in un repo
+privato: il git locale ti da' la storia senza far uscire niente di casa. Il
+motore, quello si', e' pubblico e non contiene niente di tuo.

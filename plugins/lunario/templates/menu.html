@@ -54,6 +54,18 @@
   .pasto .piatto{flex:1}
   .kcal{font-size:.76rem;color:var(--tenue);white-space:nowrap}
   .bimbi{font-size:.78rem;color:var(--tenue);font-style:italic;padding-left:62px}
+  /* Colazione e merende: una riga sola in testa al giorno, piu' minuta —
+     sono abitudini che si ripetono, non scelte da leggere ogni giorno. */
+  .contorno{font-size:.78rem;color:var(--tenue);padding:1px 0 3px}
+  /* Un pasto che non si cucina resta visibile ma spento: il giorno si legge
+     per intero, e si vede a colpo d'occhio che li' non si cucina. */
+  .pasto.fuori .piatto{color:var(--tenue);font-style:italic}
+  .pasto.libero .piatto::after{
+    content:"libero";margin-left:8px;padding:.1em .45em;
+    border:1px solid var(--luna);border-radius:3px;
+    font-size:.64rem;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--luna);font-style:normal;vertical-align:.1em;
+  }
 
   /* ---- la spesa ---- */
   .spesa{columns:2;column-gap:32px}
@@ -114,14 +126,24 @@
     <!-- RIPETI questo blocco per ogni giorno.
          La classe del giorno segue la fascia di deperibilita':
          inizio (lun-mar) · meta (mer-gio) · fine (ven-dom).
-         Righe .bimbi solo se il profilo ha bambini selettivi.
-         Un pasto fuori casa si scrive lo stesso, marcato "fuori". -->
+         Righe .bimbi solo per chi ha selettivo: true nel profilo.
+
+         Le celle della griglia si scrivono TUTTE, anche quelle che non si
+         cucinano: un pasto fuori casa prende la classe .fuori e dice dov'e'
+         (mensa, ristorante), un pasto senza vincolo calorico prende .libero e
+         niente kcal. Una riga mancante sembra una dimenticanza; una riga che
+         dice "fuori" e' un'informazione.
+
+         Colazione e merende stanno in .contorno, una riga sola in testa: sono
+         abitudini che si ripetono uguali, e ripeterle per esteso sette volte
+         rende il foglio illeggibile. Se una persona non le fa, non compare. -->
     <div class="giorno inizio">
       <div>
         <div class="g-nome">Lunedì</div>
         <div class="g-data">18 agosto</div>
       </div>
       <div>
+        <div class="contorno">colazione: yogurt greco, frutta, fette biscottate · merenda bimbi: pane e marmellata</div>
         <div class="pasto">
           <span class="et">pranzo</span>
           <span class="piatto">Insalata di farro, pomodorini e mozzarella</span>
@@ -133,6 +155,25 @@
           <span class="kcal">520 / 430 kcal</span>
         </div>
         <div class="bimbi">bimbi: patate al forno e orata semplice</div>
+      </div>
+    </div>
+
+    <!-- Un giorno con pasti fuori casa e una cena libera. -->
+    <div class="giorno meta">
+      <div>
+        <div class="g-nome">Giovedì</div>
+        <div class="g-data">21 agosto</div>
+      </div>
+      <div>
+        <div class="contorno">colazione: come sempre · merenda bimbi: yogurt e frutta</div>
+        <div class="pasto fuori">
+          <span class="et">pranzo</span>
+          <span class="piatto">fuori — mensa</span>
+        </div>
+        <div class="pasto libero">
+          <span class="et">cena</span>
+          <span class="piatto">Pizza fatta in casa</span>
+        </div>
       </div>
     </div>
 

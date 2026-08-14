@@ -102,6 +102,11 @@ un piatto rifiutato, ospiti in piu', o solo mancanza di voglia. Se e' un
 rifiuto, chiedi di chi — serve al postmortem, e un piatto bocciato dai
 bambini non e' la stessa cosa di un piatto bocciato dall'adulto.
 
+Se la modifica riguarda **dove** si mangia e non **cosa**, e' un cambio di
+cella: «stasera ordiniamo» → `cena: ristorante`, «pranzo me lo porto» →
+`pranzo: trasportabile`. Aggiornalo nel contesto della settimana, non solo nel
+menu: e' quello che il postmortem confrontera' col reale.
+
 **2. Cosa c'e' in frigo?** E' la domanda che decide la proposta — ma non
 farla alla cieca. Nel menu, `lunario:prepara` ha spuntato i pasti fatti e gli
 ingredienti consumati: quello che resta **non** spuntato e' quello che c'e'
@@ -132,6 +137,12 @@ Se la spesa integrativa e' inevitabile, tienila a poche righe, dille come tali
 
 Con ospiti in piu': scala le quantita' sui commensali reali, non le porzioni
 individuali di chi e' a dieta.
+
+Se salta una cena, **gli ingredienti di quel giorno non spariscono**: si
+ricollocano. I deperibili si anticipano invece di sperare che tengano, il
+resto scala in avanti. Una cena in meno non e' un problema di menu, e' un
+problema di frigo — ed e' il motivo per cui vale la pena dirlo appena si sa,
+non la domenica.
 
 ## Dopo
 

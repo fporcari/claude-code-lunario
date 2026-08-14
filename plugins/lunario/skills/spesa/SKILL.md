@@ -73,6 +73,14 @@ Le righe spuntate diventano `spesa_reale` (se erano in lista) o
 `spesa_extra_alimentare` (se no). Solo la prima si confronta con
 `spesa_stimata`: il budget riguarda il menu, non lo scontrino.
 
+Nessuna delle due e' `spesa_fuori_casa`, che riguarda i pasti consumati al
+ristorante e non passa mai da qui: la raccoglie il postmortem.
+
+**Le merende non sono un extra.** Se in lista c'erano yogurt, frutta secca o
+biscotti per gli spuntini, sono righe del menu come le altre e vanno spuntate
+allo stesso modo. Un sistema che tratta la merenda dei bambini come «roba in
+piu'» ricomincia a sbagliare i conti dopo due settimane.
+
 ## 2a. Quello che non passa dallo scontrino
 
 Alcune cose del menu si comprano altrove — il pane dal panettiere sotto casa,

@@ -31,18 +31,56 @@ E il menu segue l'orologio del frigo: il pesce lunedì, le foglie martedì, i
 legumi il venerdì. Gli ingredienti si consumano nell'ordine in cui si rovinano,
 che è la regola che azzera lo spreco prima ancora di parlare di budget.
 
+## Il giorno non è «pranzo e cena»
+
+È una griglia **pasto × persona**, e ogni cella dice cosa succede davvero:
+
+| stato | vuol dire |
+|---|---|
+| `casa` | si cucina, si compra, conta nelle calorie |
+| `trasportabile` | idem, ma deve viaggiare e mangiarsi freddo |
+| `libero` | si cucina e si compra, ma non conta: la pizza del sabato |
+| `ristorante` | non si cucina e non si compra — però si paga, e si registra |
+| `fuori` | mensa, bar, ospite: fuori dal sistema |
+| `no` | quel pasto quella persona non lo fa |
+
+Da qui vengono quattro cose che nessun generatore di menu fa. **Chi è a dieta
+e chi no convivono nella stessa cena**, stesso piatto e porzioni diverse — e
+se non è a dieta nessuno, la parola «deficit» non compare mai. **Il pasto
+libero esiste e non si compensa**: non si taglia il pranzo perché la sera c'è
+la pizza, che è il meccanismo per cui le diete diventano insopportabili.
+**Colazione, spuntino e merenda contano** — due merende da 200 kcal per due
+bambini fanno 2800 kcal a settimana, e un target che le ignora è un target
+falso. E **il ristorante non sparisce dai conti**: non è spesa di Lunario, ma
+è spesa alimentare, e finisce in un campo suo che risponde alla domanda che
+nessun altro risponde — quanto costa mangiare, non quanto costa la spesa.
+
 ## Le otto skill
 
 | skill | quando | cosa fa |
 |---|---|---|
 | `lunario:profilo` | una volta | ti intervista: chi siete, obiettivi, esclusioni. Calcola le calorie da peso e altezza, e costruisce la cartella |
 | `lunario:ritmi` | quando cambia la vita | la settimana tipo: chi pranza fuori il martedì, quale sera c'è poco tempo |
-| `lunario:settimana` | **il lunedì** | legge il calendario, ti chiede impegni, voglie e di cosa sei stufo, poi genera menu e spesa |
+| `lunario:settimana` | **il lunedì** | legge il calendario, ti chiede impegni, pasti già presi fuori casa, voglie e di cosa sei stufo, poi genera menu e spesa |
 | `lunario:menu` | automatica | i 7 giorni e la lista in confezioni, in markdown e in HTML stampabile |
 | `lunario:spesa` | **al ritiro** | dallo scontrino: prezzi veri, cosa manca, alternative subito. Separa il menu dai detersivi |
 | `lunario:prepara` | **mentre cucini** | ingredienti, procedimento, un video se serve. Ti avverte se manca qualcosa, poi chiede difficoltà e voto del cuoco |
 | `lunario:correggi` | a settimana in corso | cambi idea? Ti propone cosa è rimasto e rifà solo i giorni che restano |
 | `lunario:postmortem` | **la domenica** | avanzi e voti dei commensali → ritara porzioni, rotazione e budget |
+
+## Le ricette che vi passano, e i nomi delle settimane
+
+Un piatto che vi ha segnalato qualcuno si aggiunge dicendolo — «me l'ha
+passata Marta», anche con un link o una foto. Finisce in `dati/ricette.md` con
+ingredienti, quantità e calorie, e da lì è un piatto come gli altri: entra nel
+menu, prende i voti, esce di rotazione se non piace. Le calorie seguono la
+regola dei prezzi: se c'erano sulla fonte valgono così come sono, altrimenti
+le stima Lunario e lo dice.
+
+E ogni settimana ha un nome, per ritrovarla senza contare i numeri ISO. Puoi
+scegliere il filone da cui pescarlo — canzoni dei Beatles, fiori, pesci
+tropicali, cime delle Alpi — e Lunario prende l'elemento che risuona col menu
+quando ce n'è uno: «Yellow Submarine» sulla settimana dei tre pesci.
 
 ## Nessuna dipendenza da un supermercato
 
@@ -88,6 +126,7 @@ no:
 │   ├── profilo.yaml       chi siete, calorie, esclusioni
 │   ├── ritmi.yaml         gli orari che si ripetono
 │   ├── note.md            i vincoli che detti a voce
+│   ├── ricette.md         i piatti vostri: quelli che vi hanno passato
 │   ├── prodotti.jsonl     il tuo paniere: formati, nutrienti, prezzi
 │   ├── dispensa.yaml      cosa è rimasto in casa
 │   └── storico.yaml       settimane passate e tarature apprese
@@ -95,6 +134,16 @@ no:
 ```
 
 Per tenerli altrove: `LUNARIO_DATI=/percorso/che/preferisci`.
+
+La cartella è anche un **repo git locale, senza remote**: le skill committano
+da sole quando hanno finito, così `git log` e `git diff` ti dicono cosa è
+cambiato e quando, e si può tornare indietro. Nessun remote viene creato né
+proposto — qui dentro ci sono pesi, obiettivi e abitudini di persone reali,
+minori compresi, e un repo privato riduce il rischio ma non lo toglie: un dato
+caricato non rientra. Per lavorare dal telefono non serve comunque: con
+[`claude remote-control`](https://code.claude.com/docs/en/remote-control) la
+sessione gira sul computer di casa e la guidi dal telefono, senza spostare un
+file. Se il git non lo vuoi, `git: no` nel profilo.
 
 ## Le regole di casa
 

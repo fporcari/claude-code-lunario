@@ -34,5 +34,20 @@ pagano la comodita' 2-3 volte il prezzo della materia prima.
 
 ## Idratazione e contorno del sistema
 
-- Acqua come bevanda di default; alcol fuori dal piano ipocalorico.
-- Frutta come spuntino standard: non va pianificata a menu, va solo comprata.
+- Acqua come bevanda di default; alcol fuori dal piano ipocalorico, salvo nei
+  pasti `libero`, dove non si commenta.
+- La frutta e' lo spuntino standard, e come ogni spuntino **si pianifica e si
+  compra**: tante porzioni quante sono le celle `spuntino`/`merenda` a `casa`
+  della settimana, arrotondate per eccesso. «Compra frutta» non e' una riga
+  della lista della spesa.
+
+## Mangiare fuori senza sabotare la settimana
+
+- Un pasto al ristorante non si «recupera»: si prevede. Se salta una cena
+  cucinata, gli ingredienti previsti per quel giorno si ricollocano nei giorni
+  dopo — e se sono deperibili, si anticipano invece di sperare.
+- Il conto del ristorante e' spesa alimentare vera. Registrarlo separato
+  (`spesa_fuori_casa`) e' l'unico modo di sapere quanto costa mangiare, non
+  solo quanto costa la spesa.
+- Se lo stesso pasto finisce fuori casa tre settimane di fila, il menu di quel
+  giorno e' un piatto sprecato ogni volta: e' un ritmo, va scritto.

@@ -39,9 +39,16 @@ Se il menu di oggi non esiste, o l'utente sta cucinando altro, chiedi cosa e
 procedi lo stesso: questa skill serve anche fuori dal menu, e in quel caso non
 spunta niente.
 
-Recupera dal profilo il numero di commensali e le porzioni tarate, cosi' le
-quantita' sono gia' quelle giuste per questa casa. Se il piatto ha una base
-neutra per i bambini, il procedimento deve dire **dove** si biforca.
+Recupera dal profilo **chi mangia questo pasto** — non quante persone ci sono
+in casa: la griglia dice chi c'e' e chi no, e cucinare per quattro quando in
+tre sono fuori e' il modo piu' comune di produrre avanzi. Con le porzioni
+tarate, le quantita' sono gia' quelle giuste.
+
+Se fra i commensali di stasera c'e' qualcuno con `selettivo: true`, il
+procedimento deve dire **dove** si biforca la base neutra.
+
+Un pasto `libero` si cucina senza alleggerimenti e senza commenti: niente
+versioni light non richieste, niente conto delle calorie a fine ricetta.
 
 ## 2. Cosa serve
 
@@ -122,6 +129,16 @@ Chiedi anche i **minuti veri**, se lo sa: e' il dato che smaschera le ricette
 
 Scrivi in `tarature.voti[<piatto>].cucina` di `dati/storico.yaml`:
 `difficolta`, `voto_cuoco`, `minuti_reali`, `volte`.
+
+**Se si e' cucinato un piatto che non e' nel pool** — una ricetta di qualcuno,
+un'improvvisazione riuscita — e il voto del cuoco e' 4 o 5, proponi di
+salvarlo in `dati/ricette.md`: «questa me la segno?». Una domanda sola, e se
+dice di si' scrivi nome, ingredienti con le quantita' vere di stasera e le
+calorie (dalla fonte se c'erano, altrimenti stimate CREA, dicendo quale delle
+due). Da li' entra in rotazione come tutti gli altri.
+
+Se il voto e' basso, non chiedere niente: un piatto venuto male non si
+archivia.
 
 ## 6. Segnare che e' fatto
 
