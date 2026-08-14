@@ -23,8 +23,16 @@ Regole e contratti in `CLAUDE.md`.
 Il PDF si legge con la skill `read-document` — nessun parser da scrivere. Da
 ogni riga: descrizione, quantita', formato se c'e', prezzo pagato.
 
-Se l'utente non ha il PDF, si puo' fare lo stesso a voce, ma dillo una volta:
-col documento la riconciliazione e' esatta, a memoria e' approssimativa.
+**Se il PDF non si lascia leggere** — scansione illeggibile, file corrotto, un
+formato che `read-document` non digerisce — dillo subito e senza giri, poi si
+procede a voce: si chiede il totale, e i prezzi che l'utente ricorda dei
+prodotti nuovi. Ogni prezzo raccolto cosi' entra nella serie con
+`fonte: dichiarato` e la data di oggi. Quelli che nessuno ricorda restano
+buchi dichiarati: **mai riempirli con un numero verosimile**, nemmeno per far
+tornare il totale.
+
+Se l'utente non ha il PDF, stessa strada, ma dillo una volta: col documento la
+riconciliazione e' esatta, a memoria e' approssimativa.
 
 ## 2. Separa cio' che riguarda Lunario
 
@@ -139,7 +147,13 @@ lascia stare il resto. Se i giorni colpiti sono tanti, e' il caso di
   aggiunto alla serie `prezzi` (mai sovrascrivere i vecchi); sigle nuove in
   `alias_scontrino`; formato reale se diverso da quello che si credeva. Per un
   prodotto mai visto, `${CLAUDE_PLUGIN_ROOT}/scripts/off_lookup.py` recupera
-  formato e nutrienti
+  formato e nutrienti. Se Open Food Facts non lo conosce — coi prodotti a
+  marchio del supermercato capita spesso — il dato si chiede a chi la
+  confezione ce l'ha in mano: il formato sta scritto sul pacco, le kcal
+  sull'etichetta. Entrano in `prodotti.jsonl` con `fonte_nutrienti: etichetta`
+  e da li' valgono come un dato letto da OFF: cio' che conta e' la provenienza
+  dichiarata, non il canale. E chiedi solo cio' che serve — il formato subito,
+  i nutrienti solo se il prodotto entra nei conti di qualcuno a dieta
 - **`dati/dispensa.yaml`** — quello che entra in casa e non si consuma questa
   settimana, solo non deperibili
 - **`dati/storico.yaml`** — `spesa_reale` (solo il menu), accanto a
@@ -148,6 +162,24 @@ lascia stare il resto. Se i giorni colpiti sono tanti, e' il caso di
   che rende onesto il totale del lunedi' successivo
 - **`settimane/<ISO>.md`** — righe spuntate, e i giorni corretti se ci sono
   state sostituzioni
+
+## 4a. L'occhio sui prezzi
+
+La serie storica in `prodotti.jsonl` non e' un archivio: e' il posto dove i
+rincari si vedono. Confronta ogni prezzo con l'ultimo della serie, e se lo
+scostamento e' netto dillo — una riga, come dato: «l'olio e' passato da 5,90 a
+7,20». Niente commenti sul carovita: l'utente lo sa gia'.
+
+Se un prodotto rincara stabilmente, due mosse da proporre — non insieme, e
+solo quando i numeri le reggono:
+
+- il **formato**: il prezzo al chilo della confezione grande di solito e'
+  migliore, ma conviene solo se la casa la consuma davvero. Una confezione
+  grande che il postmortem ritrova avanzata due volte non e' un risparmio: e'
+  spreco comprato a prezzo scontato
+- il **paniere**: a parita' di funzione nel piatto, il metro e' €/100 g di
+  proteine (`${CLAUDE_PLUGIN_ROOT}/kb/consigli-pratici.md`) — ed e' il metro
+  giusto anche quando non rincara niente
 
 ## 5. Chiudi corto
 

@@ -312,8 +312,11 @@ come mancante.
 - `formato_g`: grammi o ml per confezione. `null` per il tipo `peso`
 - `alias_scontrino`: sigle viste sugli scontrini, riconosciute ai giri dopo
 - `prezzi`: serie storica, mai sovrascritta. L'ultimo elemento e' il corrente
-- `fonte_nutrienti`: `openfoodfacts:<ean>` oppure `crea` se generico. Un campo
-  nutrizionale senza fonte non esiste
+- `fonte_nutrienti`: `openfoodfacts:<ean>`, `crea` se generico, oppure
+  `etichetta` quando li ha letti l'utente sulla confezione — il dato di chi ha
+  il pacco in mano vale quanto uno letto da OFF, perche' cio' che conta e' la
+  provenienza dichiarata, non il canale. Un campo nutrizionale senza fonte non
+  esiste
 
 ### dati/ricette.md — i piatti di questa casa
 

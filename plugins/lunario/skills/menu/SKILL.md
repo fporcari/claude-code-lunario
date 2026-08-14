@@ -114,7 +114,10 @@ Il passo che rende la lista utile. Procedura completa in `${CLAUDE_PLUGIN_ROOT}/
 2. **meno la dispensa** (`dati/dispensa.yaml`)
 3. **confezioni**: formato da `dati/prodotti.jsonl`; se il prodotto non c'e',
    `${CLAUDE_PLUGIN_ROOT}/scripts/off_lookup.py` lo cerca su Open Food Facts e lo aggiunge. Se non
-   si trova nemmeno li', la riga resta in grammi e si marca
+   si trova nemmeno li' — coi prodotti a marchio del supermercato capita — il
+   formato si puo' chiedere all'utente, che il pacco ce l'ha in dispensa: il
+   dato dichiarato entra in `prodotti.jsonl` e da li' vale come uno letto da
+   OFF. Se non lo sa nessuno, la riga resta in grammi e si marca
    `[formato da verificare]` — mai un formato a memoria
 4. Applica la soglia del 10% (limare la porzione invece di comprare una
    confezione quasi inutile) e calcola l'avanzo previsto
