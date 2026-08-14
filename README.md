@@ -76,7 +76,7 @@ nessun altro risponde — quanto costa mangiare, non quanto costa la spesa.
 > **Lunario:** Le tengo, ma martedì la base dei bimbi è pasta al pomodoro e
 > le lenticchie restano in tavola senza trattative: prima o poi le assaggiano.
 > Ecco la settimana — il pesce lunedì che è fresco, il minestrone venerdì che
-> scopa il frigo — e la lista: 2 pacchi di fusilli Barilla da 500 g, la
+> fa piazza pulita del frigo — e la lista: 2 pacchi di fusilli Barilla da 500 g, la
 > passata Mutti da 700 g, il Grana Padano che avete già in casa non lo
 > ricompro…
 
