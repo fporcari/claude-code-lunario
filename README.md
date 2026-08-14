@@ -55,11 +55,41 @@ falso. E **il ristorante non sparisce dai conti**: non è spesa di Lunario, ma
 è spesa alimentare, e finisce in un campo suo che risponde alla domanda che
 nessun altro risponde — quanto costa mangiare, non quanto costa la spesa.
 
+## Un lunedì qualunque
+
+> **Tu:** prepariamo la settimana
+>
+> **Lunario:** Dal calendario: giovedì cena di lavoro tua, mercoledì nuoto dei
+> bimbi fino alle 18.30 — quindi giovedì cucino solo per tre e mercoledì serve
+> una cena pronta in 25 minuti. Torna? E ditemi se c'è una voglia, o qualcosa
+> che non volete più vedere.
+>
+> **Tu:** torna. Siamo stufi del merluzzo, e venerdì viene a cena mia madre
+>
+> **Lunario:** Il merluzzo esce di rotazione per tre settimane. Venerdì
+> aggiungo un posto a tavola, porzioni intere — e ci metto il risotto ai
+> funghi, che con un ospite rende più di una vellutata. La pizza del sabato
+> resta il vostro pasto libero: non la conto e non la compenso.
+>
+> **Tu:** ok. Ai bimbi le lenticchie di martedì non vanno giù
+>
+> **Lunario:** Le tengo, ma martedì la base dei bimbi è pasta al pomodoro e
+> le lenticchie restano in tavola senza trattative: prima o poi le assaggiano.
+> Ecco la settimana — il pesce lunedì che è fresco, il minestrone venerdì che
+> scopa il frigo — e la lista: 2 pacchi di fusilli Barilla da 500 g, la
+> passata Mutti da 700 g, il Grana Padano che avete già in casa non lo
+> ricompro…
+
+<!-- SEGNAPOSTO: screenshot del menu HTML di una settimana vera.
+     Lo genera l'autore da settimane/<ISO>.html e lo committa a mano.
+     Non generarlo in modo sintetico: un menu inventato violerebbe la
+     regola «mai inventare» che regge il progetto. -->
+
 ## Le otto skill
 
 | skill | quando | cosa fa |
 |---|---|---|
-| `lunario:profilo` | una volta | ti intervista: chi siete, obiettivi, esclusioni. Calcola le calorie da peso e altezza, e costruisce la cartella |
+| `lunario:profilo` | una volta | ti intervista: chi siete, obiettivi, esclusioni. Bastano tre domande per partire — il resto si racconta strada facendo — o l'intervista completa per chi ha tempo. Calcola le calorie da peso e altezza, e costruisce la cartella |
 | `lunario:ritmi` | quando cambia la vita | la settimana tipo: chi pranza fuori il martedì, quale sera c'è poco tempo |
 | `lunario:settimana` | **il lunedì** | legge il calendario, ti chiede impegni, pasti già presi fuori casa, voglie e di cosa sei stufo, poi genera menu e spesa |
 | `lunario:menu` | automatica | i 7 giorni e la lista in confezioni, in markdown e in HTML stampabile |
@@ -67,6 +97,28 @@ nessun altro risponde — quanto costa mangiare, non quanto costa la spesa.
 | `lunario:prepara` | **mentre cucini** | ingredienti, procedimento, un video se serve. Ti avverte se manca qualcosa, poi chiede difficoltà e voto del cuoco |
 | `lunario:correggi` | a settimana in corso | cambi idea? Ti propone cosa è rimasto e rifà solo i giorni che restano |
 | `lunario:postmortem` | **la domenica** | avanzi, voti dei commensali, pasti saltati e — se vuoi — il peso → ritara porzioni, rotazione e budget |
+
+## Come impara, in concreto
+
+Due domeniche di fila la stessa risposta al postmortem — «è avanzata pasta» —
+e in `dati/storico.yaml` succede questo:
+
+```yaml
+# prima
+tarature:
+  porzioni_g: {}
+
+# dopo
+tarature:
+  porzioni_g:
+    Adulto1:
+      pasta: 70      # era 80, avanzata due settimane su due
+```
+
+Dal lunedì successivo il fabbisogno si calcola sulla porzione nuova — e
+siccome la lista ragiona in confezioni, prima o poi quei grammi in meno
+diventano un pacco in meno. Nessuno ha aperto un file, nessuno ha «impostato»
+niente: il sistema ha guardato la pentola.
 
 ## Il peso, se lo vuoi — e come non diventa un giudizio
 
@@ -123,6 +175,30 @@ la spesa fatta per qualcun altro. Le righe alimentari te le presenta come lista
 visto» — e tu correggi in una parola. Anche a metà: sei yogurt di cui tre della
 suocera valgono mezza riga. E ciò che compri altrove — il pane dal panettiere,
 le uova dal contadino — dopo la prima volta smette di risultare mancante.
+
+### Quando il database non ti conosce
+
+Open Food Facts è collaborativo, e sulla marca del supermercato la copertura
+è reale ma parziale: interrogando la sua
+[API di ricerca](https://world.openfoodfacts.org/api/v2/search?brands_tags=esselunga&fields=code&page_size=1)
+(14 agosto 2026) i prodotti
+censiti sono circa 2.100 per Esselunga, 3.200 per Coop, 2.900 per Conad e
+3.000 per Carrefour in Italia, mentre Lidl ne ha 1.500 a proprio nome più
+quelli dei suoi marchi (la sola Italiamo supera il migliaio). Sembrano numeri
+discreti, ma anche quando il prodotto c'è manca spesso proprio il dato che
+serve a Lunario: dei prodotti Esselunga censiti, meno della metà ha il
+formato della confezione compilato.
+
+Per questo la degradazione è un percorso previsto, non un incidente — e a
+ogni gradino si dichiara, mai si inventa. Se il database non conosce il tuo
+prodotto, Lunario lo chiede a te, che il pacco ce l'hai in dispensa: il
+formato sta scritto sopra, le calorie sull'etichetta, e il dato dichiarato
+entra nel paniere con la sua provenienza, valido come uno letto dal database.
+Se non lo sa nessuno, la riga resta in grammi, marcata «formato da
+verificare». E lo stesso vale per gli scontrini: se il PDF non si lascia
+leggere, si va a voce — i prezzi che ricordi entrano come «dichiarati»,
+quelli che nessuno ricorda restano buchi. Una riga onesta vale più di una
+confezione inventata.
 
 ## Installazione
 
