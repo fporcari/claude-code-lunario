@@ -27,6 +27,12 @@ un'intervista.
 non aperte. Distingui le due cose: la prima e' una porzione sbagliata, la
 seconda e' un fabbisogno sbagliato.
 
+Con un'eccezione che viene dal mestiere: se ad avanzare e' sempre la verdura,
+la porzione non si tocca — il taglio calorico non passa mai da li', e una
+porzione di verdura ridotta perche' avanza e' una resa, non una taratura. Li'
+si cambia la preparazione: al forno invece che lessa, dentro il piatto invece
+che accanto.
+
 **2. I voti.** Per i piatti della settimana, un voto **da 1 a 5** e da chi
 viene. Non chiederli uno per uno come un esame: proponi i piatti della
 settimana e lascia che l'utente voti quelli che gli sono rimasti in mente —
@@ -95,6 +101,14 @@ sempre, invece, e' un calo troppo rapido — oltre 1 kg a settimana per tre
 settimane — e li' si rimanda al medico, perche' qui il ruolo e' nutrizionale e
 si ferma prima.
 
+Due letture che vengono dal mestiere, e servono soprattutto a non sbagliare
+tono. Un plateau dopo settimane di calo regolare non e' un fallimento e non
+autorizza indagini su cosa sia andato storto: a un peso piu' basso corrisponde
+un fabbisogno piu' basso, e' fisiologia — la risposta sta nella tabella delle
+ritarature, non nelle domande. E una risalita secca dopo una settimana con
+piu' pasti fuori e' quasi sempre acqua e sale, non grasso: si registra, si
+aspetta la domenica dopo, e non la si nomina nemmeno.
+
 Se l'obiettivo e' stato raggiunto, proponi il passaggio a mantenimento: e' una
 modifica al profilo, quindi si chiede, non si applica.
 
@@ -126,6 +140,11 @@ Applicala e dichiarala, senza chiedere permesso per le regole automatiche:
 | peso fermo o in salita per 3+ settimane | proponi di rivedere porzioni o target, come ipotesi. Mai cercare un colpevole |
 | calo oltre 1 kg/settimana per 3 settimane | dillo e **rimanda al medico**: troppo in fretta |
 | ultima pesata a 3 kg da `peso_kg` | **proponi** il ricalcolo di `kcal_giorno`: e' il profilo, quindi si chiede. Sotto i 3 kg no, sarebbe rumore |
+
+Un'eccezione sola alla prima riga: la porzione di verdura e frutta **non si
+riduce mai** — il taglio non passa da li'
+(`${CLAUDE_PLUGIN_ROOT}/kb/porzioni-standard.md`). Se avanza, si cambia
+preparazione o piatto, non grammatura.
 
 Correggi anche `dati/dispensa.yaml` sul reale: gli avanzi previsti dal menu
 sono una stima, quello che c'e' davvero lo sa solo l'utente.

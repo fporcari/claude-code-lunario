@@ -75,6 +75,17 @@ Ordine di applicazione dei vincoli — chi viene prima vince:
 5. **Frequenze** (`${CLAUDE_PLUGIN_ROOT}/kb/porzioni-standard.md`) — pesce 2-3, carne max 3 di cui
    rossa max 1, legumi 2-4
 
+Le frequenze sono pensate su una settimana intera, ma **si applicano alle
+celle che restano in casa**: se le cene cucinate sono quattro, quelle quattro
+non possono essere due carni e due formaggi — pesce e legumi hanno la
+precedenza, perche' altre occasioni non ci sono. E la settimana si legge
+anche in verticale, come farebbe chi la deve mangiare: due piatti lunghi non
+si affiancano in due sere di fila, lo stesso sapore dominante non torna a un
+giorno di distanza, e la verdura c'e' ogni giorno senza che serva una regola
+che lo imponga. Il giorno dopo un pasto libero e' un giorno normale: ne'
+piu' leggero ne' piu' virtuoso, perche' la compensazione e' vietata anche
+quando si traveste da buon senso.
+
 Avanzi della settimana scorsa nei primi giorni. Per ogni persona con
 `selettivo: true`, i pasti a casa portano la loro base neutra
 (`${CLAUDE_PLUGIN_ROOT}/kb/consigli-pratici.md`), segnalata in linea.
