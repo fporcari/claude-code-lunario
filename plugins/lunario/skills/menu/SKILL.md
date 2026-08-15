@@ -112,15 +112,55 @@ Il passo che rende la lista utile. Procedura completa in `${CLAUDE_PLUGIN_ROOT}/
    × persone. Un pranzo in mensa e una merenda che nessuno fa non comprano
    niente; la merenda dei due bambini compra per due, sette volte
 2. **meno la dispensa** (`dati/dispensa.yaml`)
-3. **confezioni**: formato da `dati/prodotti.jsonl`; se il prodotto non c'e',
-   `${CLAUDE_PLUGIN_ROOT}/scripts/off_lookup.py` lo cerca su Open Food Facts e lo aggiunge. Se non
-   si trova nemmeno li' — coi prodotti a marchio del supermercato capita — il
-   formato si puo' chiedere all'utente, che il pacco ce l'ha in dispensa: il
-   dato dichiarato entra in `prodotti.jsonl` e da li' vale come uno letto da
-   OFF. Se non lo sa nessuno, la riga resta in grammi e si marca
-   `[formato da verificare]` — mai un formato a memoria
+3. **confezioni**: formato da `dati/prodotti.jsonl`. I prodotti che non ci sono
+   si risolvono adesso, col procedimento qui sotto — non si rimandano alla
+   lista
 4. Applica la soglia del 10% (limare la porzione invece di comprare una
    confezione quasi inutile) e calcola l'avanzo previsto
+
+### 3a. I formati che mancano si cercano, non si rimandano
+
+Alla prima settimana di una casa nuova `prodotti.jsonl` e' vuoto, quindi
+**tutti** i formati mancano. Se non li si cerca, l'intera lista esce in grammi
+con `[formato da verificare]` su ogni riga, la dispensa resta vuota e la
+settimana dopo si ricompra la pasta che e' gia' in casa. Il marcatore e'
+onesto, ma deve restare l'eccezione che era: sono una decina di ricerche
+meccaniche, ed e' esattamente il lavoro che fa la skill al posto dell'utente.
+
+**Prima raccogli tutti i mancanti, poi cerca.** A fine passata del fabbisogno
+hai la lista completa dei prodotti senza formato: sono ricerche indipendenti e
+si fanno in blocco, non una per volta dentro il ciclo.
+
+Per ognuno, in quest'ordine, e ci si ferma al primo che risponde:
+
+1. **Codice a barre**, se lo si conosce da uno scontrino passato:
+   `off_lookup.py --ean <ean> --salva <id>` — una chiamata, esatta
+2. **Nome su Open Food Facts**: `off_lookup.py "<nome>" --marca <marca>`.
+   Stampa i candidati col formato di ciascuno: **scegli il formato modale fra
+   i primi risultati, non il primo hit**. Una ricerca di «fusilli barilla»
+   restituisce buste artigianali da 200 g accanto allo standard da 500, e il
+   primo posto non vuol dire niente. Poi salva il candidato scelto col suo EAN
+3. **Ricerca web**, se OFF non conosce il prodotto: cerca il formato in cui
+   quel prodotto si vende in Italia, e vale la stessa regola — il formato piu'
+   ricorrente, non il primo trovato. Va in `prodotti.jsonl` con
+   `fonte_formato: {fonte: ricerca, data: oggi}`
+4. **L'utente**, che e' la fonte migliore di tutte perche' il pacco ce l'ha in
+   dispensa. Quelli rimasti si chiedono **tutti in una volta**, in una domanda
+   sola con l'elenco — mai un modulo, mai una domanda per prodotto. La risposta
+   entra come `fonte_formato: {fonte: utente, data: oggi}` e da li' vale piu'
+   di qualsiasi database
+5. **Solo se non risponde nessuno**: riga in grammi e `[formato da verificare]`
+
+Due regole che valgono per tutti i passaggi:
+
+- **Scrivi in `prodotti.jsonl` subito**, appena trovato. Open Food Facts chiede
+  «1 API call = 1 real scan»: la cache e' il modo di rispettarlo, e la seconda
+  settimana costa zero chiamate
+- **Mai un formato a memoria.** Ogni formato porta `fonte_formato` con la data:
+  un errore si corregge dove e' nato, e il primo scontrino lo corregge da solo
+
+Non raccontare all'utente le ricerche una per una: e' rumore. Se qualcosa e'
+rimasto irrisolto, lo dice la riga marcata nella lista.
 
 Aggiorna `dati/dispensa.yaml` con gli avanzi previsti — **solo non
 deperibili**, la fascia `[fine]` di `${CLAUDE_PLUGIN_ROOT}/kb/deperibilita.md`.

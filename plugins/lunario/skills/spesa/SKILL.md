@@ -145,7 +145,9 @@ lascia stare il resto. Se i giorni colpiti sono tanti, e' il caso di
 
 - **`dati/prodotti.jsonl`** — prezzo pagato con la data dello scontrino,
   aggiunto alla serie `prezzi` (mai sovrascrivere i vecchi); sigle nuove in
-  `alias_scontrino`; formato reale se diverso da quello che si credeva. Per un
+  `alias_scontrino`; formato reale se diverso da quello che si credeva, con
+  `fonte_formato: {fonte: scontrino, data}` — il formato che hanno dato batte
+  quello che il paniere sperava, e la prossima lista nasce giusta. Per un
   prodotto mai visto, `${CLAUDE_PLUGIN_ROOT}/scripts/off_lookup.py` recupera
   formato e nutrienti. Se Open Food Facts non lo conosce — coi prodotti a
   marchio del supermercato capita spesso — il dato si chiede a chi la

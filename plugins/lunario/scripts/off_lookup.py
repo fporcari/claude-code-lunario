@@ -122,6 +122,13 @@ def normalizza(p, id_locale=None):
         "alias_scontrino": [],
         "prezzi": [],
         "fonte_nutrienti": f"openfoodfacts:{p.get('code')}" if p.get("code") else None,
+        # Da dove viene formato_g, e quando: i produttori cambiano i tagli, e
+        # un formato sbagliato va corretto dove e' nato. Senza formato non c'e'
+        # provenienza da dichiarare.
+        "fonte_formato": {
+            "fonte": f"openfoodfacts:{p.get('code')}" if p.get("code") else "openfoodfacts",
+            "data": time.strftime("%Y-%m-%d"),
+        } if peso else None,
     }
 
 
@@ -141,6 +148,13 @@ def salva(riga):
         for k in ("alias_scontrino", "prezzi", "reparto", "tipo"):
             if vecchia.get(k):
                 riga[k] = vecchia[k]
+        # Un formato confermato da chi il pacco ce l'ha in mano, o letto su uno
+        # scontrino, vale piu' di quello che OFF dichiara adesso: e' il formato
+        # che questo negozio tiene davvero.
+        conferma = (vecchia.get("fonte_formato") or {}).get("fonte", "")
+        if conferma.startswith(("utente", "scontrino")) and vecchia.get("formato_g"):
+            riga["formato_g"] = vecchia["formato_g"]
+            riga["fonte_formato"] = vecchia["fonte_formato"]
     righe[riga["id"]] = riga
     with PRODOTTI.open("w", encoding="utf-8") as f:
         for d in righe.values():

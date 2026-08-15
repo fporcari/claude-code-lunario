@@ -294,7 +294,8 @@ compra davvero. Si popola da solo, settimana dopo settimana.
  "kcal_100g": 348, "proteine_100g": 13.5,
  "alias_scontrino": ["FUSILLI INTGR 500", "PASTA INT.500G"],
  "prezzi": [{"data": "2026-08-14", "eur": 1.19, "fonte": "scontrino"}],
- "fonte_nutrienti": "openfoodfacts:8002330121556"}
+ "fonte_nutrienti": "openfoodfacts:8002330121556",
+ "fonte_formato": {"fonte": "openfoodfacts:8002330121556", "data": "2026-08-14"}}
 ```
 
 `fonte` del prezzo: `scontrino` (letto da un PDF) oppure `dichiarato` (detto
@@ -310,6 +311,12 @@ come mancante.
   `peso` (banco: si compra al grammo, nessun arrotondamento) ·
   `pezzo` (uova, vasetti: l'unita' e' il pezzo)
 - `formato_g`: grammi o ml per confezione. `null` per il tipo `peso`
+- `fonte_formato`: `{fonte, data}` — da dove viene `formato_g` e quando.
+  `openfoodfacts:<ean>` · `ricerca` (una ricerca web, il formato modale fra i
+  primi risultati) · `utente` (ha il pacco in mano: batte tutti) · `scontrino`
+  (il formato che hanno dato davvero). Un formato senza questa riga e' un
+  formato a memoria, e non esiste: la data serve perche' i produttori
+  cambiano i tagli, e la fonte perche' un errore va corretto dov'e' nato
 - `alias_scontrino`: sigle viste sugli scontrini, riconosciute ai giri dopo
 - `prezzi`: serie storica, mai sovrascritta. L'ultimo elemento e' il corrente
 - `fonte_nutrienti`: `openfoodfacts:<ean>`, `crea` se generico, oppure

@@ -71,9 +71,25 @@ il problema e' il formato — vale la pena cercarne uno piu' piccolo.
 
 ## Da dove viene il formato
 
-Da `dati/prodotti.jsonl` se il prodotto c'e' gia', altrimenti da Open Food
-Facts (`scripts/off_lookup.py`), che restituisce `product_quantity` in grammi.
+Quattro fonti, in ordine di forza, e si dichiara sempre quale ha risposto —
+`fonte_formato: {fonte, data}` in `dati/prodotti.jsonl`:
 
-Mai a memoria. Se il formato non si trova ne' in un posto ne' nell'altro, la
-riga della spesa resta in grammi e si marca `[formato da verificare]`: una
-riga onesta vale piu' di una confezione inventata.
+| fonte | quando | quanto vale |
+|---|---|---|
+| `utente` | ha il pacco in dispensa | massimo: e' il formato che quel negozio tiene davvero |
+| `scontrino` | glielo hanno dato cosi' | come sopra, e arriva da solo |
+| `openfoodfacts:<ean>` | `scripts/off_lookup.py`, `product_quantity` in grammi | buono, ma il catalogo e' incompleto sui marchi del supermercato |
+| `ricerca` | una ricerca web, quando OFF non lo conosce | il piu' debole: si prende il formato **modale**, non il primo risultato |
+
+La ricerca per nome merita una cautela: restituisce buste artigianali da 200 g
+accanto allo standard da 500, e il primo posto non e' un'informazione. Si
+guardano i primi risultati e si tiene il formato che ricorre.
+
+**La ricerca si fa durante la generazione del menu**, non si rimanda alla
+lista: e' li' che il formato serve. La skill `menu` raccoglie tutti i mancanti
+a fine passata del fabbisogno e li risolve in blocco.
+
+Mai a memoria. Se non risponde nessuna delle quattro fonti, la riga della spesa
+resta in grammi e si marca `[formato da verificare]`: una riga onesta vale piu'
+di una confezione inventata. Ma deve restare un'eccezione — su una lista intera
+marcata cosi' non funziona niente di questa pagina.
