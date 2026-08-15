@@ -117,6 +117,13 @@ Per le righe del gruppo **menu**, confronta con la lista in
 | **manca** | vai al punto 3 |
 | **in piu'**, fuori lista | gia' classificato sopra: nessun commento |
 
+**Se l'utente ha spuntato la lista sul telefono**, chiediglielo: una lista
+spuntata a meta' e' la risposta onesta a «cosa avete comprato davvero», e le
+righe **non** spuntate sono gia' i candidati alla sostituzione, senza chiedere
+a nessuno di ricordarsele. Non e' un dato che le skill possono leggere da sole
+— resta nel browser di quel telefono — quindi o lo racconta l'utente o non
+esiste. Se non risponde, si va avanti con lo scontrino e basta.
+
 Il riconoscimento delle sigle segue le regole del paniere: se
 `FUSILLI INTGR 500` e' gia' in `alias_scontrino`, si riconosce da solo; se e'
 nuova, chiedi conferma una volta sola e poi salvala. Raggruppa le sconosciute

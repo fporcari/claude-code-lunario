@@ -94,10 +94,37 @@
   footer{margin-top:26px;padding-top:12px;border-top:1px solid var(--riga);
          font-size:.72rem;color:var(--tenue)}
 
-  /* I quadratini da spuntare servono su carta, non a schermo. Questa regola
-     sta PRIMA del blocco @media print: altrimenti, a parita' di specificita',
-     vincerebbe lei e in stampa non comparirebbero. */
+  /* I quadratini di carta servono in stampa, non a schermo: a schermo c'e' una
+     checkbox vera. Questa regola sta PRIMA del blocco @media print: altrimenti,
+     a parita' di specificita', vincerebbe lei e in stampa non comparirebbero. */
   .quadratino{display:none;margin-right:5px}
+
+  /* ---- la spesa si spunta col dito ----
+     Il foglio si stampa e finisce sul frigo, ma la lista si usa al
+     supermercato, e li' si ha in mano un telefono. Senza questo, chi fa la
+     spesa ricopia venti righe in un blocco note — ed e' esattamente li' che
+     si perdono i formati e i pasti a cui servono. */
+  .spunta{
+    appearance:none;-webkit-appearance:none;
+    width:1.05em;height:1.05em;flex:0 0 auto;margin-right:8px;
+    border:1.5px solid var(--tenue);border-radius:3px;
+    vertical-align:-.15em;cursor:pointer;position:relative;
+  }
+  .spunta:checked{background:var(--luna);border-color:var(--luna)}
+  .spunta:checked::after{
+    content:"✓";position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:.8em;color:var(--fondo);
+  }
+  .riga label{display:flex;align-items:center;cursor:pointer;flex:1}
+  /* Presa: la riga resta leggibile ma smette di chiedere attenzione. */
+  .voce.presa .riga{opacity:.45;text-decoration:line-through}
+  .voce.presa .uso{opacity:.45}
+  .azzera{
+    display:block;margin:10px 0 0 auto;padding:.3em .8em;
+    background:none;border:1px solid var(--riga);border-radius:4px;
+    color:var(--tenue);font:inherit;font-size:.74rem;cursor:pointer;
+  }
 
   /* ---- stampa: bianco, una pagina A4, niente inchiostro sprecato ---- */
   @media print{
@@ -118,7 +145,12 @@
        davanti allo scaffale, e a 8pt la lista sta ancora in una pagina. */
     .uso{font-size:8pt;padding-left:14px}
     .uso a{border-bottom:none}
+    /* Sulla carta si ricomincia da capo: quadratini vuoti per la penna,
+       nessuna riga barrata. Il foglio stampato non eredita le spunte fatte
+       col dito, perche' chi stampa vuole una lista, non un resoconto. */
     .quadratino{display:inline-block}
+    .spunta,.azzera{display:none}
+    .voce.presa .riga,.voce.presa .uso{opacity:1;text-decoration:none}
     footer{margin-top:14px}
   }
 </style>
@@ -222,12 +254,22 @@
          finocchi» in «e' il mercoledi' da ripensare». -->
     <div class="reparto">
       <h3>Ortofrutta</h3>
+      <!-- data-riga e' la chiave con cui la spunta sopravvive a un ricarico:
+           uno slug stabile del prodotto, unico nella pagina. Se cambia, la
+           spunta di quella riga riparte da zero — che e' il comportamento
+           giusto, perche' la riga non e' piu' la stessa. -->
       <div class="voce">
-        <div class="riga"><span><span class="quadratino">☐</span>Zucchine</span><span class="q">600 g · 1,49 €</span></div>
+        <div class="riga">
+          <label><input type="checkbox" class="spunta" data-riga="zucchine"><span class="quadratino">☐</span>Zucchine</label>
+          <span class="q">600 g · 1,49 €</span>
+        </div>
         <div class="uso">→ <a href="#g-lun">lun cena</a> · <a href="#g-gio">gio pranzo</a></div>
       </div>
       <div class="voce">
-        <div class="riga"><span><span class="quadratino">☐</span>Rucola</span><span class="q">2 buste · 2,18 €</span></div>
+        <div class="riga">
+          <label><input type="checkbox" class="spunta" data-riga="rucola"><span class="quadratino">☐</span>Rucola</label>
+          <span class="q">2 buste · 2,18 €</span>
+        </div>
         <div class="uso">→ contorno, tutta la settimana</div>
       </div>
     </div>
@@ -235,7 +277,10 @@
     <div class="reparto">
       <h3>Dispensa</h3>
       <div class="voce">
-        <div class="riga"><span><span class="quadratino">☐</span>Fusilli integrali</span><span class="q">2 × 500 g · 2,38 €</span></div>
+        <div class="riga">
+          <label><input type="checkbox" class="spunta" data-riga="fusilli-integrali"><span class="quadratino">☐</span>Fusilli integrali</label>
+          <span class="q">2 × 500 g · 2,38 €</span>
+        </div>
         <div class="uso">→ <a href="#g-gio">gio cena</a></div>
       </div>
     </div>
@@ -249,6 +294,7 @@
     <span>Totale stimato</span>
     <span>{{TOTALE}} €</span>
   </div>
+  <button type="button" class="azzera" hidden>Azzera le spunte</button>
 
   <footer>
     Calorie indicative, stimate dalle tabelle CREA e arrotondate alle decine —
@@ -257,5 +303,54 @@
   </footer>
 
 </div>
+
+<script>
+// Le spunte della spesa, e nient'altro. Restano in questo browser: al sistema
+// non servono — quello che e' entrato in casa lo dice lo scontrino, non questa
+// pagina — e uno stato che le skill non leggono non deve fingere di parlarci.
+(function () {
+  var chiave = 'lunario:{{ISO}}:spesa';   // per settimana: due settimane aperte non si mescolano
+  var spunte = document.querySelectorAll('.spunta');
+  if (!spunte.length) return;
+
+  // localStorage puo' non esserci: file aperto da un'anteprima, URL data:,
+  // navigazione privata. In quel caso si spunta lo stesso, e basta: una lista
+  // che si rompe perche' il browser nega lo storage e' peggio di una lista
+  // che dimentica.
+  function leggi() {
+    try { return JSON.parse(localStorage.getItem(chiave)) || {}; } catch (e) { return {}; }
+  }
+  function scrivi(stato) {
+    try { localStorage.setItem(chiave, JSON.stringify(stato)); } catch (e) { /* amen */ }
+  }
+
+  var stato = leggi();
+  var azzera = document.querySelector('.azzera');
+
+  function disegna(box) {
+    box.closest('.voce').classList.toggle('presa', box.checked);
+  }
+
+  Array.prototype.forEach.call(spunte, function (box, i) {
+    var id = box.dataset.riga || ('riga-' + i);
+    box.checked = !!stato[id];
+    disegna(box);
+    box.addEventListener('change', function () {
+      if (box.checked) { stato[id] = 1; } else { delete stato[id]; }
+      scrivi(stato);
+      disegna(box);
+    });
+  });
+
+  if (azzera) {
+    azzera.hidden = false;
+    azzera.addEventListener('click', function () {
+      stato = {};
+      scrivi(stato);
+      Array.prototype.forEach.call(spunte, function (box) { box.checked = false; disegna(box); });
+    });
+  }
+})();
+</script>
 </body>
 </html>

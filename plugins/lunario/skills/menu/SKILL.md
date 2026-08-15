@@ -223,10 +223,17 @@ Tre cose, in quest'ordine:
    postmortem
 2. **`settimane/<anno>-W<settimana>.html`** — da
    `${CLAUDE_PLUGIN_ROOT}/templates/menu.html`, sostituendo i segnaposto
-   `{{...}}` e ripetendo i blocchi marcati `RIPETI`. E' la copia che si stampa
-   e si attacca al frigo: scuro a schermo, bianco in stampa, coi quadratini da
-   spuntare al supermercato. I reparti vanno nell'ordine in cui si gira il
-   negozio, non in ordine alfabetico
+   `{{...}}` e ripetendo i blocchi marcati `RIPETI`. Si stampa e si attacca al
+   frigo, ma soprattutto **si apre sul telefono al supermercato**: la lista si
+   spunta col dito e le spunte restano dov'erano se la pagina si ricarica. I
+   reparti vanno nell'ordine in cui si gira il negozio, non in ordine
+   alfabetico.
+
+   Due cose da riempire bene, perche' non si vedono guardando la pagina:
+   `{{ISO}}` compare anche nella chiave di salvataggio, quindi due settimane
+   aperte insieme non si mescolano; e ogni `input.spunta` vuole un `data-riga`
+   **unico nella pagina** — uno slug del prodotto, non l'indice della riga,
+   altrimenti aggiungere una voce sposta tutte le spunte gia' fatte
 3. **Voce in `dati/storico.yaml`** con `titolo` e `spesa_stimata`
 
 ### 6a. Ogni riga della spesa dice a cosa serve
