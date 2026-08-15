@@ -7,97 +7,238 @@
      I commenti RIPETI dicono quali blocchi vanno replicati.
      Tutto e' inline di proposito: il file deve funzionare da solo, offline,
      inviato per messaggio o aperto da una chiavetta. Niente font o immagini
-     da scaricare. -->
+     da scaricare — i caratteri sono pile di font di sistema scelte apposta:
+     serif editoriale per i titoli, sans geometrica per il testo, mono per i
+     numeri. Su iPhone, Android e stampa cadono su famiglie diverse ma con lo
+     stesso carattere. -->
+<!-- theme-color colora la cornice del browser sul telefono: va tenuto uguale
+     a --fondo, scritto come esadecimale perche' un meta non legge le
+     variabili CSS. -->
+<meta name="theme-color" content="{{COLORE_FONDO}}">
 <title>Lunario — {{TITOLO_SETTIMANA}}</title>
 <style>
+  /* ================== IL VESTITO DELLA SETTIMANA ==================
+     Questi undici colori sono l'UNICA cosa che cambia da una settimana
+     all'altra: la skill li ricompone ogni volta, partendo dal titolo
+     (istruzioni in lunario:menu, sezione 5a). Si sostituiscono TUTTI
+     insieme — una palette a meta' e' peggio di nessuna palette.
+
+       --fondo       la pagina             --carta   la scheda del giorno
+       --velo        fondino note/scorte   --inchiostro  il testo
+       --tenue       il testo secondario   --riga    filetti e bordi
+       --accento     il colore della settimana (titoli, spunte, totale)
+       --su-accento  il testo SOPRA l'accento (la ✓ nella casella)
+       --inizio --meta --fine  le tre fasce di deperibilita' dei giorni
+
+     Chiara o scura, decide la palette: la pagina si legge spesso al
+     supermercato, sotto luci forti, quindi in dubbio meglio chiara.
+     Contrasti minimi, non negoziabili: inchiostro/fondo 7:1,
+     tenue/carta 4.5:1, accento leggibile su fondo. La stampa ignora
+     tutto questo e resta bianca comunque.
+
+     Qualche esempio di vestito, per calibrare la mano:
+       carta da forno   #FAF5EB fondo · #2A241C inchiostro · #B4500A accento
+       mercato d'estate #FBF7F0 fondo · #26221A inchiostro · #B03A2E accento
+       notte di luna    #1E2732 fondo · #F6F8FA inchiostro · #E8660D accento
+       acquario         #12333B fondo · #EAF4F2 inchiostro · #E86A4C accento
+       orto d'inverno   #F2F5EE fondo · #232920 inchiostro · #4F7A4A accento
+     ================================================================= */
   :root{
-    --fondo:#1E2732; --carta:#26313E; --chiaro:#F6F8FA;
-    --tenue:#B8C4D0; --luna:#E8660D; --riga:rgba(246,248,250,.14);
-    --inizio:#7FA98B; --meta:#E0A32E; --fine:#C4643A;
+    --fondo:#FAF5EB; --carta:#FFFFFF; --velo:#F2EADB;
+    --inchiostro:#2A241C; --tenue:#6E6357; --riga:#E3D8C4;
+    --accento:#B4500A; --su-accento:#FFFFFF;
+    --inizio:#5B7F62; --meta:#B8862B; --fine:#A44E33;
+
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Times New Roman",serif;
+    --sans:"Avenir Next",Avenir,Seravek,"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
   body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    background:var(--fondo);color:var(--chiaro);
-    line-height:1.5;padding:32px 24px;
+    font-family:var(--sans);
+    background:var(--fondo);color:var(--inchiostro);
+    line-height:1.55;
+    padding:clamp(16px,4vw,44px) clamp(14px,4vw,40px) 48px;
   }
-  .foglio{max-width:940px;margin:0 auto}
+  .foglio{max-width:860px;margin:0 auto}
 
-  header{border-bottom:2px solid var(--luna);padding-bottom:14px;margin-bottom:24px}
-  .occhiello{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--luna)}
-  h1{font-size:2rem;line-height:1.15;margin:.2rem 0 .3rem;font-weight:700}
-  .date{font-size:.86rem;color:var(--tenue)}
+  /* ---- testata: un almanacco, non una dashboard ---- */
+  header{
+    position:relative;
+    border-top:2px solid var(--inchiostro);
+    border-bottom:1px solid var(--inchiostro);
+    padding:14px 0 18px;margin-bottom:8px;
+  }
+  /* Il fregio: un solo glifo, grande e quasi trasparente, che richiama il
+     titolo — la skill lo sceglie insieme alla palette. Decorazione pura:
+     aria-hidden, niente in stampa. */
+  .fregio{
+    position:absolute;top:-4px;right:-6px;
+    font-size:clamp(4rem,14vw,6.5rem);line-height:1;
+    opacity:.14;pointer-events:none;user-select:none;
+  }
+  .occhiello{
+    font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accento);font-weight:600;
+  }
+  h1{
+    font-family:var(--serif);font-weight:400;
+    font-size:clamp(1.9rem,7.5vw,3.1rem);line-height:1.08;
+    letter-spacing:-.01em;margin:.25rem 0 .35rem;
+    text-wrap:balance;
+  }
+  .date{font-size:.85rem;color:var(--tenue)}
+  .date b{color:var(--inchiostro);font-weight:600}
   /* Lo stato della settimana, sempre visibile: un preventivo stampato senza
      questa riga finisce sul frigo e il suo totale viene letto come soldi
      spesi. Tratteggiato quando e' una previsione, pieno quando e' un fatto. */
   .stato{
-    display:inline-block;margin:.4rem 0 .2rem;padding:.28em .7em;
-    border:1px dashed var(--luna);border-radius:4px;
-    font-size:.78rem;color:var(--luna);
+    display:inline-block;margin:.55rem 0 0;padding:.3em .75em;
+    border:1px dashed var(--accento);border-radius:999px;
+    font-size:.72rem;letter-spacing:.02em;color:var(--accento);
   }
-  .stato.consuntivo{border-style:solid}
+  .stato.consuntivo{border-style:solid;background:var(--accento);color:var(--su-accento)}
 
-  h2{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;
-     color:var(--luna);margin:28px 0 10px}
+  /* Tre salti, per il pollice: sul telefono la spesa sta due schermate piu'
+     in basso, e scorrerci ogni volta e' il genere di attrito che fa tornare
+     al blocco note. Niente in stampa. */
+  .salti{
+    display:flex;gap:6px;flex-wrap:wrap;
+    margin:10px 0 22px;font-size:.76rem;
+  }
+  .salti a{
+    color:var(--tenue);text-decoration:none;
+    border:1px solid var(--riga);border-radius:999px;
+    padding:.3em .8em;background:var(--carta);
+  }
+  .salti a:active{color:var(--accento);border-color:var(--accento)}
+
+  /* ---- i titoli di sezione: piccole maiuscole fra due filetti ---- */
+  h2{
+    display:flex;align-items:center;gap:14px;
+    font-size:.74rem;font-weight:600;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--accento);
+    margin:30px 0 12px;
+  }
+  h2::before,h2::after{content:"";flex:1;height:1px;background:var(--riga)}
 
   /* ---- i sette giorni ---- */
-  .giorni{display:grid;gap:8px}
+  .giorni{display:grid;gap:10px}
   .giorno{
-    display:grid;grid-template-columns:76px 1fr;gap:14px;
-    background:var(--carta);border-radius:8px;padding:12px 16px;
-    border-left:4px solid var(--riga);
+    background:var(--carta);border:1px solid var(--riga);
+    border-left:4px solid var(--riga);border-radius:10px;
+    padding:12px 14px 10px;
   }
   .giorno.inizio{border-left-color:var(--inizio)}
   .giorno.meta{border-left-color:var(--meta)}
   .giorno.fine{border-left-color:var(--fine)}
-  .g-nome{font-weight:700;font-size:1rem}
-  .g-data{font-size:.74rem;color:var(--tenue);font-weight:400}
-  .pasto{display:flex;gap:10px;align-items:baseline;padding:2px 0}
-  .pasto .et{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;
-             color:var(--tenue);min-width:52px}
-  .pasto .piatto{flex:1}
+  .g-testa{
+    display:flex;align-items:baseline;justify-content:space-between;gap:10px;
+    border-bottom:1px dashed var(--riga);padding-bottom:5px;margin-bottom:6px;
+  }
+  .g-nome{font-family:var(--serif);font-size:1.2rem;font-weight:600;letter-spacing:.01em}
+  .g-data{font-family:var(--mono);font-size:.72rem;color:var(--tenue)}
+
+  /* Un pasto e' una griglia di due righe: etichetta e kcal sopra, il piatto
+     sotto a tutta larghezza. E' quello che rende il giorno leggibile su uno
+     schermo da 390px senza sacrificare niente sul grande. */
+  .pasto{
+    display:grid;grid-template-columns:1fr auto;
+    column-gap:10px;padding:6px 0 4px;align-items:baseline;
+  }
+  .pasto .et{
+    font-size:.66rem;text-transform:uppercase;letter-spacing:.14em;
+    color:var(--tenue);font-weight:600;
+  }
+  .pasto .kcal{
+    font-family:var(--mono);font-size:.72rem;color:var(--tenue);
+    white-space:nowrap;justify-self:end;
+  }
+  .pasto .piatto{grid-column:1/-1;font-size:.97rem;line-height:1.45}
+  .pasto .piatto em{color:var(--tenue)}
   /* Il piatto e' cliccabile solo quando il nome non basta a immaginarselo:
      la ricetta di casa o una pagina cercata sul momento. Sulla carta il link
      sparisce e resta il nome — la copia del frigo non porta indirizzi. */
-  .piatto a{color:inherit;text-decoration:none;
-            border-bottom:1px dotted var(--tenue)}
-  .kcal{font-size:.76rem;color:var(--tenue);white-space:nowrap}
-  .bimbi{font-size:.78rem;color:var(--tenue);font-style:italic;padding-left:62px}
-  /* Colazione e merende: una riga sola in testa al giorno, piu' minuta —
-     sono abitudini che si ripetono, non scelte da leggere ogni giorno. */
-  .contorno{font-size:.78rem;color:var(--tenue);padding:1px 0 3px}
+  .piatto a{
+    color:inherit;text-decoration:none;
+    border-bottom:1px solid color-mix(in srgb,var(--accento) 45%,transparent);
+  }
+  @supports not (color:color-mix(in srgb,red,blue)){
+    .piatto a{border-bottom:1px dotted var(--accento)}
+  }
   /* Un pasto che non si cucina resta visibile ma spento: il giorno si legge
      per intero, e si vede a colpo d'occhio che li' non si cucina. */
   .pasto.fuori .piatto{color:var(--tenue);font-style:italic}
   .pasto.libero .piatto::after{
-    content:"libero";margin-left:8px;padding:.1em .45em;
-    border:1px solid var(--luna);border-radius:3px;
-    font-size:.64rem;text-transform:uppercase;letter-spacing:.06em;
-    color:var(--luna);font-style:normal;vertical-align:.1em;
+    content:"libero";margin-left:8px;padding:.12em .5em;
+    border:1px solid var(--accento);border-radius:999px;
+    font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--accento);font-style:normal;vertical-align:.14em;
   }
+  /* Colazione e merende: una riga sola in testa al giorno, piu' minuta —
+     sono abitudini che si ripetono, non scelte da leggere ogni giorno. */
+  .contorno{font-size:.78rem;color:var(--tenue);padding:1px 0 4px}
+  .bimbi{font-size:.8rem;color:var(--tenue);font-style:italic;padding:2px 0}
+  /* La nota del giorno — lo scongelamento, il trucco di cottura, l'avanzo che
+     rientra. Un fondino la separa dal menu: e' servizio, non scelta. */
+  .nota{
+    background:var(--velo);border-radius:8px;
+    font-size:.79rem;color:var(--tenue);
+    padding:7px 10px;margin-top:8px;
+  }
+  .nota strong{color:var(--inchiostro)}
 
-  /* ---- la spesa ---- */
-  .spesa{columns:2;column-gap:32px}
-  .reparto{break-inside:avoid;margin-bottom:14px}
-  .reparto h3{font-size:.82rem;color:var(--luna);margin-bottom:4px;
-              text-transform:uppercase;letter-spacing:.06em}
+  /* ---- scorte e spesa: stessa grammatica di voce ---- */
   /* Una voce della spesa = la riga + cio' a cui serve. Il filetto sta sulla
      voce, non sulla riga: altrimenti separerebbe l'ingrediente dai suoi pasti,
      che sono la stessa cosa. */
-  .voce{border-bottom:1px dotted var(--riga)}
-  .riga{display:flex;justify-content:space-between;gap:10px;
-        font-size:.88rem;padding:2px 0}
-  .riga .q{color:var(--tenue);white-space:nowrap}
+  .voce{border-bottom:1px solid var(--riga)}
+  .voce:last-child{border-bottom:none}
+  .riga{
+    display:flex;align-items:baseline;gap:10px;
+    font-size:.95rem;padding:8px 0 2px;
+  }
+  .riga .q{
+    font-family:var(--mono);font-size:.78rem;color:var(--tenue);
+    white-space:nowrap;margin-left:auto;text-align:right;
+  }
   /* A cosa serve la riga: piccola e spenta, perche' si legge solo quando
      serve — quando un prodotto manca, o quando una quantita' non torna.
      I link puntano all'id del giorno piu' in alto. */
-  .uso{font-size:.72rem;color:var(--tenue);padding:0 0 3px 18px}
-  .uso a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--riga)}
-  .totale{margin-top:8px;padding-top:10px;border-top:2px solid var(--luna);
-          display:flex;justify-content:space-between;font-weight:700}
+  .uso{font-size:.74rem;color:var(--tenue);padding:0 0 8px 30px}
+  .uso a{color:var(--accento);text-decoration:none}
+  .daverificare{font-size:.7rem;color:var(--accento);opacity:.8}
 
-  footer{margin-top:26px;padding-top:12px;border-top:1px solid var(--riga);
-         font-size:.72rem;color:var(--tenue)}
+  .scorte{background:var(--carta);border:1px solid var(--riga);
+          border-radius:10px;padding:2px 14px}
+  /* La dispensa non e' una checklist: e' una dichiarazione. Una riga sola
+     dentro «Gia' in casa», accanto al congelatore che invece si spunta,
+     perche' scongelare e' un'azione con un orario e avere la pasta no. */
+  .dispensa{
+    background:var(--velo);border-radius:8px;
+    font-size:.8rem;color:var(--tenue);line-height:1.6;
+    padding:8px 12px;margin-top:8px;
+  }
+  .dispensa strong{color:var(--inchiostro)}
+
+  .spesa{display:grid;grid-template-columns:1fr;gap:0 32px}
+  .reparto{break-inside:avoid;margin-bottom:16px}
+  .reparto h3{
+    font-family:var(--serif);font-size:1.02rem;font-weight:600;
+    color:var(--inchiostro);letter-spacing:.01em;
+    border-bottom:2px solid var(--accento);
+    padding-bottom:3px;margin-bottom:2px;
+  }
+  .totale{
+    margin-top:10px;padding:12px 0 0;border-top:2px solid var(--inchiostro);
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-family:var(--serif);font-size:1.15rem;font-weight:600;
+  }
+  .totale .cifra{font-family:var(--mono);font-size:1.05rem;color:var(--accento)}
+
+  footer{margin-top:30px;padding-top:12px;border-top:1px solid var(--riga);
+         font-size:.72rem;color:var(--tenue);line-height:1.6}
 
   /* I quadratini di carta servono in stampa, non a schermo: a schermo c'e' una
      checkbox vera. Questa regola sta PRIMA del blocco @media print: altrimenti,
@@ -108,26 +249,28 @@
      Il foglio si stampa e finisce sul frigo, ma la lista si usa al
      supermercato, e li' si ha in mano un telefono. Senza questo, chi fa la
      spesa ricopia venti righe in un blocco note — ed e' esattamente li' che
-     si perdono i formati e i pasti a cui servono. */
+     si perdono i formati e i pasti a cui servono. La casella e' larga quanto
+     un polpastrello, e tutta la riga e' cliccabile. */
   .spunta{
     appearance:none;-webkit-appearance:none;
-    width:1.05em;height:1.05em;flex:0 0 auto;margin-right:8px;
-    border:1.5px solid var(--tenue);border-radius:3px;
-    vertical-align:-.15em;cursor:pointer;position:relative;
+    width:1.35em;height:1.35em;flex:0 0 auto;margin-right:6px;
+    border:1.5px solid var(--tenue);border-radius:5px;
+    align-self:center;cursor:pointer;position:relative;
+    background:var(--carta);
   }
-  .spunta:checked{background:var(--luna);border-color:var(--luna)}
+  .spunta:checked{background:var(--accento);border-color:var(--accento)}
   .spunta:checked::after{
     content:"✓";position:absolute;inset:0;
     display:flex;align-items:center;justify-content:center;
-    font-size:.8em;color:var(--fondo);
+    font-size:.85em;color:var(--su-accento);
   }
-  .riga label{display:flex;align-items:center;cursor:pointer;flex:1}
+  .riga label{display:flex;align-items:center;cursor:pointer;flex:1;min-height:34px}
   /* Presa: la riga resta leggibile ma smette di chiedere attenzione. */
-  .voce.presa .riga{opacity:.45;text-decoration:line-through}
-  .voce.presa .uso{opacity:.45}
+  .voce.presa .riga{opacity:.4;text-decoration:line-through}
+  .voce.presa .uso{opacity:.4}
   .azzera{
-    display:block;margin:10px 0 0 auto;padding:.3em .8em;
-    background:none;border:1px solid var(--riga);border-radius:4px;
+    display:block;margin:14px 0 0 auto;padding:.4em 1em;
+    background:none;border:1px solid var(--riga);border-radius:999px;
     color:var(--tenue);font:inherit;font-size:.74rem;cursor:pointer;
   }
   /* Il consuntivo e' inerte: la spesa e' gia' stata fatta, non c'e' niente da
@@ -136,33 +279,70 @@
   [data-stato="consuntivo"] .azzera{display:none}
   [data-stato="consuntivo"] .riga label{cursor:default}
 
-  /* ---- stampa: bianco, una pagina A4, niente inchiostro sprecato ---- */
+  /* ---- dal tablet in su: il giorno riprende la colonna, la spesa raddoppia ---- */
+  @media (min-width:640px){
+    .giorno{
+      display:grid;grid-template-columns:96px 1fr;gap:0 18px;
+      padding:14px 18px 12px;
+    }
+    .g-testa{
+      display:block;border-bottom:none;padding:2px 0 0;margin:0;
+    }
+    .g-nome{font-size:1.12rem;line-height:1.2}
+    .g-data{display:block;margin-top:2px}
+    .pasto{grid-template-columns:64px 1fr auto;column-gap:12px}
+    .pasto .et{padding-top:.2em}
+    .pasto .piatto{grid-column:2}
+    .pasto .kcal{grid-column:3}
+    .bimbi,.contorno{padding-left:0}
+    .spesa{grid-template-columns:1fr 1fr}
+  }
+
+  /* ---- stampa: bianco, una pagina A4, niente inchiostro sprecato.
+     La palette della settimana NON passa dalla stampante: qualunque vestito
+     abbia lo schermo, la carta e' sempre questa. ---- */
   @media print{
     @page{size:A4 portrait;margin:12mm}
     :root{
-      --fondo:#fff; --carta:#fff; --chiaro:#111;
-      --tenue:#555; --luna:#B4500A; --riga:#ccc;
+      --fondo:#fff; --carta:#fff; --velo:#fff;
+      --inchiostro:#111; --tenue:#555; --riga:#ccc;
+      --accento:#B4500A; --su-accento:#fff;
+      --inizio:#5B7F62; --meta:#B8862B; --fine:#A44E33;
     }
     body{padding:0;font-size:10.5pt;line-height:1.35}
-    .giorno{border:1px solid #ddd;border-left-width:4px;padding:7px 10px;
-            border-radius:0;break-inside:avoid}
+    .fregio,.salti{display:none}
+    header{border-top-width:1.5pt;padding:6px 0 10px}
+    h1{font-size:1.7rem}
+    h2{margin:14px 0 6px}
     .giorni{gap:4px}
-    h1{font-size:1.6rem}
-    h2{margin:16px 0 6px}
-    .spesa{columns:3;column-gap:18px}
-    .riga{font-size:9.5pt}
+    .giorno{
+      display:grid;grid-template-columns:90px 1fr;gap:0 14px;
+      border:1px solid #ddd;border-left:3pt solid var(--riga);
+      border-radius:0;padding:6px 10px;break-inside:avoid;
+    }
+    .giorno.inizio{border-left-color:var(--inizio)}
+    .giorno.meta{border-left-color:var(--meta)}
+    .giorno.fine{border-left-color:var(--fine)}
+    .g-testa{display:block;border-bottom:none;padding:0;margin:0}
+    .pasto{grid-template-columns:56px 1fr auto;column-gap:10px;padding:2px 0}
+    .pasto .piatto{grid-column:2;font-size:9.5pt}
+    .pasto .kcal{grid-column:3}
+    .nota,.dispensa{background:none;border:1px dotted #bbb;padding:3px 6px;font-size:8pt}
+    .scorte{border:none;padding:0}
+    .spesa{display:block;columns:3;column-gap:18px}
+    .riga{font-size:9.5pt;padding:2px 0}
     /* La riga d'uso c'e' anche in stampa, ma minuta: e' il dato che serve
        davanti allo scaffale, e a 8pt la lista sta ancora in una pagina. */
-    .uso{font-size:8pt;padding-left:14px}
-    .uso a{border-bottom:none}
+    .uso{font-size:8pt;padding:0 0 3px 16px}
+    .uso a{color:inherit;text-decoration:none}
+    .piatto a{border-bottom:none;color:inherit}
     /* Sulla carta si ricomincia da capo: quadratini vuoti per la penna,
        nessuna riga barrata. Il foglio stampato non eredita le spunte fatte
        col dito, perche' chi stampa vuole una lista, non un resoconto. */
-    .piatto a{border-bottom:none}
     .quadratino{display:inline-block}
     .spunta,.azzera{display:none}
     .voce.presa .riga,.voce.presa .uso{opacity:1;text-decoration:none}
-    footer{margin-top:14px}
+    footer{margin-top:12px}
   }
 </style>
 </head>
@@ -180,7 +360,14 @@
 <div class="foglio">
 
   <header>
+    <!-- Il fregio segue il titolo: un solo carattere — ☾ ✿ ⚓ ❄ — scelto
+         dalla skill insieme alla palette. Se niente risuona, ☾ va bene. -->
+    <span class="fregio" aria-hidden="true">{{FREGIO}}</span>
     <p class="occhiello">Lunario · settimana {{ISO}}</p>
+    <h1>{{TITOLO_SETTIMANA}}</h1>
+    <!-- N_PERSONE e' quanti sono in casa, non quanti mangiano ogni sera:
+         chi c'e' pasto per pasto lo dice la griglia, giorno per giorno. -->
+    <p class="date"><b>{{DA_LUNEDI}} — {{A_DOMENICA}}</b> · {{N_PERSONE}} a tavola</p>
     <!-- STATO: il blocco c'e' SEMPRE, cambia solo cosa dice.
          preventivo (finche' non c'e' lo scontrino):
            <p class="stato">Preventivo — formati, prezzi e piatti sono stime.
@@ -190,13 +377,16 @@
              formati e prezzi sono quelli dello scontrino.</p> -->
     <p class="stato">Preventivo — formati, prezzi e piatti sono stime. Il
       totale non e' una spesa.</p>
-    <h1>{{TITOLO_SETTIMANA}}</h1>
-    <!-- N_PERSONE e' quanti sono in casa, non quanti mangiano ogni sera:
-         chi c'e' pasto per pasto lo dice la griglia, giorno per giorno. -->
-    <p class="date">{{DA_LUNEDI}} — {{A_DOMENICA}} · {{N_PERSONE}} a tavola</p>
   </header>
 
-  <h2>I sette giorni</h2>
+  <!-- Il salto «Gia' in casa» c'e' solo se c'e' la sezione. -->
+  <nav class="salti">
+    <a href="#giorni">I giorni</a>
+    <a href="#incasa">Già in casa</a>
+    <a href="#spesa">La spesa</a>
+  </nav>
+
+  <h2 id="giorni">I sette giorni</h2>
   <div class="giorni">
 
     <!-- RIPETI questo blocco per ogni giorno.
@@ -214,10 +404,14 @@
          abitudini che si ripetono uguali, e ripeterle per esteso sette volte
          rende il foglio illeggibile. Se una persona non le fa, non compare.
 
+         La .nota in coda al giorno e' per il servizio: lo scongelamento della
+         sera prima, il trucco di cottura, l'avanzo che rientra. C'e' solo se
+         c'e' qualcosa da dire.
+
          L'id del giorno (g-lun, g-mar, ...) e' il bersaglio dei link della
          lista della spesa: da «carote → mer cena» si arriva al mercoledi'. -->
     <div class="giorno inizio" id="g-lun">
-      <div>
+      <div class="g-testa">
         <div class="g-nome">Lunedì</div>
         <div class="g-data">18 agosto</div>
       </div>
@@ -225,24 +419,25 @@
         <div class="contorno">colazione: yogurt greco, frutta, fette biscottate · merenda bimbi: pane e marmellata</div>
         <div class="pasto">
           <span class="et">pranzo</span>
-          <span class="piatto">Insalata di farro, pomodorini e mozzarella</span>
           <span class="kcal">450 / 380 kcal</span>
+          <span class="piatto">Insalata di farro, pomodorini e mozzarella</span>
         </div>
         <!-- Un piatto che il nome non spiega porta il link alla sua ricetta:
              il file di casa, o una pagina CERCATA sul momento, mai un URL a
              memoria. Un piatto ovvio (pasta al pomodoro) non ne ha bisogno. -->
         <div class="pasto">
           <span class="et">cena</span>
-          <span class="piatto"><a href="../dati/ricette.md#orata-al-forno">Orata al forno con patate</a></span>
           <span class="kcal">520 / 430 kcal</span>
+          <span class="piatto"><a href="../dati/ricette.md#orata-al-forno">Orata al forno con patate</a></span>
         </div>
         <div class="bimbi">bimbi: patate al forno e orata semplice</div>
+        <div class="nota"><strong>Domenica sera:</strong> il branzino dal freezer al frigo (8-12 h).</div>
       </div>
     </div>
 
     <!-- Un giorno con pasti fuori casa e una cena libera. -->
     <div class="giorno meta" id="g-gio">
-      <div>
+      <div class="g-testa">
         <div class="g-nome">Giovedì</div>
         <div class="g-data">21 agosto</div>
       </div>
@@ -261,16 +456,21 @@
 
   </div>
 
-  <!-- DAL CONGELATORE — la sezione c'e' SOLO se la settimana usa delle scorte.
-       Sta prima della spesa e non dentro, perche' e' cio' che ESCE di casa,
-       non cio' che entra nel carrello: sommarla alla lista farebbe ricomprare
-       esattamente la roba che si sta smaltendo.
+  <!-- GIA' IN CASA — la seconda fonte del menu, accanto alla spesa: cio' che
+       questa settimana esce dal congelatore e dalla dispensa invece di
+       entrare nel carrello. La sezione c'e' SOLO se la settimana usa delle
+       scorte (e con lei il suo salto nella nav in testa). Sta prima della
+       spesa e non dentro: sommarla alla lista farebbe ricomprare esattamente
+       la roba che si sta smaltendo.
 
-       La riga sotto e' lo scongelamento, ed e' l'unico vincolo di questa
-       pagina che il giorno stesso non si recupera: un piatto si sposta, un
-       forno si aspetta, una bistecca ancora dura alle otto di sera e' una
-       cena che non avviene. Si scrive sempre, anche quando sembra ovvia. -->
-  <h2>Dal congelatore</h2>
+       Le due meta' hanno nature opposte, e il markup le tratta diversamente:
+       il congelatore e' una lista di AZIONI CON UN ORARIO — la riga dello
+       scongelamento e' l'unico vincolo di questa pagina che il giorno stesso
+       non si recupera, quindi si spunta come la spesa e si scrive sempre,
+       anche quando sembra ovvia. La dispensa e' una DICHIARAZIONE: niente da
+       fare, niente da spuntare — una riga sola che spiega perche' la lista
+       e il totale sono piu' corti di quel che sembrerebbe giusto. -->
+  <h2 id="incasa">Già in casa</h2>
   <div class="scorte">
     <div class="voce">
       <div class="riga">
@@ -288,7 +488,18 @@
     </div>
   </div>
 
-  <h2>La spesa</h2>
+  <!-- La meta' dispensa: cio' che una scorta copre esce dalla lista, e
+       l'uscita si dice — un banco pesce con una riga sola sembra una
+       dimenticanza finche' non si sa perche', e il totale scende per una
+       ragione che qui si legge. Il blocco c'e' solo se qualcosa e' stato
+       tolto dalla lista. -->
+  <div class="dispensa">
+    Dalla dispensa, non si compra: <strong>branzino al banco</strong> (i
+    filetti nel congelatore) · <strong>pasta, riso, olio</strong> (dispensa
+    piena).
+  </div>
+
+  <h2 id="spesa">La spesa</h2>
   <div class="spesa">
 
     <!-- RIPETI un .reparto per ogni reparto, nell'ordine in cui si gira il
@@ -338,21 +549,12 @@
 
   </div>
 
-  <!-- Cio' che una scorta copre esce dalla lista, e l'uscita si dice: un banco
-       pesce con una riga sola sembra una dimenticanza finche' non si sa
-       perche', e il totale scende per una ragione che qui si legge. Il blocco
-       c'e' solo se qualcosa e' stato tolto. -->
-  <div class="uso">
-    Non si compra, c'è già: branzino al banco (i filetti nel congelatore) ·
-    straccetti di manzo (il petto di pollo intero, tagliato).
-  </div>
-
   <!-- L'etichetta segue lo stato: «Totale stimato» sul preventivo,
        «Totale pagato» sul consuntivo. Chiamare stima un pagamento, o
        viceversa, e' l'unico modo di rendere inutile il confronto fra i due. -->
   <div class="totale">
     <span>Totale stimato</span>
-    <span>{{TOTALE}} €</span>
+    <span class="cifra">{{TOTALE}} €</span>
   </div>
   <button type="button" class="azzera" hidden>Azzera le spunte</button>
 
@@ -421,6 +623,23 @@
     });
   }
 })();
+
+// I link interni (usi, salti) non passano per la navigazione a frammento:
+// aperti da un'anteprima (data: URL) o da certi visualizzatori, quel
+// meccanismo e' bloccato. Intercettare il clic e scorrere a mano funziona
+// ovunque, e il lampo sul bersaglio dice DOVE si e' atterrati.
+document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+  a.addEventListener('click', function (e) {
+    var t = document.getElementById(a.getAttribute('href').slice(1));
+    if (!t) return;
+    e.preventDefault();
+    t.scrollIntoView({behavior: 'smooth', block: 'start'});
+    if (!t.classList.contains('giorno')) return;
+    t.style.transition = 'box-shadow .25s';
+    t.style.boxShadow = '0 0 0 2px var(--accento)';
+    setTimeout(function () { t.style.boxShadow = ''; }, 1200);
+  });
+});
 </script>
 </body>
 </html>

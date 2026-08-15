@@ -148,14 +148,14 @@ nella dispensa. Se ne parla `lunario:spesa` davanti allo scontrino.
 
 ### 3a. Cio' che copre una scorta esce dalla lista, e si dice uscendo
 
-Quando un piatto e' costruito su una riga di `freezer`, la riga della spesa
-corrispondente **non si compra**. Ma cancellarla in silenzio rende sospetta
-tutta la lista: un banco pesce con una riga sola sembra una dimenticanza
-finche' non si sa perche'. Quindi la cancellazione si nomina, in coda alla
-lista, dove si legge senza cercarla:
+Quando un piatto e' costruito su una riga di `freezer` o su un avanzo di
+dispensa, la riga della spesa corrispondente **non si compra**. Ma cancellarla
+in silenzio rende sospetta tutta la lista: un banco pesce con una riga sola
+sembra una dimenticanza finche' non si sa perche'. Quindi la cancellazione si
+nomina nella sezione **«Gia' in casa»** (6b), che sta prima della spesa:
 
 ```markdown
-### Non si compra, c'e' gia'
+### Dalla dispensa, non si compra
 - Branzino al banco, 800 g → i due pacchi di filetti nel congelatore (lun cena)
 - Straccetti di manzo, 350 g → il petto di pollo intero, tagliato (mar cena)
 ```
@@ -260,6 +260,35 @@ Da qui in poi il nome e' fissato: `lunario:correggi` non lo tocca nemmeno se
 riscrive meta' settimana, perche' un rename dovrebbe muovere tre cose insieme
 e ogni link che ci puntava.
 
+### 5a. Il vestito della settimana
+
+Il template HTML porta in testa un blocco marcato **«IL VESTITO DELLA
+SETTIMANA»**: undici colori, un glifo decorativo (il fregio) e il
+`theme-color` del telefono. Non e' un tema fisso da lasciare com'e': si
+ricompone **a ogni settimana**, ed e' il titolo a dettarlo — cosi' due menu
+non si somigliano mai, e la settimana si riconosce dal colore prima ancora
+che dal nome.
+
+1. **Parti dal titolo.** «Yellow Submarine» veste di giallo su blu notte,
+   «Glicine» di verdi e lilla slavati, «la settimana che apre il congelatore»
+   di azzurro ghiaccio. Il fregio e' **un carattere solo** — ☾ ✿ ⚓ ❄ — che
+   richiama la stessa immagine; se niente risuona, ☾ e' il default di casa
+2. **Se il titolo non suggerisce niente**, la palette cambia lo stesso: leggi
+   il `:root` dell'HTML della settimana precedente e cambia registro — dopo
+   una chiara una scura, dopo un accento caldo uno freddo. La varieta' e' il
+   punto, non un effetto collaterale
+3. **Le regole del blocco vincono sull'estro**: gli undici colori si
+   sostituiscono **tutti insieme**, i contrasti minimi scritti nel template
+   non si scavalcano (la pagina si legge al supermercato, sotto luci forti:
+   nel dubbio, chiara), `--su-accento` deve reggere la ✓ nella casella, e il
+   `theme-color` nel `<head>` ripete l'esadecimale di `--fondo`
+4. **La stampa non si veste**: il blocco `@media print` resta com'e', bianco
+   e sobrio, qualunque cosa faccia lo schermo
+
+Il vestito e' della settimana, non del menu: `lunario:correggi` che riscrive
+tre giorni non lo cambia, e `lunario:spesa` che promuove a consuntivo cambia
+lo stato, non i colori.
+
 ## 6. Output
 
 Tre cose, in quest'ordine:
@@ -287,12 +316,14 @@ Tre cose, in quest'ordine:
    reparti vanno nell'ordine in cui si gira il negozio, non in ordine
    alfabetico.
 
-   Due cose da riempire bene, perche' non si vedono guardando la pagina:
+   Tre cose da riempire bene, perche' non si vedono guardando la pagina:
    `{{ISO}}` compare anche nella chiave di salvataggio — che resta l'ISO nudo
    e **non** il nome del file, cosi' due settimane aperte insieme non si
-   mescolano e nessun rename azzera le spunte; e ogni `input.spunta` vuole un `data-riga`
+   mescolano e nessun rename azzera le spunte; ogni `input.spunta` vuole un `data-riga`
    **unico nella pagina** — uno slug del prodotto, non l'indice della riga,
-   altrimenti aggiungere una voce sposta tutte le spunte gia' fatte
+   altrimenti aggiungere una voce sposta tutte le spunte gia' fatte; e il
+   salto «Già in casa» nella nav in testa si emette solo se la sezione
+   esiste. Il vestito — palette, fregio, `theme-color` — segue la sezione 5a
 3. **Voce in `dati/storico.yaml`** con `titolo` e `spesa_stimata`
 
 ### 6a. Ogni riga della spesa dice a cosa serve
@@ -333,19 +364,32 @@ Falla anche come **verifica**: se una riga non ha nessun pasto che la usa, non
 e' una riga della spesa, e' un residuo di una modifica precedente. Toglila
 invece di comprarla.
 
-### 6b. Cosa esce dal congelatore, e quando tirarlo fuori
+### 6b. Gia' in casa: la seconda fonte del menu
 
-Se la settimana usa delle scorte, il menu porta un blocco suo, accanto alla
-lista della spesa e non dentro: **e' quello che esce di casa, non quello che
-entra nel carrello**. Una riga per scorta, con il giorno in cui si mangia e
-l'ora in cui va spostata in frigo.
+Il menu ha **due fonti** — cio' che entra dal carrello e cio' che c'e' gia'
+in casa — e la seconda ha una sezione sua, fra i giorni e la spesa, non
+dentro la lista: e' quello che **esce** di casa, non quello che entra nel
+carrello. Dentro, le due meta' si trattano in modo opposto, perche' hanno
+nature opposte:
+
+- **il congelatore e' una lista di azioni con un orario**: una riga per
+  scorta, con il giorno in cui si mangia e l'ora in cui va spostata in
+  frigo, e la casella si spunta come quelle della spesa
+- **la dispensa e' una dichiarazione**: niente da fare, niente da spuntare —
+  si nomina cio' che copre, cosi' la lista corta e il totale basso hanno una
+  ragione leggibile
 
 ```markdown
-## Dal congelatore
+## Gia' in casa
+
+### Dal congelatore
 - [ ] Filetti di branzino, 2 × 250 g → lun cena
       in frigo domenica sera (8-12 h)
 - [ ] Scamone, 475 g → sab cena — e' li' da giugno, si smaltisce
       in frigo venerdi' mattina (12-24 h)
+
+### Dalla dispensa, non si compra
+- Branzino al banco, 800 g → i due pacchi di filetti nel congelatore (lun cena)
 ```
 
 Lo scongelamento non e' un dettaglio da ricettario: e' **l'unico pezzo di
@@ -355,8 +399,10 @@ sera e' una cena che non avviene. Quindi la riga dello scongelamento si
 scrive sempre, anche quando sembra ovvia, e la casella si spunta come le
 altre — `lunario:prepara` la marca la sera prima.
 
-Nell'HTML e' una sezione fra i giorni e la spesa, con lo stesso trattamento
-delle righe della spesa: casella, quantita', e il link al giorno che la usa.
+Nell'HTML la sezione e' `#incasa`: il blocco `.scorte` per il congelatore
+(casella, quantita', link al giorno che la usa) e il blocco `.dispensa` per
+la riga della dispensa. La sezione — e il suo salto nella nav — c'e' solo se
+la settimana usa delle scorte.
 
 ### 6c. Il piatto porta la sua ricetta, quando serve
 
