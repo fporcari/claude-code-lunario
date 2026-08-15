@@ -56,6 +56,11 @@
   .pasto .et{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;
              color:var(--tenue);min-width:52px}
   .pasto .piatto{flex:1}
+  /* Il piatto e' cliccabile solo quando il nome non basta a immaginarselo:
+     la ricetta di casa o una pagina cercata sul momento. Sulla carta il link
+     sparisce e resta il nome — la copia del frigo non porta indirizzi. */
+  .piatto a{color:inherit;text-decoration:none;
+            border-bottom:1px dotted var(--tenue)}
   .kcal{font-size:.76rem;color:var(--tenue);white-space:nowrap}
   .bimbi{font-size:.78rem;color:var(--tenue);font-style:italic;padding-left:62px}
   /* Colazione e merende: una riga sola in testa al giorno, piu' minuta —
@@ -148,6 +153,7 @@
     /* Sulla carta si ricomincia da capo: quadratini vuoti per la penna,
        nessuna riga barrata. Il foglio stampato non eredita le spunte fatte
        col dito, perche' chi stampa vuole una lista, non un resoconto. */
+    .piatto a{border-bottom:none}
     .quadratino{display:inline-block}
     .spunta,.azzera{display:none}
     .voce.presa .riga,.voce.presa .uso{opacity:1;text-decoration:none}
@@ -207,9 +213,12 @@
           <span class="piatto">Insalata di farro, pomodorini e mozzarella</span>
           <span class="kcal">450 / 380 kcal</span>
         </div>
+        <!-- Un piatto che il nome non spiega porta il link alla sua ricetta:
+             il file di casa, o una pagina CERCATA sul momento, mai un URL a
+             memoria. Un piatto ovvio (pasta al pomodoro) non ne ha bisogno. -->
         <div class="pasto">
           <span class="et">cena</span>
-          <span class="piatto">Orata al forno con patate</span>
+          <span class="piatto"><a href="../dati/ricette.md#orata-al-forno">Orata al forno con patate</a></span>
           <span class="kcal">520 / 430 kcal</span>
         </div>
         <div class="bimbi">bimbi: patate al forno e orata semplice</div>

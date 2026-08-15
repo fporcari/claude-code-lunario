@@ -8,13 +8,46 @@ description: >-
   che e' un'altra cosa dal voto dei commensali. Da invocare quando l'utente
   dice "cosa cucino stasera", "come si fa", "prepariamo la cena", "aiutami a
   cucinare", "ci sono", "ho iniziato", "sto cucinando", "ho fatto", "e'
-  pronto", o nomina un piatto del menu di oggi.
+  pronto", o nomina un piatto del menu di oggi. Serve anche PRIMA di cucinare,
+  in anteprima: "fammi vedere il giovedi'", "cos'e' questo piatto", "quanto ci
+  vuole", "cosa comporta" — mostra ingredienti scalati, passi e tempi senza
+  aprire una sessione di cucina e senza scrivere niente.
 ---
 
 # Prepara — mentre si cucina
 
 L'unica skill che si usa **in piedi, con le mani sporche**. Ne discende tutto
 il resto: risposte corte, un passo per volta, niente preamboli.
+
+## 0. Anteprima: la stessa cosa, senza cucinare
+
+«Fammi vedere il giovedi'», «cosa vuol dire questo piatto», «quanto ci vuole
+per la parmigiana?» — non si sta cucinando, si sta **decidendo**. Succede
+mentre il preventivo gira per casa e qualcuno vuole sapere cosa lo aspetta.
+
+Si riconosce dal tempo verbale, ed e' l'unica distinzione che conta: chi cucina
+dice «ci sono», «ho iniziato»; chi decide dice «fammi vedere», «cos'e'»,
+«quanto ci vuole». Nel dubbio, chiedilo in mezza riga invece di indovinare: la
+differenza fra le due modalita' e' cosa resta scritto sui file.
+
+In anteprima **si mostra tutto quello che serve a immaginarsi la cena** — chi
+mangia, ingredienti gia' scalati su questa casa, il procedimento, i tempi veri
+se il piatto e' gia' stato cucinato, dove si biforca la base neutra — e **non
+si scrive niente da nessuna parte**:
+
+| in anteprima | |
+|---|---|
+| pasti spuntati | **nessuno** |
+| voti chiesti | **nessuno** |
+| dispensa, storico, file della settimana | **non si toccano** |
+| ingredienti mancanti | si dicono, senza registrare niente |
+
+E' un modo per bocciare un giovedi' prima che le uova siano in frigo: se
+l'utente dopo l'anteprima dice che non gli va, non discutere e mandalo a
+`lunario:correggi`, che e' la skill che sposta i piatti.
+
+Se poi si mette davvero a cucinare, si riparte dal punto 1 — e da li' in avanti
+tutto vale come sempre.
 
 ## 1. Che piatto e'
 

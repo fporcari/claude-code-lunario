@@ -274,6 +274,51 @@ Falla anche come **verifica**: se una riga non ha nessun pasto che la usa, non
 e' una riga della spesa, e' un residuo di una modifica precedente. Toglila
 invece di comprarla.
 
+### 6b. Il piatto porta la sua ricetta, quando serve
+
+Un menu si approva o si contesta sulla capacita' di **immaginarsi la
+settimana**, e il nome nudo di un piatto non basta: «cous cous con verdure e
+ceci» sono quattro cene diverse a seconda di cosa c'e' dentro.
+
+- **Piatti di casa** (`dati/ricette.md`): il link e' al file, sull'ancora del
+  piatto — `dati/ricette.md#pasta-con-crema-di-zucchine-e-menta`
+- **Piatti del pool**: serve un URL, e vale la disciplina dei formati (3a) —
+  **cercato adesso, mai scritto a memoria**. Un link inventato e' identico a
+  uno vero finche' non ci si clicca. Se la ricerca non da' niente di buono,
+  nessun link: e' un'assenza, non un problema
+- **Piatti ovvi: niente link.** Se il nome determina il piatto — pasta al
+  pomodoro, hamburger alla griglia, riso freddo — un link e' decorazione, e
+  una lista dove tutto e' linkato smette di essere letta. La domanda da farsi
+  e' se chi legge, senza aprire niente, sa gia' cosa arrivera' in tavola
+
+Nel markdown il link sta accanto al piatto; nell'HTML e' il nome stesso a
+essere cliccabile. **Sulla carta non deve comparire nessun URL**: la copia del
+frigo non si riempie di indirizzi.
+
+Le ricerche si fanno in blocco come quelle dei formati: sono pochi piatti a
+settimana, e il link trovato resta scritto nel file della settimana, quindi
+non si ricerca due volte.
+
+### 6c. Vedere la cena prima di comprarla
+
+Il link dice **cos'e'** un piatto; non dice cos'e' **qui** — scalato su questa
+casa, con la base neutra tirata fuori per i bambini, dentro i trenta minuti di
+un mercoledi'. Quella roba esiste gia', la sa `lunario:prepara`, e semplicemente
+non e' raggiungibile prima di impegnarsi. Ed e' il momento in cui servirebbe:
+vedere che giovedi' vuol dire grattugiare zucchine, sbattere otto uova e
+quaranta minuti di forno e' cio' che fa dire «non il giovedi'» — prima che le
+uova siano in frigo.
+
+Quindi, chiudendo il preventivo, dillo in mezza riga: **si puo' chiedere
+l'anteprima di un piatto** — «fammi vedere il giovedi'» — e risponde
+`lunario:prepara` in modalita' anteprima, senza aprire niente e senza spuntare
+niente.
+
+Nell'HTML **non** si mette un link all'anteprima: una pagina statica non puo'
+invocare una skill, e un link che non fa niente e' peggio di nessun link.
+L'anteprima e' una cosa che si chiede parlando, ed e' giusto cosi' — a quel
+punto la conversazione c'e' gia'.
+
 In chat: il titolo, il menu, la lista, il totale, e dove hai salvato l'HTML.
 Stop. Le spiegazioni solo dove la scelta non e' ovvia, una riga ciascuna.
 
