@@ -155,8 +155,8 @@ non impara. Ogni skill scrive un livello solo.
 | `lunario:settimana` | effimero | `settimane/<ISO>/contesto.yaml`, `dati/ricette.md` | ogni lunedi' |
 | `lunario:menu` | — (consuma tutto) | `settimane/<ISO>.md` + `.html`, `dati/dispensa.yaml` | ogni lunedi' |
 | `lunario:spesa` | appreso (prezzi) | `dati/prodotti.jsonl`, `dispensa.yaml`, `storico.yaml` | al ritiro della spesa |
-| `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina` | mentre si cucina |
-| `lunario:correggi` | effimero | `settimane/<ISO>.md` (giorni residui) | quando cambia qualcosa |
+| `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina`, `settimane/<ISO>/diario.yaml` | mentre si cucina |
+| `lunario:correggi` | effimero | `settimane/<ISO>.md` (giorni residui), `settimane/<ISO>/diario.yaml` | quando cambia qualcosa |
 | `lunario:postmortem` | appreso (tavola, pesate) | `dati/storico.yaml` | domenica |
 
 L'utente ne invoca quattro: `lunario:settimana` il lunedi', `lunario:spesa`
@@ -439,6 +439,41 @@ settimana:
       pranzo: fuori
 ```
 
+### settimane/<ISO>/diario.yaml — cosa si e' mangiato davvero
+
+Il contesto dice cosa **doveva** succedere; il diario dice cosa e' successo, e
+si riempie **giorno per giorno**, non ricostruito la domenica.
+
+```yaml
+2026-08-19:
+  pranzo:
+    previsto: Piadina con hummus e verdure grigliate
+    reale: la nonna ha portato le lasagne
+    stato: disattesa
+  cena:
+    previsto: Cous cous con verdure e ceci
+    reale: Cous cous con verdure e ceci
+    chi: [Adulto1, Adulto2, Bimbo1, Bimbo2]
+    avanzo: meta' teglia          # solo se c'e': e' un fatto di martedi'
+```
+
+`stato` si scrive **solo quando qualcosa e' andato storto** — `disattesa`
+(previsto a casa, finito altrove, o viceversa), `saltata` (non si e' mangiato
+quel pasto). Il silenzio vuol dire «come previsto», che e' il caso normale e
+non merita una riga di conferma.
+
+Scriverci non deve mai essere un modulo: una frase in chat — «stasera niente
+polpette, pizza d'asporto», «Anna ha mangiato solo la pasta» — e' tutta
+l'interazione, e `lunario:prepara` chiude il pasto da solo a fine cottura,
+quando la conversazione c'e' gia'.
+
+Vale la stessa regola di riservatezza del contesto: **il vincolo derivato, mai
+il racconto**. «Cena fuori», non con chi.
+
+**Un diario vuoto deve degradare bene.** Nessuno lo compilera' tutti i giorni,
+e un postmortem che rimprovera i buchi e' un postmortem che si smette di fare:
+un pasto senza voce si chiede la domenica, esattamente come oggi.
+
 ### dati/storico.yaml
 
 ```yaml
@@ -621,9 +656,18 @@ In `settimane/<ISO>.md` pasti e righe della spesa sono **caselle da spuntare**.
 del lancio successivo, gli ingredienti consumati spariscono da cio' che si
 presume in casa.
 
-Non serve un file di stato in piu': il menu **e'** lo stato, e si legge a
-occhio. Ci si appoggiano `lunario:correggi`, che propone cosa e' rimasto invece
-di chiederlo, e il postmortem, che corregge la dispensa sul consumo reale.
+Le caselle dicono **che** un pasto e' avvenuto; il diario dice **cosa si e'
+mangiato davvero**, ed e' la stessa informazione resa rispondibile. Ci si
+appoggiano `lunario:correggi`, che propone cosa e' rimasto invece di
+chiederlo, e il postmortem, che corregge la dispensa sul consumo reale.
+
+Perche' non bastasse la memoria della domenica: il postmortem faceva quattro
+domande su sette giorni, ed e' una prova di memoria che fallisce proprio dove
+serve. Tre mercoledi' mangiati fuori sono un ritmo da scrivere in
+`ritmi.yaml`, ma solo se sono stati registrati tutti e tre — ricostruito la
+domenica, il terzo e' l'unico che qualcuno ricorda. «E' finita o e' rimasta
+mezza teglia in frigo» e' una domanda a cui si sa rispondere il martedi', non
+sei giorni dopo, ed e' la risposta che tara `porzioni_g`.
 
 ### Correzione in corsa (lunario:correggi)
 
@@ -636,8 +680,10 @@ come tali. I giorni gia' passati non si riscrivono mai.
 
 ### Postmortem (lunario:postmortem)
 
-Quattro domande — avanzi, bocciati/promossi e da chi, la griglia che non ha
-tenuto, spesa integrativa e mangiate fuori — poi ritara:
+Si apre **leggendo il diario della settimana**, non chiedendo: cio' che e' gia'
+registrato si propone come verificato e non si ridomanda. Restano le domande
+sui buchi — avanzi, bocciati/promossi e da chi, la griglia che non ha tenuto,
+spesa integrativa e mangiate fuori — poi ritara:
 - stesso avanzo per 2+ settimane -> riduci la porzione in `tarature`
 - piatto bocciato 1 volta -> fuori rotazione 3 settimane; 2 volte -> escluso
 - stessa cella disattesa per 3 settimane -> non e' sfortuna, e' un ritmo:

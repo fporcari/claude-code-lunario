@@ -8,7 +8,10 @@ description: >-
   menu, che congela la lista della spesa. Da invocare quando l'utente dice
   "cambia il giovedi'", "non gli piace", "hanno protestato", "confermo il
   menu", "va bene cosi'", "vado a fare la spesa", "cambio idea", "ho ospiti",
-  "cosa faccio con quello che ho in frigo".
+  "cosa faccio con quello che ho in frigo". Raccoglie anche i pasti andati
+  diversamente dal previsto, detti di passaggio — "stasera niente polpette,
+  pizza d'asporto", "alla fine abbiamo mangiato fuori" — e li registra nel
+  diario della settimana.
 ---
 
 # Correggi — il menu cambia
@@ -156,6 +159,26 @@ non la domenica.
 Riscrivi in `settimane/<ISO>.md` solo i giorni cambiati, lasciando visibile
 cosa c'era prima (una riga barrata o una nota). Aggiorna `dati/dispensa.yaml`
 se la correzione cambia gli avanzi previsti.
+
+**A settimana iniziata, scrivi anche il diario** — `settimane/<ISO>/diario.yaml`,
+contratto in `CLAUDE.md`. Una modifica in corsa *e'* una voce di diario: una
+cella spostata o saltata e' esattamente cio' per cui il diario esiste, e
+saperlo il mercoledi' vale piu' che ricostruirlo la domenica.
+
+```yaml
+2026-08-21:
+  cena:
+    previsto: Polpette al sugo
+    reale: pizza d'asporto
+    stato: disattesa
+```
+
+Il vincolo, non il racconto: «cena fuori», non con chi. E niente domande in
+piu' per riempirlo — ci va quello che l'utente ha gia' detto raccontando cosa
+doveva cambiare.
+
+Le correzioni fatte **prima** della spesa non sono voci di diario: li' non e'
+successo ancora niente, si sta ancora decidendo.
 
 I piatti rifiutati **non** finiscono subito nei bocciati: passali al
 postmortem della domenica, che e' il posto dove si impara. Qui si registra il

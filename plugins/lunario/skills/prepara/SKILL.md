@@ -211,6 +211,40 @@ non e' consumata: se serve, annotala accanto alla riga.
 
 Fallo in silenzio: non elencare all'utente cosa hai spuntato.
 
+### 6a. Chiudere il pasto nel diario
+
+Stessa passata, un file in piu': `settimane/<ISO>/diario.yaml` (contratto in
+`CLAUDE.md`). E' il posto dove finisce **cosa si e' mangiato davvero**, e
+questa skill e' la sola che ci arriva nel momento buono — a fine cottura, con
+l'utente che sta gia' parlando.
+
+```yaml
+2026-08-19:
+  cena:
+    previsto: Cous cous con verdure e ceci
+    reale: Cous cous con verdure e ceci
+    chi: [Adulto1, Adulto2, Bimbo1, Bimbo2]
+```
+
+Quello che sai gia' e non devi chiedere: il previsto, il reale (e' il piatto
+che avete appena fatto), chi era a tavola. **Niente domande in piu'**: le due
+sul voto del cuoco sono gia' due, e questa e' una registrazione, non
+un'intervista.
+
+Due cose vanno scritte solo se l'utente le dice da solo, mentre parla:
+
+- **`avanzo`** — «e' avanzata mezza teglia». E' un fatto di stasera: la
+  domenica nessuno sa piu' se e' finita o no, ed e' il dato che tara le
+  porzioni
+- **`stato: disattesa`** — se si e' cucinato un piatto previsto per un altro
+  giorno, o se il piatto e' un'altra cosa da quella in menu
+
+Se l'utente accenna a un altro pasto — «a pranzo abbiamo mangiato fuori» —
+registralo e basta, senza approfondire: e' un'informazione che passava di li'.
+Nel diario va il vincolo, non il racconto: «pranzo fuori», non con chi.
+
+Anche questo in silenzio.
+
 ## Cosa ci fa il sistema, e perche' non e' lo stesso voto del postmortem
 
 | voto | chi | quando | cosa tara |
