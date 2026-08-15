@@ -125,7 +125,12 @@ in una domanda unica invece di chiederle a una a una.
 ## 3. Cosa manca, e se e' un problema
 
 Per ogni riga mancante, la domanda non e' «manca?» ma **«questo fa saltare un
-piatto?»**. Rispondi tu, guardando il menu, e distingui:
+piatto?»**. La risposta e' gia' scritta accanto alla riga: la lista dice a
+quali pasti serve ogni ingrediente (`→ mer cena · gio cena`), quindi i piatti
+colpiti non si cercano, si leggono. Se manca la riga d'uso — un menu vecchio —
+allora si guarda il menu a mano.
+
+Rispondi tu, e distingui:
 
 - **Ininfluente** — mancano i pomodorini di guarnizione: annota e basta, non
   disturbare l'utente per questo

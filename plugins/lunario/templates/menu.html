@@ -76,9 +76,18 @@
   .reparto{break-inside:avoid;margin-bottom:14px}
   .reparto h3{font-size:.82rem;color:var(--luna);margin-bottom:4px;
               text-transform:uppercase;letter-spacing:.06em}
+  /* Una voce della spesa = la riga + cio' a cui serve. Il filetto sta sulla
+     voce, non sulla riga: altrimenti separerebbe l'ingrediente dai suoi pasti,
+     che sono la stessa cosa. */
+  .voce{border-bottom:1px dotted var(--riga)}
   .riga{display:flex;justify-content:space-between;gap:10px;
-        font-size:.88rem;padding:2px 0;border-bottom:1px dotted var(--riga)}
+        font-size:.88rem;padding:2px 0}
   .riga .q{color:var(--tenue);white-space:nowrap}
+  /* A cosa serve la riga: piccola e spenta, perche' si legge solo quando
+     serve — quando un prodotto manca, o quando una quantita' non torna.
+     I link puntano all'id del giorno piu' in alto. */
+  .uso{font-size:.72rem;color:var(--tenue);padding:0 0 3px 18px}
+  .uso a{color:inherit;text-decoration:none;border-bottom:1px dotted var(--riga)}
   .totale{margin-top:8px;padding-top:10px;border-top:2px solid var(--luna);
           display:flex;justify-content:space-between;font-weight:700}
 
@@ -105,6 +114,10 @@
     h2{margin:16px 0 6px}
     .spesa{columns:3;column-gap:18px}
     .riga{font-size:9.5pt}
+    /* La riga d'uso c'e' anche in stampa, ma minuta: e' il dato che serve
+       davanti allo scaffale, e a 8pt la lista sta ancora in una pagina. */
+    .uso{font-size:8pt;padding-left:14px}
+    .uso a{border-bottom:none}
     .quadratino{display:inline-block}
     footer{margin-top:14px}
   }
@@ -146,8 +159,11 @@
 
          Colazione e merende stanno in .contorno, una riga sola in testa: sono
          abitudini che si ripetono uguali, e ripeterle per esteso sette volte
-         rende il foglio illeggibile. Se una persona non le fa, non compare. -->
-    <div class="giorno inizio">
+         rende il foglio illeggibile. Se una persona non le fa, non compare.
+
+         L'id del giorno (g-lun, g-mar, ...) e' il bersaglio dei link della
+         lista della spesa: da «carote → mer cena» si arriva al mercoledi'. -->
+    <div class="giorno inizio" id="g-lun">
       <div>
         <div class="g-nome">Lunedì</div>
         <div class="g-data">18 agosto</div>
@@ -169,7 +185,7 @@
     </div>
 
     <!-- Un giorno con pasti fuori casa e una cena libera. -->
-    <div class="giorno meta">
+    <div class="giorno meta" id="g-gio">
       <div>
         <div class="g-nome">Giovedì</div>
         <div class="g-data">21 agosto</div>
@@ -197,16 +213,31 @@
          Le quantita' sono SEMPRE in confezioni reali per i prodotti a
          confezione ("2 pacchi da 500 g"), in grammi solo per il banco.
          Una riga senza prezzo noto si marca [prezzo ignoto] e resta fuori
-         dal totale. -->
+         dal totale.
+
+         Sotto ogni riga, .uso dice A COSA SERVE quell'ingrediente. Un pasto
+         preciso e' un link all'id del giorno; un'abitudine si dice a parole,
+         perche' elencare sette giorni per l'olio non aiuta nessuno. E' il
+         dato che, quando un prodotto manca, trasforma «non c'erano i
+         finocchi» in «e' il mercoledi' da ripensare». -->
     <div class="reparto">
       <h3>Ortofrutta</h3>
-      <div class="riga"><span><span class="quadratino">☐</span>Zucchine</span><span class="q">600 g · 1,49 €</span></div>
-      <div class="riga"><span><span class="quadratino">☐</span>Rucola</span><span class="q">2 buste · 2,18 €</span></div>
+      <div class="voce">
+        <div class="riga"><span><span class="quadratino">☐</span>Zucchine</span><span class="q">600 g · 1,49 €</span></div>
+        <div class="uso">→ <a href="#g-lun">lun cena</a> · <a href="#g-gio">gio pranzo</a></div>
+      </div>
+      <div class="voce">
+        <div class="riga"><span><span class="quadratino">☐</span>Rucola</span><span class="q">2 buste · 2,18 €</span></div>
+        <div class="uso">→ contorno, tutta la settimana</div>
+      </div>
     </div>
 
     <div class="reparto">
       <h3>Dispensa</h3>
-      <div class="riga"><span><span class="quadratino">☐</span>Fusilli integrali</span><span class="q">2 × 500 g · 2,38 €</span></div>
+      <div class="voce">
+        <div class="riga"><span><span class="quadratino">☐</span>Fusilli integrali</span><span class="q">2 × 500 g · 2,38 €</span></div>
+        <div class="uso">→ <a href="#g-gio">gio cena</a></div>
+      </div>
     </div>
 
   </div>

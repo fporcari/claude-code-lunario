@@ -229,6 +229,44 @@ Tre cose, in quest'ordine:
    negozio, non in ordine alfabetico
 3. **Voce in `dati/storico.yaml`** con `titolo` e `spesa_stimata`
 
+### 6a. Ogni riga della spesa dice a cosa serve
+
+Sotto ogni riga, in piccolo, **i pasti che usano quell'ingrediente**:
+
+```markdown
+- [ ] Carote — 700 g
+      → mer cena · gio cena
+- [ ] Fette biscottate — 2 × 300 g
+      → colazione adulti, tutta la settimana
+```
+
+Il dato ce l'hai gia': la sezione 3 calcola il fabbisogno come porzione ×
+celle che lo mangiano, quindi le celle sono in mano e basta portarle
+all'output. Costa niente e risponde a tre domande che davanti allo scaffale
+non hanno risposta:
+
+- **cosa salta se manca.** «Niente finocchi al banco» diventa subito «e' il
+  mercoledi' sera da ripensare» — che e' esattamente l'informazione con cui
+  `lunario:spesa` propone una sostituzione
+- **perche' questa roba e' in lista.** Uvetta e cannella in una lista italiana
+  sembrano un errore finche' non si sa che sono il cous cous. Le righe senza
+  spiegazione sono quelle che la gente salta in silenzio
+- **se la quantita' e' giusta.** «Grana 300 g» non e' verificabile; «150 g per
+  cucinare, 150 g a cubetti per la merenda dei bimbi» si controlla a colpo
+  d'occhio, e una porzione sbagliata si becca prima dello scontrino invece che
+  al postmortem
+
+Come si scrivono:
+
+- **Un pasto specifico**: giorno abbreviato e pasto — `mer cena`, `gio pranzo`
+- **Un'abitudine**, non un giorno: a parole — `colazione adulti`, `merenda
+  bimbi`, `tutta la settimana`. Elencare sette giorni per l'olio e' rumore
+- Nell'HTML sono **collegamenti al blocco del giorno**, che ha il suo `id`
+
+Falla anche come **verifica**: se una riga non ha nessun pasto che la usa, non
+e' una riga della spesa, e' un residuo di una modifica precedente. Toglila
+invece di comprarla.
+
 In chat: il titolo, il menu, la lista, il totale, e dove hai salvato l'HTML.
 Stop. Le spiegazioni solo dove la scelta non e' ovvia, una riga ciascuna.
 
