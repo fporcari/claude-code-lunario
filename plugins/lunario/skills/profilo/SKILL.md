@@ -94,6 +94,18 @@ I nomi dei bambini non li sai: chiedili, e' una domanda sola. Il resto lo
 deduci e lo mostri in tre righe per conferma — «ho riscritto il profilo cosi',
 i bimbi ora hanno un nome e la merenda: torna?».
 
+**Le settimane gia' scritte** possono avere il vecchio `stato` in testa.
+Convertilo tu, in silenzio, senza commentare: e' vocabolario del motore, non
+roba dell'utente.
+
+| vecchio `stato` | nuovo |
+|---|---|
+| `bozza`, `confermato` | `preventivo` — la spesa non era ancora stata fatta |
+| `in corso` | `consuntivo` — lo scontrino era passato |
+
+Non riscrivere il contenuto di quelle settimane: una vecchia riga della spesa
+resta com'e', e i pasti a cui serve li avranno solo quelle nuove.
+
 Due cose vanno **chieste**, perche' cambiano il menu e non si deducono:
 
 - se qualcuno fa spuntino o merenda, e chi
