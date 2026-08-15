@@ -12,7 +12,9 @@ menu e chiudere la settimana.
 | quando | cosa lanciare |
 |---|---|
 | **lunedi'** | `lunario:settimana` — racconti la settimana, esce menu e spesa |
-| **domenica** | `lunario:postmortem` — avanzi, bocciati, scontrino |
+| **al ritiro della spesa** | `lunario:spesa` — lo scontrino: prezzi veri, cosa manca |
+| **mentre cucini** | `lunario:prepara` — ingredienti, passi, e chiude il pasto nel diario |
+| **domenica** | `lunario:postmortem` — avanzi, voti, com'e' andata |
 | a settimana in corso | `lunario:correggi` — se cambia qualcosa |
 | quando cambia la vita | `lunario:ritmi` — orari nuovi, vincoli permanenti |
 | quando cambia la famiglia | `lunario:profilo` — peso, obiettivi, esclusioni |
@@ -52,7 +54,7 @@ cella dice cosa succede a quel pasto per quella persona.
 
 Tre file la scrivono, e vince sempre il piu' specifico: `profilo.yaml` dice
 quali pasti fai di solito, `ritmi.yaml` cosa cambia ogni settimana,
-`settimane/<ISO>/contesto.yaml` cosa cambia solo questa volta.
+il `contesto.yaml` della settimana cosa cambia solo questa volta.
 
 Colazione, spuntino e merenda sono pasti come gli altri: se sono `casa`,
 finiscono nel conto delle calorie e nella lista della spesa. Un pasto fuori
@@ -81,11 +83,18 @@ dati/
 ├── prodotti.jsonl    il paniere: formati, valori, prezzi  <- lo scrive il sistema
 ├── dispensa.yaml     cosa e' rimasto in casa              <- lo scrive il sistema
 └── storico.yaml      settimane passate e tarature         <- lo scrive il sistema
-settimane/            i menu generati, uno per settimana
-└── 2026-W34/
+settimane/                        i menu generati
+├── 2026-W34-commando.md          il menu e la spesa
+├── 2026-W34-commando.html        da stampare, o da spuntare al supermercato
+└── 2026-W34-commando/
     ├── contesto.yaml  gli impegni di QUELLA settimana      <- lo racconti tu
     └── diario.yaml    cosa avete mangiato davvero          <- lo scrive il sistema
 ```
+
+Il nome di una settimana e' l'ISO piu' il suo titolo: l'ordine alfabetico resta
+l'ordine cronologico, e in un'altra chat o al telefono la settimana si chiama
+«Commando», non «2026-W34». Il nome si fissa quando il menu nasce e non cambia
+piu'.
 
 Il diario si riempie strada facendo, senza che tu compili niente: basta dirlo
 mentre succede — «stasera niente polpette, pizza d'asporto» — e a fine cottura
@@ -104,6 +113,43 @@ tocca mai — puo' proporre una modifica, ma li cambi tu. Quelli marcati «lo
 scrive il sistema» sono suoi: puoi leggerli e correggerli, ma si riempiono da
 soli. `ricette.md` sta in mezzo, ed e' l'unico: il contenuto e' tuo, lo detti
 a voce, e il sistema lo mette in forma.
+
+## Dove si scrive una regola di casa
+
+Prima o poi salta fuori una regola che nessuno aveva detto: «l'hummus lo
+compriamo pronto», «carne a pranzo e a cena no», «la merenda dei bimbi e'
+salata». Il posto in cui finisce decide se servira' ancora fra sei mesi. Una
+domanda sola:
+
+> **Il sistema deve controllarlo da solo?**
+
+| risposta | dove va | esempi |
+|---|---|---|
+| **si**, e' un campo che filtra o conta | `dati/profilo.yaml` | esclusioni, quante volte carne o pesce, ripetizioni vietate |
+| **no**, ma va letto prima di ogni menu | `dati/note.md` | l'hummus si compra pronto, niente integrale, forno guasto |
+| **no**, e' per chi apre la cartella | **questo file** | come si lancia una skill, cos'e' la griglia dei pasti |
+
+Non serve indovinare: basta dirlo in chat, e la skill giusta lo mette dove va,
+dicendoti dove l'ha messo. **Questo file non e' il posto** per le regole di
+casa — lo riscrive il plugin quando esce una versione nuova, e una regola in
+prosa nessuno la rilegge al momento giusto.
+
+C'e' un quarto caso: quando quello che sembra una vostra stranezza e' invece
+un difetto del motore — «non mi ha mai chiesto cosa avevo nel congelatore» —
+non va in nessuno di questi file. Va detto a chi il plugin lo mantiene.
+
+## Cosa c'e' in casa, il lunedi'
+
+`lunario:settimana` chiede ogni lunedi' cosa c'e' nel congelatore, nel frigo e
+in dispensa, e lo chiede mostrandoti quello che crede di avere: correggere un
+elenco e' facile, ricordarlo no. Vale la pena rispondere davvero al primo —
+il congelatore e' roba gia' pagata, e un branzino comprato al banco mentre due
+filetti invecchiano nel freezer e' l'errore piu' caro che questo sistema possa
+farvi fare.
+
+Quello che entra nel menu da li' **esce dalla lista della spesa**, e il menu
+lo dice; e ogni surgelato porta la riga dello scongelamento — la sera prima, o
+la cena non si fa.
 
 ## Se tieni piu' di una cartella
 

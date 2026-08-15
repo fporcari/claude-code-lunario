@@ -17,8 +17,9 @@ hanno raccolto. Contratti e regole non negoziabili in `CLAUDE.md`.
 ## Input
 
 `dati/profilo.yaml` · `dati/ritmi.yaml` · `dati/note.md` ·
-`dati/ricette.md` · `dati/storico.yaml` (tarature) · `dati/dispensa.yaml` ·
-`settimane/<ISO>/contesto.yaml`. Se il contesto manca, chiama
+`dati/ricette.md` · `dati/storico.yaml` (tarature) · `dati/dispensa.yaml`
+(`avanzi` **e** `freezer`) · il `contesto.yaml` della settimana, che si trova
+con un glob su `settimane/<ISO>*`. Se il contesto manca, chiama
 `lunario:settimana` invece di indovinare.
 
 ## 1. Risolvi la griglia, prima di scegliere qualsiasi piatto
@@ -68,12 +69,32 @@ Ordine di applicazione dei vincoli — chi viene prima vince:
    `cena_entro_min: 25` non riceve un piatto da 40 minuti; una cella `libero`
    pesca dai pasti liberi di `${CLAUDE_PLUGIN_ROOT}/kb/piatti.md` e non viene
    alleggerita
-3. **Deperibilita'** (`${CLAUDE_PLUGIN_ROOT}/kb/deperibilita.md`) — il fresco nei primi giorni, la
+3. **Le scorte** (`dispensa.yaml`, sezione `freezer`) — cio' che e' gia' in
+   casa entra nel menu **prima** che si scelga cosa comprare, e cio' che porta
+   `da_smaltire: true` o una data vecchia entra per primo. E' roba pagata: un
+   branzino comprato al banco mentre due filetti invecchiano nel congelatore
+   e' l'errore piu' caro che questo sistema puo' fare
+4. **Deperibilita'** (`${CLAUDE_PLUGIN_ROOT}/kb/deperibilita.md`) — il fresco nei primi giorni, la
    dispensa in fondo. E' la regola che azzera lo spreco
-4. **Rotazione** — mai i piatti delle ultime 2 settimane, mai i bocciati in
+5. **Le tolleranze del profilo** (`tolleranze.ripetizioni`) — la stessa
+   proteina a pranzo e a cena, lo stesso piatto due volte in un giorno, un
+   ingrediente che torna troppo presto. Cio' che il profilo non dichiara vale
+   il default conservativo: non si ripete
+6. **Rotazione** — mai i piatti delle ultime 2 settimane, mai i bocciati in
    quarantena, priorita' ai preferiti e alle voglie dichiarate
-5. **Frequenze** (`${CLAUDE_PLUGIN_ROOT}/kb/porzioni-standard.md`) — pesce 2-3, carne max 3 di cui
-   rossa max 1, legumi 2-4
+7. **Frequenze** (`${CLAUDE_PLUGIN_ROOT}/kb/porzioni-standard.md`) — pesce 2-3, carne max 3 di cui
+   rossa max 1, legumi 2-4, e i tetti del profilo
+
+I tetti del profilo (`max_pasti_*`) hanno una **rigidita'**, ed e' il campo
+che dice cosa fare quando le scorte spingono in senso contrario:
+
+| forma nel profilo | cosa fai |
+|---|---|
+| numero nudo, o `rigidita: vincolo` | non lo superi. Se le scorte lo chiedono, lo dici e non lo fai |
+| `rigidita: preferenza` | lo superi quando c'e' una ragione, **e la ragione la scrivi** — mezza riga: «due volte pesce, per smaltire i filetti di giugno» |
+
+Un tetto superato in silenzio e' un tetto rotto; un tetto superato con la
+ragione accanto e' una decisione che l'utente puo' ribaltare in una parola.
 
 Le frequenze sono pensate su una settimana intera, ma **si applicano alle
 celle che restano in casa**: se le cene cucinate sono quattro, quelle quattro
@@ -86,7 +107,10 @@ che lo imponga. Il giorno dopo un pasto libero e' un giorno normale: ne'
 piu' leggero ne' piu' virtuoso, perche' la compensazione e' vietata anche
 quando si traveste da buon senso.
 
-Avanzi della settimana scorsa nei primi giorni. Per ogni persona con
+Avanzi della settimana scorsa nei primi giorni, **nella forma che il profilo
+tollera**: `tolleranze.avanzi` dice se tornano in tavola come sono, solo
+trasformati in un'altra cosa, o mai — e la riga dei bambini, quasi sempre la
+piu' stretta, vince su quella generale. Per ogni persona con
 `selettivo: true`, i pasti a casa portano la loro base neutra
 (`${CLAUDE_PLUGIN_ROOT}/kb/consigli-pratici.md`), segnalata in linea.
 
@@ -111,14 +135,34 @@ Il passo che rende la lista utile. Procedura completa in `${CLAUDE_PLUGIN_ROOT}/
 1. **fabbisogno** per ingrediente: porzione × **celle che lo mangiano** — non
    × persone. Un pranzo in mensa e una merenda che nessuno fa non comprano
    niente; la merenda dei due bambini compra per due, sette volte
-2. **meno la dispensa** (`dati/dispensa.yaml`)
+2. **meno la dispensa** (`avanzi`) **e meno le scorte** (`freezer`)
 3. **confezioni**: formato da `dati/prodotti.jsonl`. I prodotti che non ci sono
    si risolvono adesso, col procedimento qui sotto — non si rimandano alla
    lista
 4. Applica la soglia del 10% (limare la porzione invece di comprare una
    confezione quasi inutile) e calcola l'avanzo previsto
 
-### 3a. I formati che mancano si cercano, non si rimandano
+Se il profilo ha `tolleranze.spesa_per_altri: true`, la lista di casa resta
+la lista di casa: la seconda spesa non entra nei fabbisogni, nel totale e
+nella dispensa. Se ne parla `lunario:spesa` davanti allo scontrino.
+
+### 3a. Cio' che copre una scorta esce dalla lista, e si dice uscendo
+
+Quando un piatto e' costruito su una riga di `freezer`, la riga della spesa
+corrispondente **non si compra**. Ma cancellarla in silenzio rende sospetta
+tutta la lista: un banco pesce con una riga sola sembra una dimenticanza
+finche' non si sa perche'. Quindi la cancellazione si nomina, in coda alla
+lista, dove si legge senza cercarla:
+
+```markdown
+### Non si compra, c'e' gia'
+- Branzino al banco, 800 g → i due pacchi di filetti nel congelatore (lun cena)
+- Straccetti di manzo, 350 g → il petto di pollo intero, tagliato (mar cena)
+```
+
+Il totale scende di conseguenza, e scende per una ragione leggibile.
+
+### 3b. I formati che mancano si cercano, non si rimandano
 
 Alla prima settimana di una casa nuova `prodotti.jsonl` e' vuoto, quindi
 **tutti** i formati mancano. Se non li si cerca, l'intera lista esce in grammi
@@ -179,7 +223,8 @@ segnalalo in una riga e proponi la sostituzione a miglior €/100 g di proteine
 ## 5. Il titolo della settimana
 
 Ogni settimana ha un nome: serve a ricordarsela per nome invece che per numero
-ISO, e finisce nel markdown, nell'HTML e in `storico.yaml`.
+ISO, e finisce nel markdown, nell'HTML, in `storico.yaml` e **nel nome dei
+file** (regola completa in `CLAUDE.md`).
 
 **Se il profilo ha `titoli.serie`**, il nome si pesca da li' — «Norwegian
 Wood», «Pesce pagliaccio», «Glicine» — e la serie da' un filo alle settimane
@@ -202,11 +247,24 @@ giorni: «la settimana dei legumi coraggiosi», «tre pesci e un forno acceso»,
 In entrambi i casi: una riga sola, ironico va bene e furbo no, e se non viene
 niente di caratteristico un titolo piano e' meglio di uno forzato.
 
+**Poi il titolo diventa il nome dei file.** Slug: minuscolo, accenti tolti,
+tutto cio' che non e' lettera o cifra a `-`, niente `-` doppi ne' agli estremi.
+`lunario:settimana` ha creato `settimane/<ISO>/`: rinominala adesso, prima di
+scrivere qualsiasi cosa, cosi' i tre nomi nascono gia' allineati.
+
+```bash
+mv settimane/2026-W34 settimane/2026-W34-commando
+```
+
+Da qui in poi il nome e' fissato: `lunario:correggi` non lo tocca nemmeno se
+riscrive meta' settimana, perche' un rename dovrebbe muovere tre cose insieme
+e ogni link che ci puntava.
+
 ## 6. Output
 
 Tre cose, in quest'ordine:
 
-1. **`settimane/<anno>-W<settimana>.md`** — la fonte: in testa
+1. **`settimane/<ISO>-<titolo>.md`** — la fonte: in testa
    `stato: preventivo`, poi titolo, i 7 giorni e la lista per reparto in
    confezioni col totale.
 
@@ -221,7 +279,7 @@ Tre cose, in quest'ordine:
    e da quel momento il file dice non solo cosa era previsto, ma **a che punto
    e' la settimana**. E' lo stato su cui si appoggiano `lunario:correggi` e il
    postmortem
-2. **`settimane/<anno>-W<settimana>.html`** — da
+2. **`settimane/<ISO>-<titolo>.html`** — da
    `${CLAUDE_PLUGIN_ROOT}/templates/menu.html`, sostituendo i segnaposto
    `{{...}}` e ripetendo i blocchi marcati `RIPETI`. Si stampa e si attacca al
    frigo, ma soprattutto **si apre sul telefono al supermercato**: la lista si
@@ -230,8 +288,9 @@ Tre cose, in quest'ordine:
    alfabetico.
 
    Due cose da riempire bene, perche' non si vedono guardando la pagina:
-   `{{ISO}}` compare anche nella chiave di salvataggio, quindi due settimane
-   aperte insieme non si mescolano; e ogni `input.spunta` vuole un `data-riga`
+   `{{ISO}}` compare anche nella chiave di salvataggio — che resta l'ISO nudo
+   e **non** il nome del file, cosi' due settimane aperte insieme non si
+   mescolano e nessun rename azzera le spunte; e ogni `input.spunta` vuole un `data-riga`
    **unico nella pagina** — uno slug del prodotto, non l'indice della riga,
    altrimenti aggiungere una voce sposta tutte le spunte gia' fatte
 3. **Voce in `dati/storico.yaml`** con `titolo` e `spesa_stimata`
@@ -274,7 +333,32 @@ Falla anche come **verifica**: se una riga non ha nessun pasto che la usa, non
 e' una riga della spesa, e' un residuo di una modifica precedente. Toglila
 invece di comprarla.
 
-### 6b. Il piatto porta la sua ricetta, quando serve
+### 6b. Cosa esce dal congelatore, e quando tirarlo fuori
+
+Se la settimana usa delle scorte, il menu porta un blocco suo, accanto alla
+lista della spesa e non dentro: **e' quello che esce di casa, non quello che
+entra nel carrello**. Una riga per scorta, con il giorno in cui si mangia e
+l'ora in cui va spostata in frigo.
+
+```markdown
+## Dal congelatore
+- [ ] Filetti di branzino, 2 × 250 g → lun cena
+      in frigo domenica sera (8-12 h)
+- [ ] Scamone, 475 g → sab cena — e' li' da giugno, si smaltisce
+      in frigo venerdi' mattina (12-24 h)
+```
+
+Lo scongelamento non e' un dettaglio da ricettario: e' **l'unico pezzo di
+settimana che il giorno stesso non si recupera**. Un piatto rimandato si
+sposta, un forno occupato si aspetta; una bistecca ancora dura alle otto di
+sera e' una cena che non avviene. Quindi la riga dello scongelamento si
+scrive sempre, anche quando sembra ovvia, e la casella si spunta come le
+altre — `lunario:prepara` la marca la sera prima.
+
+Nell'HTML e' una sezione fra i giorni e la spesa, con lo stesso trattamento
+delle righe della spesa: casella, quantita', e il link al giorno che la usa.
+
+### 6c. Il piatto porta la sua ricetta, quando serve
 
 Un menu si approva o si contesta sulla capacita' di **immaginarsi la
 settimana**, e il nome nudo di un piatto non basta: «cous cous con verdure e
@@ -282,7 +366,7 @@ ceci» sono quattro cene diverse a seconda di cosa c'e' dentro.
 
 - **Piatti di casa** (`dati/ricette.md`): il link e' al file, sull'ancora del
   piatto — `dati/ricette.md#pasta-con-crema-di-zucchine-e-menta`
-- **Piatti del pool**: serve un URL, e vale la disciplina dei formati (3a) —
+- **Piatti del pool**: serve un URL, e vale la disciplina dei formati (3b) —
   **cercato adesso, mai scritto a memoria**. Un link inventato e' identico a
   uno vero finche' non ci si clicca. Se la ricerca non da' niente di buono,
   nessun link: e' un'assenza, non un problema
@@ -299,7 +383,7 @@ Le ricerche si fanno in blocco come quelle dei formati: sono pochi piatti a
 settimana, e il link trovato resta scritto nel file della settimana, quindi
 non si ricerca due volte.
 
-### 6c. Vedere la cena prima di comprarla
+### 6d. Vedere la cena prima di comprarla
 
 Il link dice **cos'e'** un piatto; non dice cos'e' **qui** — scalato su questa
 casa, con la base neutra tirata fuori per i bambini, dentro i trenta minuti di

@@ -24,10 +24,10 @@ Scrive il livello **appreso**. Regole di ritaratura in `CLAUDE.md`.
 La domenica si apre su **cio' che e' gia' scritto**, e sono due file che
 insieme raccontano quasi tutta la settimana:
 
-- il **consuntivo** (`settimane/<ISO>.md`, `stato: consuntivo`) — cosa e'
+- il **consuntivo** (il markdown della settimana, `stato: consuntivo`) — cosa e'
   entrato in casa, a che prezzo, con quali sostituzioni, e in coda lo scarto
   dal preventivo
-- il **diario** (`settimane/<ISO>/diario.yaml`) — cosa si e' mangiato davvero,
+- il **diario** (`diario.yaml`, nella cartella della settimana) — cosa si e' mangiato davvero,
   chi c'era, cosa e' avanzato, quali celle sono saltate, **registrato nel
   giorno in cui e' successo** invece che ricordato adesso
 
@@ -184,11 +184,16 @@ riduce mai** — il taglio non passa da li'
 preparazione o piatto, non grammatura.
 
 Correggi anche `dati/dispensa.yaml` sul reale: gli avanzi previsti dal menu
-sono una stima, quello che c'e' davvero lo sa solo l'utente.
+sono una stima, quello che c'e' davvero lo sa solo l'utente. Vale anche per la
+sezione `freezer`: una scorta cucinata questa settimana esce, una porzione
+messa via ci entra. Non serve una domanda apposta — se il diario dice che
+giovedi' e' finito nel congelatore meta' polpettone, quella riga si scrive da
+sola, e lunedi' `lunario:settimana` avra' qualcosa di vero da far correggere
+invece di una lista vuota.
 
 ## Lo scarto fra preventivo e consuntivo
 
-Se la settimana e' passata da `lunario:spesa`, in coda a `settimane/<ISO>.md`
+Se la settimana e' passata da `lunario:spesa`, in coda al markdown della settimana
 c'e' la sezione **Scarto dal preventivo**. Leggila e portala in
 `storico.settimane[]`: `spesa_stimata` accanto a `spesa_reale`, e le righe
 divergenti in `scarto_per_riga`. Scrivere solo il totale reale cancella l'unica

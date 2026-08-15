@@ -3,8 +3,9 @@ name: settimana
 description: >-
   Il lancio del lunedi' di Lunario. Conversazione con l'utente — come farebbe
   il suo nutrizionista — su impegni della settimana, pasti gia' presi fuori
-  casa, voglie e piatti di cui e' stufo, poi genera il menu dei 7 giorni e la
-  lista della spesa in confezioni.
+  casa, voglie e piatti di cui e' stufo, e su cosa c'e' gia' in casa fra
+  congelatore, frigo e dispensa, poi genera il menu dei 7 giorni e la lista
+  della spesa in confezioni.
   E' la skill principale, quella che l'utente invoca davvero. Da usare quando
   dice "prepariamo la settimana", "fammi il menu", "cosa mangiamo", "la
   spesa", "iniziamo la settimana", "menu settimanale", o a inizio settimana.
@@ -26,7 +27,8 @@ Leggi, in silenzio, senza riepilogare all'utente cio' che gia' sa:
 - `dati/ritmi.yaml`, `dati/note.md` — la settimana tipo e i vincoli dichiarati
 - `dati/storico.yaml` — tarature, piatti delle ultime 2 settimane (non
   ripeterli), bocciati recenti, budget
-- `dati/dispensa.yaml` — cosa c'e' gia' in casa
+- `dati/dispensa.yaml` — cosa il sistema **crede** ci sia in casa: e' il punto
+  di partenza delle domande sulle scorte, non la risposta
 
 Note scadute: segnalale in una riga e proponi di toglierle. Non toglierle tu.
 
@@ -102,6 +104,49 @@ volta**, e solo per i buchi che cambiano davvero il menu:
 Se l'utente e' sbrigativo («fai tu»), non insistere: un lancio senza contesto
 e' legittimo e i ritmi bastano. Una domanda sola, poi procedi.
 
+## Cosa c'e' gia' in casa
+
+**Prima del menu, sempre.** Non e' una domanda di rifinitura: quello che c'e'
+nel congelatore comanda i piatti, e se lo si scopre dopo, il menu e' scritto e
+la lista e' chiusa. Togliere quattro righe di banco da una lista gia' chiusa
+non e' un miglioramento del menu: sono soldi che si stavano per spendere due
+volte.
+
+`dispensa.yaml` da solo non basta, e va detto perche' non e' un difetto del
+file: contiene cio' che il motore ha **calcolato** — comprato meno consumato —
+mentre qui serve cio' che l'utente **vede**. Alla prima settimana e' vuoto per
+definizione, ed e' proprio la settimana in cui il congelatore e' pieno di roba
+di prima; poi deriva a ogni cena saltata e a ogni teglia portata dalla nonna.
+
+Tre domande, in quest'ordine, **una per volta**:
+
+1. **Congelatore** — per primo: e' quello che si dimentica sempre, e' gia'
+   pagato, ed e' spesso roba da smaltire
+2. **Frigo** — i deperibili, che comandano i primi giorni della settimana
+3. **Dispensa secca** — quello che scala le quantita' della spesa
+
+E non chiederle a freddo. «Cosa hai in casa?» ottiene meta' risposta ogni
+volta, perche' costringe a ricordare: **mostra cosa credi ci sia**, da
+`dispensa.yaml`, e chiedi cosa manca e cosa e' sbagliato. «Dovrei avere due
+confezioni di filetti di branzino e mezzo chilo di pollo — cosa c'e' che non
+ho scritto?».
+
+Se l'utente taglia corto o dice che non ha voglia di controllare, va bene:
+prendi quello che c'e' scritto e vai avanti, senza insistere e senza farlo
+pesare. Una domanda saltata costa una riga della spesa; un interrogatorio il
+lunedi' mattina costa la skill.
+
+**Scrivi le risposte in `dati/dispensa.yaml`** — il congelatore nella sezione
+`freezer`, con quantita', peso dove conta, data di congelamento dove si sa
+(contratto in `CLAUDE.md`). Se non le scrivi, la risposta e' persa entro
+lunedi' prossimo e la domanda si rifa' da capo, che e' il modo piu' rapido di
+farla smettere di funzionare.
+
+Le scorte che entrano nel menu portano due conseguenze che `lunario:menu`
+deve gestire, e vanno passate avanti: la **riga della spesa corrispondente
+sparisce** e viene nominata uscendo, e ogni surgelato porta il suo
+**scongelamento**.
+
 ## Una ricetta portata da fuori
 
 Capita spesso e vale piu' di una voglia: e' un piatto che qualcuno **vuole
@@ -154,6 +199,9 @@ in tre giudizi che nessuna regola scritta fa da sola:
 Riepiloga in tre-quattro righe cosa hai capito e fatti confermare. Poi scrivi
 `settimane/<anno>-W<settimana>/contesto.yaml` — solo le eccezioni di questa
 settimana, mai i ritmi permanenti, che vivono altrove.
+
+La cartella si chiama con l'ISO nudo, senza titolo: il titolo non esiste
+ancora, lo genera `lunario:menu`, che rinomina la cartella quando ce l'ha.
 
 Nel riepilogo **i pasti che saltano vanno nominati**, non dati per scontati:
 «quindi giovedi' non cucino per nessuno e sabato sera e' libero». E' la riga

@@ -261,6 +261,33 @@
 
   </div>
 
+  <!-- DAL CONGELATORE — la sezione c'e' SOLO se la settimana usa delle scorte.
+       Sta prima della spesa e non dentro, perche' e' cio' che ESCE di casa,
+       non cio' che entra nel carrello: sommarla alla lista farebbe ricomprare
+       esattamente la roba che si sta smaltendo.
+
+       La riga sotto e' lo scongelamento, ed e' l'unico vincolo di questa
+       pagina che il giorno stesso non si recupera: un piatto si sposta, un
+       forno si aspetta, una bistecca ancora dura alle otto di sera e' una
+       cena che non avviene. Si scrive sempre, anche quando sembra ovvia. -->
+  <h2>Dal congelatore</h2>
+  <div class="scorte">
+    <div class="voce">
+      <div class="riga">
+        <label><input type="checkbox" class="spunta" data-riga="scongela-branzino"><span class="quadratino">☐</span>Filetti di branzino</label>
+        <span class="q">2 × 250 g</span>
+      </div>
+      <div class="uso">→ <a href="#g-lun">lun cena</a> · in frigo domenica sera (8-12 h)</div>
+    </div>
+    <div class="voce">
+      <div class="riga">
+        <label><input type="checkbox" class="spunta" data-riga="scongela-scamone"><span class="quadratino">☐</span>Scamone — e' li' da giugno</label>
+        <span class="q">475 g</span>
+      </div>
+      <div class="uso">→ <a href="#g-sab">sab cena</a> · in frigo venerdi' mattina (12-24 h)</div>
+    </div>
+  </div>
+
   <h2>La spesa</h2>
   <div class="spesa">
 
@@ -309,6 +336,15 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Cio' che una scorta copre esce dalla lista, e l'uscita si dice: un banco
+       pesce con una riga sola sembra una dimenticanza finche' non si sa
+       perche', e il totale scende per una ragione che qui si legge. Il blocco
+       c'e' solo se qualcosa e' stato tolto. -->
+  <div class="uso">
+    Non si compra, c'è già: branzino al banco (i filetti nel congelatore) ·
+    straccetti di manzo (il petto di pollo intero, tagliato).
   </div>
 
   <!-- L'etichetta segue lo stato: «Totale stimato» sul preventivo,

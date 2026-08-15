@@ -15,3 +15,34 @@ avanzi:
 # SOLO prodotti non deperibili: dispensa secca, scatolame, surgelati, uova,
 # formaggi stagionati. Mezza busta di rucola NON si scrive qui: fra tre giorni
 # non esiste, e pianificarci sopra la settimana dopo significa cucinare marcio.
+
+freezer:
+  # Il congelatore e' un'altra cosa dagli avanzi, e per questo ha una sezione
+  # sua. `avanzi` e' cio' che il motore ha CALCOLATO — comprato meno consumato.
+  # Qui c'e' cio' che si VEDE aprendo lo sportello: pezzi arrivati da una
+  # spesa di un mese fa, meta' di un pacco, la carne messa via a giugno. Roba
+  # gia' pagata, che nessun calcolo conosce e che il menu deve smaltire prima
+  # di comprare l'equivalente al banco.
+  #
+  # Lo riempie `lunario:settimana`, che ogni lunedi' chiede cosa c'e' — e lo
+  # chiede mostrando questa lista, perche' correggere un elenco riesce a
+  # tutti e ricordarlo a nessuno.
+  - cosa: filetti di branzino     # in parole: spesso non e' una riga del paniere
+    pezzi: 2
+    grammi: 250                   # per pezzo, quando la quantita' conta
+    dal: 2026-06-12               # quando e' stato congelato, se si sa
+    da_smaltire: true             # e' li' da troppo: esce per primo
+  - cosa: petto di pollo a fette
+    grammi: 600
+  - cosa: scamone
+    pezzi: 1
+    grammi: 475
+    dal: 2026-06-20
+    da_smaltire: true
+
+# La data serve piu' del peso: e' con quella che si decide cosa esce per primo.
+# E un piatto costruito su una di queste righe porta un vincolo che il menu
+# deve stampare — lo SCONGELAMENTO. Una bistecca vuole 12-24 ore in frigo, dei
+# filetti 8-12: un surgelato previsto per domenica sera e ricordato domenica
+# pomeriggio e' una cena che non si fa, ed e' l'unico pezzo di settimana che
+# il giorno stesso non si recupera.

@@ -107,8 +107,8 @@ meglio un prezzo vecchio dichiarato tale che una riga vuota.
 
 ## 2b. Riconcilia con la lista
 
-Per le righe del gruppo **menu**, confronta con la lista in
-`settimane/<ISO>.md`. Quattro esiti, e solo due meritano di essere raccontati:
+Per le righe del gruppo **menu**, confronta con la lista nel markdown della
+settimana (glob su `settimane/<ISO>*`). Quattro esiti, e solo due meritano di essere raccontati:
 
 | esito | cosa fai |
 |---|---|
@@ -169,12 +169,17 @@ lascia stare il resto. Se i giorni colpiti sono tanti, e' il caso di
   dichiarata, non il canale. E chiedi solo cio' che serve — il formato subito,
   i nutrienti solo se il prodotto entra nei conti di qualcuno a dieta
 - **`dati/dispensa.yaml`** — quello che entra in casa e non si consuma questa
-  settimana, solo non deperibili
+  settimana, solo non deperibili. E la sezione `freezer`: cio' che finisce
+  nel congelatore invece che in pentola ci entra adesso, con la data di oggi,
+  perche' fra due mesi sara' esattamente il pezzo che nessuno ricorda; cio'
+  che il menu ha gia' tirato fuori ne esce
 - **`dati/storico.yaml`** — `spesa_reale` (solo il menu), accanto a
   `spesa_extra_alimentare` e `totale_scontrino` per memoria; e
   `scarto_per_riga`: dove la stima ha sbagliato, non solo di quanto. E' il dato
   che rende onesto il totale del lunedi' successivo
-- **`settimane/<ISO>.md`** — diventa il consuntivo: vedi il punto 4b
+- **il markdown della settimana** — diventa il consuntivo: vedi il punto 4b.
+  Il **nome del file non cambia**: il titolo e' quello di sempre, e rinominare
+  vorrebbe dire muovere markdown, HTML e cartella insieme
 
 ## 4b. Da preventivo a consuntivo
 

@@ -65,9 +65,45 @@ esclusioni:
 preferenze:
   cucina: mediterranea
   etnico_facile_a_settimana: 1
-  max_pasti_carne_settimana: 2
-  max_carne_rossa_settimana: 1
   minuti_max_cena: 30
+
+  # I TETTI, e quanto sono tetti.
+  # Un numero nudo si legge come una regola, e il motore ci pianifica contro.
+  # Per molte case e' invece una preferenza: in condizioni normali tiene, ma
+  # se nel congelatore c'e' roba che invecchia l'economia vince, il tetto si
+  # supera apposta e lo si dice. Due comportamenti opposti, quindi il file
+  # deve saperli distinguere.
+  #
+  #   max_pasti_carne_settimana: 3               -> vincolo, non si supera
+  #   {valore: 3, rigidita: preferenza}          -> si supera con una ragione,
+  #                                                 e la ragione si dichiara
+  #   {valore: 3, rigidita: vincolo}             -> come l'intero, ma detto
+  #
+  # Il numero nudo resta valido e vale `vincolo`: e' il default conservativo.
+  max_pasti_pesce_settimana: {valore: 2, rigidita: preferenza}
+  max_pasti_carne_settimana: {valore: 3, rigidita: preferenza}
+  max_carne_rossa_settimana: 1
+
+tolleranze:
+  # Le regole di tavola che nessuno dichiara e che si scoprono correggendo un
+  # menu gia' scritto. Le chiede `lunario:profilo`, e si possono saltare: cio'
+  # che non e' stato chiesto vale il default CONSERVATIVO, perche' un menu che
+  # ripete un ingrediente e' un menu che si fa correggere.
+  ripetizioni:
+    stessa_proteina_nel_giorno: false   # carne a pranzo E a cena
+    stesso_piatto_nel_giorno: false     # l'avanzo di mezzogiorno la sera
+    stesso_ingrediente_dopo_giorni: 2   # ogni quanto puo' tornare
+  avanzi:
+    # come_sono   -> tornano in tavola tali e quali
+    # trasformati -> solo in un'altra forma, un altro giorno
+    # mai         -> non si ripropongono
+    tutti: come_sono
+    bambini: trasformati                # la riga piu' stretta vince
+  spesa_per_altri: false
+    # true se ogni settimana viaggia con la spesa una seconda lista per
+    # qualcun altro (i suoceri, un figlio fuori casa). Quella roba resta
+    # fuori da ogni totale, dal paniere e dalla dispensa: non e' cibo di
+    # questa casa, e contarla falserebbe insieme il budget e le porzioni.
 
 titoli:
   # Ogni settimana ha un nome, e serve a ricordarsela per nome invece che per

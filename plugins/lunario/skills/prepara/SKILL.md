@@ -51,7 +51,8 @@ tutto vale come sempre.
 
 ## 1. Che piatto e'
 
-Leggi `settimane/<ISO>.md`. I pasti gia' fatti sono spuntati (`- [x]`):
+Leggi il markdown della settimana — glob su `settimane/<ISO>*`. I pasti gia'
+fatti sono spuntati (`- [x]`):
 **escludili sempre**, anche se sono di oggi. Fra quelli che restano, il
 candidato e' il pasto di oggi secondo l'ora — pranzo o cena — e secondo il
 contesto della settimana.
@@ -195,7 +196,7 @@ archivia.
 
 ## 6. Segnare che e' fatto
 
-In `settimane/<ISO>.md`, spunta due cose:
+Nel markdown della settimana, spunta due cose:
 
 - **il pasto**: `- [ ]` diventa `- [x]`, cosi' al prossimo lancio e' fuori dai
   candidati
@@ -213,7 +214,7 @@ Fallo in silenzio: non elencare all'utente cosa hai spuntato.
 
 ### 6a. Chiudere il pasto nel diario
 
-Stessa passata, un file in piu': `settimane/<ISO>/diario.yaml` (contratto in
+Stessa passata, un file in piu': il `diario.yaml` della settimana (contratto in
 `CLAUDE.md`). E' il posto dove finisce **cosa si e' mangiato davvero**, e
 questa skill e' la sola che ci arriva nel momento buono — a fine cottura, con
 l'utente che sta gia' parlando.

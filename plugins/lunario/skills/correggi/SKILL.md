@@ -17,7 +17,8 @@ description: >-
 # Correggi — il menu cambia
 
 Stessa skill per due situazioni molto diverse, e la differenza la fa lo
-`stato` scritto in testa a `settimane/<ISO>.md`. Sbagliarla significa proporre
+`stato` scritto in testa al markdown della settimana — che si trova con un
+glob su `settimane/<ISO>*`. Sbagliarla significa proporre
 un piatto per cui non e' stata comprata roba, o rifare la spesa per niente.
 
 | stato | dove siamo | cosa vincola |
@@ -98,8 +99,8 @@ Qui la differenza con `lunario:settimana` e' tutta in una cosa: **la spesa e'
 gia' fatta**. Il vincolo non e' piu' il gusto ne' il budget, e' cosa c'e' in
 casa.
 
-Leggi `settimane/<ISO>.md`, `dati/dispensa.yaml`,
-`settimane/<ISO>/contesto.yaml`, e il profilo con le sue esclusioni.
+Leggi il markdown della settimana, `dati/dispensa.yaml`, il `contesto.yaml`
+nella cartella della settimana, e il profilo con le sue esclusioni.
 Stabilisci che giorno e' oggi: **i giorni passati non si toccano mai**, si
 riscrivono solo quelli che restano.
 
@@ -156,11 +157,12 @@ non la domenica.
 
 ## Dopo
 
-Riscrivi in `settimane/<ISO>.md` solo i giorni cambiati, lasciando visibile
+Riscrivi nel markdown della settimana solo i giorni cambiati, lasciando visibile
 cosa c'era prima (una riga barrata o una nota). Aggiorna `dati/dispensa.yaml`
 se la correzione cambia gli avanzi previsti.
 
-**A settimana iniziata, scrivi anche il diario** — `settimane/<ISO>/diario.yaml`,
+**A settimana iniziata, scrivi anche il diario** — `diario.yaml` nella cartella
+della settimana,
 contratto in `CLAUDE.md`. Una modifica in corsa *e'* una voce di diario: una
 cella spostata o saltata e' esattamente cio' per cui il diario esiste, e
 saperlo il mercoledi' vale piu' che ricostruirlo la domenica.
@@ -179,6 +181,24 @@ doveva cambiare.
 
 Le correzioni fatte **prima** della spesa non sono voci di diario: li' non e'
 successo ancora niente, si sta ancora decidendo.
+
+**Il nome della settimana non si tocca**, nemmeno se il menu cambia da cima a
+fondo: il titolo e' fissato alla generazione, e rinominare vorrebbe dire
+muovere markdown, HTML, cartella e ogni link che ci puntava. Il documento
+cambia contenuto, non identita'.
+
+## Un'obiezione che vale piu' di un giovedi'
+
+Alcune contestazioni non riguardano il piatto: riguardano **come si mangia in
+questa casa**. «Carne a pranzo e a cena no», «a loro l'avanzo di mezzogiorno
+la sera non glielo dai», «se il congelatore e' pieno il tetto del pesce
+salta». Sono tolleranze, non capricci del giovedi': correggile qui, ma
+**proponi anche di scriverle** in `tolleranze` del profilo, che e' l'unico
+posto da cui torneranno utili la settimana prossima.
+
+Il profilo e' un livello dichiarato: si scrive solo su un si' esplicito, mai
+di iniziativa. Una riga per chiederlo, e se la risposta e' no si va avanti —
+la correzione di oggi vale comunque.
 
 I piatti rifiutati **non** finiscono subito nei bocciati: passali al
 postmortem della domenica, che e' il posto dove si impara. Qui si registra il

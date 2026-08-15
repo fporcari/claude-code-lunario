@@ -55,6 +55,7 @@ chiedi **cosa vuole rivedere**, offrendo i rami come opzioni:
 | **i pasti** | la griglia: chi fa colazione, spuntino, merenda; pasti liberi fissi |
 | **cosa non entra in casa** | esclusioni e intolleranze |
 | **come si cucina** | minuti, attrezzatura, frequenze di carne e pesce |
+| **cosa si tollera a tavola** | ripetizioni, avanzi, quanto sono rigidi i tetti, spesa per altri |
 | **agenda e git** | calendario del menu, versionamento della cartella |
 | **novita' del motore** | cio' che il profilo non ha ancora (sotto) |
 
@@ -89,6 +90,8 @@ Convertili **tu**, senza far ricompilare niente:
 | nessun `intervista` | `completa`: chi ha un profilo vecchio l'intervista l'ha gia' fatta |
 | persona a dieta senza `peso_obiettivo_kg` | chiedilo: senza, non si sa mai quando si e' arrivati |
 | nessun `pesata_settimanale` | `false`. **Chiedilo**, non attivarlo in silenzio: e' una domanda in piu' ogni domenica |
+| `max_pasti_*` come intero nudo | resta com'e' e vale `vincolo`. Proponi la rigidita' una volta, senza insistere: e' la differenza fra un tetto che si supera per smaltire il congelatore e uno che non si supera mai |
+| nessun `tolleranze` | i default conservativi: niente ripetizioni nel giorno, avanzi trasformati per i bambini, nessuna spesa per altri |
 
 I nomi dei bambini non li sai: chiedili, e' una domanda sola. Il resto lo
 deduci e lo mostri in tre righe per conferma — «ho riscritto il profilo cosi',
@@ -159,6 +162,7 @@ che ci sbatte contro:
 | la pesata settimanale | `lunario:postmortem`, alla prima domenica con qualcuno a dieta |
 | il menu in agenda | `lunario:correggi`, alla prima conferma del menu |
 | il tempo vero per cucinare | `lunario:prepara`, quando i minuti reali smentiscono il default |
+| le tolleranze a tavola | `lunario:correggi`, alla prima contestazione che le riguarda — «carne due volte in un giorno no» e' una tolleranza, non un capriccio del giovedi' |
 
 La risposta e' dell'utente e tu la metti in forma nel profilo — lo stesso
 patto di `ricette.md`. Quando i buchi sono finiti, togli `intervista: minima`.
@@ -260,6 +264,43 @@ persona sola, e ricorda che varranno anche come ingrediente nascosto.
 cucina che cambia le ricette (forno, friggitrice ad aria, pentola a pressione,
 congelatore capiente), quante volte a settimana si mangia pesce o carne.
 
+**Quanto sono tetti, i tetti.** Appena hai un numero — «carne due o tre volte»
+— chiedi la cosa che nessuno dichiara da solo: **e se nel congelatore c'e'
+roba che sta invecchiando e ti porterebbe a sforare?**. Le due risposte
+scrivono due file diversi:
+
+- «allora sforo, e' roba pagata» → `{valore: 3, rigidita: preferenza}`
+- «no, la regola e' quella» → il numero nudo, che vale `vincolo`
+
+E' una domanda sola per tutti i tetti insieme, non una per tetto. Un numero
+scritto senza averla fatta e' un numero che il motore trattera' come una
+regola, e la prima settimana con il congelatore pieno lo scoprirete correggendo
+un menu gia' fatto.
+
+**Cosa si tollera a tavola.** Sono le regole che nessuno pensa di dover dire
+perche' in casa sono ovvie, e che si scoprono tutte allo stesso modo:
+correggendo un menu gia' scritto. Chiedile qui, una per volta, e **lasciale
+saltare**: chi non ci ha mai pensato non va interrogato, i default
+conservativi reggono benissimo.
+
+| domanda | dove va |
+|---|---|
+| carne (o pesce) a pranzo **e** a cena dello stesso giorno: si puo'? | `tolleranze.ripetizioni.stessa_proteina_nel_giorno` |
+| lo stesso piatto due volte in un giorno — l'avanzo di mezzogiorno la sera? | `stesso_piatto_nel_giorno`, e chiedilo **a parte per i bambini**, che sono quasi sempre il caso stretto |
+| gli avanzi tornano in tavola come sono, o solo trasformati in altro? | `tolleranze.avanzi` |
+| ogni settimana parte una seconda spesa per qualcun altro? | `tolleranze.spesa_per_altri` |
+
+L'ultima sembra fuori posto in un'intervista sul cibo, e non lo e': se ogni
+settimana viaggia una lista per i suoceri, quella roba deve restare fuori da
+ogni totale, dal paniere e dalla dispensa. Contata, falsa insieme il budget e
+le porzioni — e nessuno capisce piu' perche'.
+
+Quello che non viene chiesto, o a cui si risponde «boh», prende il **default
+conservativo**: niente ripetizioni nel giorno, avanzi solo trasformati per i
+bambini. Non e' timidezza, e' aritmetica: un menu che ripete un ingrediente
+genera una correzione, un menu che non lo ripete al massimo genera un «potevi
+anche rifarmelo».
+
 **Quanto si mangia fuori.** Non per giudicare: per non cucinare per chi non
 c'e'. Se e' una cosa fissa — «il venerdi' pizza fuori» — e' un ritmo; se
 capita e basta, lo chiedera' `lunario:settimana` ogni lunedi'.
@@ -324,6 +365,37 @@ telefono» — allora si', qui si parla, una volta e senza predica:
   computer di casa: si guida la sessione dal telefono e i file non si spostano
 - se dopo questo lo vuole lo stesso, e' una sua scelta legittima: aiutalo, e
   proponi SOPS + age per cifrare i valori. Non sabotare, non ripetere l'avviso
+
+## 2a. Dove va scritta una risposta
+
+Fare la domanda e' meta' del lavoro. L'altra meta' e' il file in cui la
+risposta atterra, e sbagliarlo non si vede subito: si vede sei mesi dopo,
+quando quella regola non ha piu' effetto su niente. Una domanda decide:
+
+> **Il motore deve controllarlo da solo?**
+
+| risposta | file | esempi |
+|---|---|---|
+| **si**, e' un campo che filtra o conta | `dati/profilo.yaml` | esclusioni, tetti e rigidita', ripetizioni vietate, spesa per altri |
+| **no**, ma va letto prima di generare | `dati/note.md` | l'hummus si compra pronto, la merenda dei bimbi e' salata, niente integrale |
+| **no**, e' per l'umano che apre la cartella | il `CLAUDE.md` di casa | come si lancia una skill, cos'e' la griglia dei pasti |
+
+Il `CLAUDE.md` generato e' il posto sbagliato per una regola di casa, e la
+seconda ragione conta piu' della prima: quel file lo scrive il plugin, quindi
+una regola dell'utente ci sta a un aggiornamento dal trovarsi in un file che
+non e' suo; e una regola in prosa non si puo' chiedere al setup, ne' riproporre
+quando la vita cambia, ne' ritarare al postmortem. Diventa un testo che
+qualcuno deve ricordarsi di rileggere.
+
+C'e' un quarto caso, ed e' facile da mancare: quando cio' che sembra una
+stranezza di casa e' un **difetto del motore** — «il menu esce disordinato»,
+«non mi ha mai chiesto cosa avevo nel congelatore» — non va in nessuno dei
+tre file. E' una issue sul plugin, e dirlo e' piu' utile che scriverlo da
+qualche parte.
+
+Quando scrivi una risposta, **di' in mezza riga dove l'hai messa** se non e'
+il profilo: «l'ho segnata nelle note, cosi' la rileggo a ogni menu». Serve
+all'utente per sapere dove tornare a cambiarla.
 
 ## 3. Costruire la casa
 

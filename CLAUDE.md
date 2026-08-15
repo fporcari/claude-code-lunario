@@ -71,7 +71,7 @@ La stessa griglia vive in tre file, e vince sempre il piu' specifico:
 |---|---|---|
 | `dati/profilo.yaml` | **quali pasti fa** ognuno, di norma | «i bimbi fanno merenda, gli adulti no» |
 | `dati/ritmi.yaml` | l'override **ricorrente**, per giorno | «il martedi' Adulto2 pranza fuori» |
-| `settimane/<ISO>/contesto.yaml` | l'override di **questa settimana** | «giovedi' cena al ristorante» |
+| il `contesto.yaml` della settimana | l'override di **questa settimana** | «giovedi' cena al ristorante» |
 
 Una cella non dichiarata da nessuno vale `casa`, tranne quelle che il profilo
 ha messo a `no`: quelle restano `no` finche' il profilo non cambia.
@@ -152,11 +152,11 @@ non impara. Ogni skill scrive un livello solo.
 |---|---|---|---|
 | `lunario:profilo` | stabile | `dati/profilo.yaml` | una volta |
 | `lunario:ritmi` | dichiarato | `dati/ritmi.yaml`, `dati/note.md` | quando cambia la vita |
-| `lunario:settimana` | effimero | `settimane/<ISO>/contesto.yaml`, `dati/ricette.md` | ogni lunedi' |
-| `lunario:menu` | — (consuma tutto) | `settimane/<ISO>.md` + `.html`, `dati/dispensa.yaml` | ogni lunedi' |
+| `lunario:settimana` | effimero | `settimane/<ISO>-<titolo>/contesto.yaml`, `dati/ricette.md`, `dispensa.yaml` (scorte) | ogni lunedi' |
+| `lunario:menu` | — (consuma tutto) | `settimane/<ISO>-<titolo>.md` + `.html`, `dati/dispensa.yaml` | ogni lunedi' |
 | `lunario:spesa` | appreso (prezzi) | `dati/prodotti.jsonl`, `dispensa.yaml`, `storico.yaml` | al ritiro della spesa |
-| `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina`, `settimane/<ISO>/diario.yaml` | mentre si cucina |
-| `lunario:correggi` | effimero | `settimane/<ISO>.md` (giorni residui), `settimane/<ISO>/diario.yaml` | quando cambia qualcosa |
+| `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina`, `settimane/<ISO>-<titolo>/diario.yaml` | mentre si cucina |
+| `lunario:correggi` | effimero | il menu (giorni residui) e il diario della settimana | quando cambia qualcosa |
 | `lunario:postmortem` | appreso (tavola, pesate) | `dati/storico.yaml` | domenica |
 
 L'utente ne invoca quattro: `lunario:settimana` il lunedi', `lunario:spesa`
@@ -214,13 +214,51 @@ famiglia non appartengono al motore. Vivono nella cartella da cui si lavora:
 │   ├── prodotti.jsonl        # il paniere: formato, nutrienti, prezzi
 │   ├── dispensa.yaml         # cosa e' rimasto in casa
 │   └── storico.yaml          # settimane e tarature
-└── settimane/                # menu generati, per settimana ISO
+└── settimane/                # menu generati: <ISO>-<titolo>
 ```
 
 Dentro le skill, i file del motore si citano con `${CLAUDE_PLUGIN_ROOT}/kb/...`
 perche' il plugin, una volta installato, vive fuori dal progetto. I file di
 `dati/` e `settimane/` sono invece relativi alla cartella di lavoro, e
 `LUNARIO_DATI` permette di spostarli altrove.
+
+### Come si chiama una settimana
+
+Ogni settimana ha un titolo, ed e' l'unico appiglio che un essere umano usa
+davvero: in un'altra chat, al telefono, due mesi dopo, nessuno dice «apri
+2026-W34», dice «Commando». Quindi il titolo sta **anche nel nome del file**,
+dopo l'ISO:
+
+```
+settimane/
+├── 2026-W34-commando.md
+├── 2026-W34-commando.html
+└── 2026-W34-commando/
+    └── contesto.yaml
+```
+
+L'ISO resta davanti, e vale la pena difenderlo: l'ordine alfabetico continua a
+essere l'ordine cronologico, e il motore trova una settimana **con un glob su
+`settimane/2026-W34*`**, senza dover conoscere il titolo. La chiave in
+`storico.yaml` resta l'ISO nudo; lo slug e' una comodita' per gli occhi
+aggiunta sopra l'identificatore, non al posto suo.
+
+Lo slug: minuscolo, accenti tolti, tutto cio' che non e' lettera o cifra
+diventa `-`, niente `-` doppi ne' in testa o in coda. I titoli sono corti per
+costruzione — vengono da una serie — quindi non serve troncare niente.
+
+Il titolo nasce in `lunario:menu`, e il contesto e' gia' su disco quando
+arriva: `lunario:settimana` crea `settimane/<ISO>/`, e il menu **rinomina la
+cartella** appena ha il titolo. E' l'unico rename previsto dal sistema, e
+avviene prima che qualcuno abbia visto un nome.
+
+**Da li' in poi il nome si fissa e non cambia piu'.** Rinominare vuol dire
+spostare tre cose insieme — markdown, HTML e cartella — e qualsiasi link che
+ci puntava: `lunario:correggi` non lo fa mai, nemmeno se cambia il menu. Se un
+titolo va davvero cambiato, si spostano tutti e tre o nessuno.
+
+Le settimane scritte prima di questa regola si chiamano `2026-W34.md` e
+restano valide: il glob le trova lo stesso, e non si rinominano d'ufficio.
 
 ## Installazione
 
@@ -360,10 +398,34 @@ aggiornata: 2026-08-14
 avanzi:
   pasta-integrale-500: 400      # grammi residui
   ceci-lessati-400: 1           # pezzi interi per tipo `pezzo`
+freezer:
+  - cosa: filetti di branzino
+    pezzi: 2
+    grammi: 250                 # per pezzo, quando conta
+    dal: 2026-06-12             # quando e' stato congelato, se si sa
+    da_smaltire: true           # e' li' da troppo: il menu lo tira fuori
+  - cosa: petto di pollo a fette
+    grammi: 600
 ```
 
-Solo prodotti non deperibili (fascia `[fine]` di `kb/deperibilita.md`). Il
-fresco avanzato non e' un credito: e' immondizia fra tre giorni.
+Due sezioni, perche' sono due cose diverse. `avanzi` e' cio' che il motore ha
+**calcolato**: confezioni comprate meno fabbisogno, corretto al postmortem.
+Solo prodotti non deperibili (fascia `[fine]` di `kb/deperibilita.md`) — il
+fresco avanzato non e' un credito, e' immondizia fra tre giorni.
+
+`freezer` e' cio' che l'utente **vede aprendo il congelatore**, e nessun
+calcolo lo sa: pezzi arrivati da un'altra spesa, meta' di un pacco, la carne
+messa via a giugno. Non ha un `id` di prodotto perche' spesso non ce l'ha —
+«mezzo scamone» non e' una riga del paniere — e porta invece la data di
+congelamento, che e' il dato con cui si decide cosa esce per primo.
+
+Un piatto costruito su una riga di `freezer` **cancella la riga della spesa
+corrispondente**, e la cancellazione va detta: un banco pesce quasi vuoto e'
+sospetto finche' non si sa perche'. E porta un vincolo che il menu deve
+stampare: **lo scongelamento**. Una bistecca vuole 12-24 ore in frigo, dei
+filetti 8-12: un surgelato previsto per domenica sera e ricordato domenica
+pomeriggio e' una cena che non avviene, ed e' l'unico pezzo di settimana che
+il giorno stesso non si recupera.
 
 ### dati/profilo.yaml — chi mangia, e quali pasti fa
 
@@ -386,6 +448,19 @@ famiglia:
     selettivo: true
     pasti:
       merenda: casa
+preferenze:
+  max_pasti_pesce_settimana: {valore: 2, rigidita: preferenza}
+  max_pasti_carne_settimana: {valore: 3, rigidita: preferenza}
+  max_carne_rossa_settimana: 1   # intero nudo = vincolo
+tolleranze:
+  ripetizioni:
+    stessa_proteina_nel_giorno: false   # carne a pranzo E a cena
+    stesso_piatto_nel_giorno: false     # l'avanzo di mezzogiorno la sera
+    stesso_ingrediente_dopo_giorni: 2
+  avanzi:
+    tutti: come_sono             # come_sono | trasformati | mai
+    bambini: trasformati         # la riga piu' stretta vince
+  spesa_per_altri: false         # una seconda lista che viaggia con la spesa
 titoli:
   serie: "canzoni dei Beatles"   # null = titolo descrittivo dai piatti
 ```
@@ -406,6 +481,66 @@ loro pasti e la loro selettivita'. `selettivo` era `bambini.selettivi` ed era
 un interruttore per tutta la casa — sbagliato appena i figli sono due e uno
 mangia tutto.
 
+#### I tetti, e quanto sono tetti
+
+`max_pasti_pesce_settimana: 2` scritto come numero nudo si legge come una
+regola, e il motore ci pianifica contro. Per molte case e' invece una
+**preferenza**: in condizioni normali tiene, ma se nel congelatore c'e' roba
+che invecchia, l'economia domestica vince, il tetto si supera apposta e lo si
+dice in mezza riga. Sono due comportamenti opposti, e il file deve saperli
+distinguere.
+
+| forma | come si legge |
+|---|---|
+| `max_pasti_carne_settimana: 3` | **vincolo**: non si supera |
+| `{valore: 3, rigidita: preferenza}` | si supera quando c'e' una ragione, e la ragione si dichiara |
+| `{valore: 3, rigidita: vincolo}` | come l'intero nudo, ma detto apposta |
+
+Il numero nudo resta valido e vale `vincolo`: e' il default conservativo, e un
+profilo vecchio non cambia comportamento perche' e' uscita una versione nuova.
+
+#### Le tolleranze
+
+Sono le regole di tavola che nessuno dichiara e che si scoprono correggendo un
+menu gia' scritto. Tutto cio' che non e' stato chiesto vale il **default
+conservativo** — niente ripetizioni, avanzi solo trasformati per i bambini —
+perche' un menu che ripete un ingrediente e' un menu che si fa correggere.
+
+- `ripetizioni` — la stessa proteina a pranzo e a cena, lo stesso piatto due
+  volte in un giorno, ogni quanti giorni un ingrediente puo' tornare
+- `avanzi` — se tornano in tavola, e se ci tornano **come sono** o solo
+  **trasformati** in un'altra forma un altro giorno. La riga dei bambini e'
+  quasi sempre la piu' stretta, e vince su quella generale
+- `spesa_per_altri` — se ogni settimana viaggia con la spesa una seconda
+  lista per qualcun altro. Se `true`, quella roba resta **fuori da ogni
+  totale**, dal paniere e dalla dispensa: non e' cibo di questa casa
+
+#### Dove va scritta una risposta
+
+Una casa impara cose su di se' a ogni menu, e il posto dove finiscono decide
+se serviranno ancora fra sei mesi. Una domanda sola:
+
+> **Il motore deve controllarlo da solo?**
+
+| risposta | file | esempi |
+|---|---|---|
+| **si**, e' un campo che filtra o conta | `dati/profilo.yaml` | esclusioni, tetti e rigidita', ripetizioni vietate, spesa per altri |
+| **no**, ma va letto prima di generare | `dati/note.md` | l'hummus si compra pronto, la merenda dei bimbi e' salata, niente integrale |
+| **no**, e' per l'umano che apre la cartella | il `CLAUDE.md` di casa | come si lancia una skill, cos'e' la griglia dei pasti |
+
+Il `CLAUDE.md` generato e' il posto **sbagliato** per una regola di casa, e la
+seconda ragione conta piu' della prima: quel file lo scrive il plugin, quindi
+una regola dell'utente ci sta a un aggiornamento dal trovarsi in un file che
+non e' suo; e una regola scritta in prosa non si puo' chiedere al setup, ne'
+riproporre quando la vita cambia, ne' ritarare al postmortem. Diventa un testo
+che qualcuno deve ricordarsi di rileggere, che e' esattamente il fallimento da
+cui nasce questa sezione.
+
+C'e' un quarto caso, facile da mancare: quando cio' che sembra una stranezza
+di casa e' invece un **difetto del motore** — «il menu esce disordinato»,
+«non mi ha mai chiesto cosa avevo nel congelatore» — non va in nessuno dei tre
+file. E' una issue sul plugin.
+
 ### dati/ritmi.yaml — la griglia ricorrente
 
 ```yaml
@@ -424,7 +559,7 @@ settimana:
 ancora in lettura, e `lunario:profilo` li converte in `trasportabile` e
 `fuori` al primo aggiornamento.
 
-### settimane/<ISO>/contesto.yaml — l'eccezione di questa settimana
+### settimane/<ISO>-<titolo>/contesto.yaml — l'eccezione di questa settimana
 
 Stessa grammatica di `ritmi.yaml`, ma vale una settimana sola e si sovrappone
 ai ritmi. Effimero per design: non si accumula, non si impara.
@@ -439,7 +574,7 @@ settimana:
       pranzo: fuori
 ```
 
-### settimane/<ISO>/diario.yaml — cosa si e' mangiato davvero
+### settimane/<ISO>-<titolo>/diario.yaml — cosa si e' mangiato davvero
 
 Il contesto dice cosa **doveva** succedere; il diario dice cosa e' successo, e
 si riempie **giorno per giorno**, non ricostruito la domenica.
@@ -494,7 +629,7 @@ tarature:                  # stato appreso: letto SEMPRE prima di generare
 settimane:
   - settimana: 2026-W34
     titolo: "La settimana dei legumi coraggiosi"
-    menu: settimane/2026-W34.md
+    menu: settimane/2026-W34-commando.md   # la chiave resta l'ISO, il file porta il titolo
     spesa_stimata: 92.50
     spesa_reale: null      # SOLO il menu, dallo scontrino del ritiro
     spesa_extra_alimentare: null   # cibo comprato ma non previsto
@@ -576,10 +711,31 @@ va usata apertamente, con tre regole che non si negoziano:
    scaldare, una cella `libero` non riceve un piatto ipocalorico
 4. Fabbisogno: per ogni ingrediente, grammi totali della settimana — contando
    colazioni, spuntini e merende, che sono celle come le altre
-5. **Confezioni**: fabbisogno − dispensa → confezioni da comprare, secondo
-   `kb/confezioni.md`. La lista dice «2 pacchi da 500 g», mai «1050 g»
-6. Salva `settimane/<ISO>.md`, aggiorna `dispensa.yaml` con gli avanzi
+5. **Confezioni**: fabbisogno − dispensa − freezer → confezioni da comprare,
+   secondo `kb/confezioni.md`. La lista dice «2 pacchi da 500 g», mai «1050 g».
+   Cio' che copre una scorta **esce dalla lista e viene nominato uscendo**
+6. Salva `settimane/<ISO>-<titolo>.md`, aggiorna `dispensa.yaml` con gli avanzi
    previsti, aggiungi la voce a storico con `spesa_stimata`
+
+### Le scorte si chiedono prima, non si scoprono dopo
+
+`dispensa.yaml` dice cio' che il motore ha calcolato; non dice cio' che c'e'.
+Alla prima settimana e' vuoto per definizione — ed e' esattamente la settimana
+in cui il congelatore e' pieno di roba di prima —, poi deriva a ogni cena
+saltata, e del congelatore non sa niente.
+
+Quindi `lunario:settimana` **chiede** prima di generare, e chiede in tre tempi
+— congelatore, frigo, dispensa secca — partendo da cio' che crede di avere:
+correggere un elenco riesce a chiunque, ricordarlo a nessuno. Il congelatore
+va per primo perche' e' quello che si dimentica sempre, e' gia' pagato, e
+spesso e' roba da smaltire.
+
+Cio' che ne esce comanda **prima** della scelta dei piatti, non dopo: un
+menu gia' scritto e una lista gia' chiusa a cui si tolgono quattro righe di
+banco sono soldi spesi due volte, non un miglioramento del menu. Le scorte
+sono anche la ragione tipica per cui un tetto `preferenza` si supera: se il
+pesce e' li' da giugno, la seconda cena di pesce vince sul tetto, e si dice
+perche'.
 
 ### Il ritiro della spesa (lunario:spesa)
 
@@ -592,6 +748,11 @@ Lo scontrino contiene anche cio' che con Lunario non c'entra: detersivi, casa,
 roba comprata per altri. Va separato in tre gruppi — menu, alimentare fuori
 lista, non Lunario — perche' **solo il primo e' la spesa che si confronta con
 la stima**. Un budget sporcato dai detersivi non insegna niente.
+
+Se il profilo ha `tolleranze.spesa_per_altri: true`, la lista che viaggia per
+qualcun altro sta nel terzo gruppo e ci resta: fuori dai totali, fuori dal
+paniere, fuori dalla dispensa. Non e' cibo di questa casa, e contarlo
+falserebbe insieme il budget e le porzioni.
 
 E' anche il punto in cui la settimana passa da `preventivo` a `consuntivo`: da
 qui in avanti il file non descrive piu' cio' che si voleva, ma cio' che c'e'.
@@ -660,7 +821,7 @@ va avanti.
 
 ### Il menu e' anche lo stato di avanzamento
 
-In `settimane/<ISO>.md` pasti e righe della spesa sono **caselle da spuntare**.
+Nel markdown della settimana, pasti e righe della spesa sono **caselle da spuntare**.
 `lunario:prepara` le marca mentre si cucina: il pasto fatto esce dai candidati
 del lancio successivo, gli ingredienti consumati spariscono da cio' che si
 presume in casa.
