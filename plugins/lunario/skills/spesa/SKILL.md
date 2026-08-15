@@ -203,6 +203,30 @@ casa, ed e' una differenza di autorita', non di formattazione.
 Il preventivo non si conserva a parte: il delta e' la sua memoria utile, e il
 resto lo tiene git.
 
+### Il consuntivo e' un registro, non un modulo
+
+Rigenera anche l'HTML, con `data-stato="consuntivo"` sul `body` e **senza
+nessuna casella da spuntare**: niente `input.spunta`, restano solo i quadratini
+di carta per chi lo stampa. L'etichetta del totale diventa «Totale pagato».
+
+Nel preventivo la lista si spunta col dito, ed e' giusto: e' un documento di
+lavoro usato in un posto solo, su un telefono solo, per un'ora — uno stato che
+vive nel browser e' esattamente la quantita' di stato che serve, perche' a
+valle non lo aspetta nessuno.
+
+Il consuntivo no, e il motivo vale la pena di scriverlo: **lo stato dentro la
+pagina e' invisibile alle skill, e lo e' in silenzio.** Le skill leggono file.
+Un commento scritto in un campo del menu sembrerebbe, a chi lo scrive,
+esattamente come dire una cosa al sistema — e nessuno l'avrebbe ricevuta. Una
+pagina che raccoglie note che non legge nessuno e' peggio di una pagina che non
+ne raccoglie.
+
+E non servirebbe comunque: il momento in cui si annota meglio non e' «guardando
+il menu la domenica», e' «davanti ai fornelli il mercoledi'», dove
+`lunario:prepara` c'e' gia', sta gia' parlando e scrive gia' sui file — nel
+diario della settimana. Un secondo canale produrrebbe solo due registri mezzi
+pieni che si contraddicono.
+
 ## 4a. L'occhio sui prezzi
 
 La serie storica in `prodotti.jsonl` non e' un archivio: e' il posto dove i

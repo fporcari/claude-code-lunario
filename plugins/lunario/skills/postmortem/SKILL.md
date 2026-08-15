@@ -21,10 +21,18 @@ Scrive il livello **appreso**. Regole di ritaratura in `CLAUDE.md`.
 
 ## 0. Prima di chiedere, leggi
 
-`settimane/<ISO>/diario.yaml` — se c'e' — dice gia' cosa si e' mangiato, chi
-c'era, cosa e' avanzato e quali celle sono saltate, **registrato nel giorno in
-cui e' successo** invece che ricordato adesso. Leggilo per primo, insieme al
-menu spuntato e al consuntivo.
+La domenica si apre su **cio' che e' gia' scritto**, e sono due file che
+insieme raccontano quasi tutta la settimana:
+
+- il **consuntivo** (`settimane/<ISO>.md`, `stato: consuntivo`) — cosa e'
+  entrato in casa, a che prezzo, con quali sostituzioni, e in coda lo scarto
+  dal preventivo
+- il **diario** (`settimane/<ISO>/diario.yaml`) — cosa si e' mangiato davvero,
+  chi c'era, cosa e' avanzato, quali celle sono saltate, **registrato nel
+  giorno in cui e' successo** invece che ricordato adesso
+
+Comprato e cucinato, gia' assemblati. Leggili per primi, insieme al menu
+spuntato.
 
 Quello che il diario copre **non si chiede**: si propone come verificato, in
 una riga, e si passa oltre. Le domande qui sotto valgono solo per i buchi.

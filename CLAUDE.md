@@ -625,6 +625,15 @@ che sa dire se la lista era giusta: prima di lui, mettere un timbro di
 definitivo su un totale fatto di prezzi della settimana scorsa e' una bugia
 tipografica.
 
+I due si leggono anche diversamente. Il preventivo e' un **documento di
+lavoro**: la sua lista si spunta col dito al supermercato, e quello stato vive
+nel browser perche' a valle non lo aspetta nessuno. Il consuntivo e' un
+**registro**: niente da spuntare, niente da scrivere. Le annotazioni della
+settimana non passano mai da una pagina — passano da `lunario:prepara`, pasto
+per pasto, mentre si cucina, e finiscono nel diario. Uno stato scritto in una
+pagina e' invisibile alle skill, ed e' invisibile in silenzio: chi lo scrive
+crede di aver detto qualcosa al sistema, e non l'ha ricevuta nessuno.
+
 Il preventivo non si perde: `lunario:spesa` lascia in coda al consuntivo un
 **delta leggibile** — cosa e' cambiato di formato, di prezzo, di piatto — perche'
 lo scarto fra i due e' il dato che il postmortem confronta, e leggerlo non deve

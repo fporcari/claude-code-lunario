@@ -130,6 +130,11 @@
     background:none;border:1px solid var(--riga);border-radius:4px;
     color:var(--tenue);font:inherit;font-size:.74rem;cursor:pointer;
   }
+  /* Il consuntivo e' inerte: la spesa e' gia' stata fatta, non c'e' niente da
+     spuntare. Restano i quadratini di carta, per chi lo stampa. */
+  [data-stato="consuntivo"] .spunta,
+  [data-stato="consuntivo"] .azzera{display:none}
+  [data-stato="consuntivo"] .riga label{cursor:default}
 
   /* ---- stampa: bianco, una pagina A4, niente inchiostro sprecato ---- */
   @media print{
@@ -161,7 +166,17 @@
   }
 </style>
 </head>
-<body>
+<!-- data-stato governa i DUE layout di questa pagina, e non e' cosmetica:
+     "preventivo"  la lista si spunta col dito, ed e' un documento di lavoro
+     "consuntivo"  la spesa e' fatta: la pagina e' un registro e non si tocca
+     Sul consuntivo gli input.spunta NON si emettono affatto — restano i
+     quadratini di carta — perche' quello che si annota su una pagina non lo
+     legge nessuna skill, e lo silenzio con cui non lo legge e' il problema:
+     chi scrive crede di aver detto una cosa al sistema. Le annotazioni vere —
+     com'e' andata, quanto ci e' voluto davvero, cosa si e' mangiato invece —
+     arrivano da lunario:prepara, che e' li' mentre si cucina e scrive sui
+     file. -->
+<body data-stato="preventivo">
 <div class="foglio">
 
   <header>
@@ -318,9 +333,20 @@
 // non servono — quello che e' entrato in casa lo dice lo scontrino, non questa
 // pagina — e uno stato che le skill non leggono non deve fingere di parlarci.
 (function () {
+  // Solo il preventivo si spunta. Il consuntivo e' un registro: la spesa e'
+  // gia' stata fatta, e una casella li' non avrebbe niente da dire.
+  //
+  // La difesa vera non e' questa riga, e' il markup: un consuntivo non emette
+  // nessun input.spunta, quindi qui non c'e' niente da agganciare. Il
+  // controllo su data-stato e' la seconda cintura, non la prima — legarsi solo
+  // a un attributo significa dipendere da quando il DOM e' pronto.
+  if (document.body.dataset.stato === 'consuntivo') return;
+
   var chiave = 'lunario:{{ISO}}:spesa';   // per settimana: due settimane aperte non si mescolano
   var spunte = document.querySelectorAll('.spunta');
   if (!spunte.length) return;
+
+  var azzera = document.querySelector('.azzera');
 
   // localStorage puo' non esserci: file aperto da un'anteprima, URL data:,
   // navigazione privata. In quel caso si spunta lo stesso, e basta: una lista
@@ -334,7 +360,6 @@
   }
 
   var stato = leggi();
-  var azzera = document.querySelector('.azzera');
 
   function disegna(box) {
     box.closest('.voce').classList.toggle('presa', box.checked);
