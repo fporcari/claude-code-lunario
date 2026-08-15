@@ -153,6 +153,24 @@ preparazione o piatto, non grammatura.
 Correggi anche `dati/dispensa.yaml` sul reale: gli avanzi previsti dal menu
 sono una stima, quello che c'e' davvero lo sa solo l'utente.
 
+## Lo scarto fra preventivo e consuntivo
+
+Se la settimana e' passata da `lunario:spesa`, in coda a `settimane/<ISO>.md`
+c'e' la sezione **Scarto dal preventivo**. Leggila e portala in
+`storico.settimane[]`: `spesa_stimata` accanto a `spesa_reale`, e le righe
+divergenti in `scarto_per_riga`. Scrivere solo il totale reale cancella l'unica
+cosa che il confronto sa insegnare.
+
+Non commentarla riga per riga in chat — l'utente l'ha gia' vista al ritiro. Si
+guarda invece la **ripetizione**: stessa riga divergente nello stesso verso per
+tre settimane e' un dato del paniere, non della settimana.
+
+| osservazione sullo scarto | conseguenza |
+|---|---|
+| lo stesso formato arriva sempre diverso da quello atteso | correggi `formato_g` in `prodotti.jsonl`: il paniere ha il dato sbagliato, non il negozio |
+| lo stesso prodotto manca 3 volte | proponi di sostituirlo stabilmente nel paniere: non lo tengono |
+| il consuntivo supera il preventivo di piu' del 10% per 3 settimane | i prezzi del paniere sono vecchi, e il budget lo e' di conseguenza. Dillo una volta, come dato |
+
 ## Chiusura
 
 **Una riga sola**: cosa cambia la settimana prossima. Non un riepilogo di

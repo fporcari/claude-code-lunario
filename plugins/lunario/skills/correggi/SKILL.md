@@ -19,13 +19,13 @@ un piatto per cui non e' stata comprata roba, o rifare la spesa per niente.
 
 | stato | dove siamo | cosa vincola |
 |---|---|---|
-| `bozza` | il menu e' in discussione, la spesa non e' fatta | **niente**: si cambia liberamente e la lista si rigenera |
-| `confermato` | lista chiusa, spesa non ancora fatta | si puo' cambiare, ma va rifatta la lista: dillo |
-| `in corso` | la spesa e' stata ritirata | **cosa c'e' in casa**: si riusa, non si ricompra |
+| `preventivo` | la spesa non e' ancora stata ritirata | **niente**: si cambia liberamente e la lista si rigenera |
+| `consuntivo` | la spesa e' stata ritirata | **cosa c'e' in casa**: si riusa, non si ricompra |
 
-Regole complete in `CLAUDE.md`.
+Questa skill **non promuove niente**: il passaggio a `consuntivo` lo fa
+`lunario:spesa` con lo scontrino in mano. Regole complete in `CLAUDE.md`.
 
-## Se il menu e' in bozza
+## Se la spesa non e' ancora fatta
 
 E' il caso piu' frequente e il piu' semplice: si sta ancora decidendo, spesso
 riportando le obiezioni di chi non e' in questa chat.
@@ -35,22 +35,29 @@ riportando le obiezioni di chi non e' in questa chat.
   neutra piu' robusta, la seconda cambiando piatto
 - Cambia quello che serve, ricontrolla i vincoli di sempre (deperibilita',
   frequenze, ritmi, esclusioni) e **rigenera la lista della spesa**
-- Resta in `bozza`: si esce solo con una conferma esplicita
+- Lo stato resta `preventivo`, prima e dopo: modificare una previsione la
+  lascia una previsione
 - Non riepilogare tutto il menu a ogni giro: mostra i giorni cambiati
 
-Registra le obiezioni raccolte qui: se un piatto viene contestato in bozza
-prima ancora di essere cucinato, e' un segnale buono quanto un voto basso.
+Registra le obiezioni raccolte qui: se un piatto viene contestato prima ancora
+di essere cucinato, e' un segnale buono quanto un voto basso.
 
-## La conferma
+## «Vado a fare la spesa»
 
 Quando l'utente dice che va bene — «confermo», «ok cosi'», «vado a fare la
-spesa» — allora:
+spesa» — non sta approvando dei numeri, che nessuno puo' ancora verificare:
+sta dicendo che i **piatti** vanno bene e che esce di casa. Quindi:
 
-1. metti `stato: confermato` con la data
-2. **rigenera lista e HTML definitivi**, che sono quelli che andranno al
-   supermercato
-3. **scrivi la settimana sul calendario**, se l'utente lo vuole (sotto)
-4. dillo in una riga, ricordando `lunario:spesa` al ritiro
+1. **rigenera lista e HTML**, che sono quelli che andranno al supermercato
+2. **scrivi la settimana sul calendario**, se l'utente lo vuole (sotto)
+3. dillo in una riga, ricordando `lunario:spesa` al ritiro
+
+Lo `stato` **non si tocca**: resta `preventivo` fino allo scontrino. Se dopo
+questo momento arriva un'altra modifica, si fa senza cerimonie — avvisa in
+mezza riga che la lista cambia, applicala e rigenera.
+
+Segna in testa al file la data dell'ultima rigenerazione, cosi' si sa quale
+versione e' finita in borsa.
 
 ### La settimana sul calendario
 
@@ -79,13 +86,10 @@ Due cautele, perche' un'agenda la leggono anche altri:
 L'evento e' una comodita', non un pezzo del sistema: se la scrittura fallisce,
 dillo in mezza riga e vai avanti. Il menu e' gia' salvato dove conta.
 
-Non confermare mai d'ufficio, e non dare per approvato il silenzio: qui
-l'approvazione e' di persone che non stanno leggendo la chat.
+Non dare mai per approvato il silenzio: qui l'approvazione e' di persone che
+non stanno leggendo la chat.
 
-Se dopo la conferma arriva un'altra modifica, si puo' fare: avvisa in mezza
-riga che la lista cambia, applicala e rigenera.
-
-## Se la settimana e' gia' in corso
+## Se la spesa e' gia' stata ritirata
 
 Qui la differenza con `lunario:settimana` e' tutta in una cosa: **la spesa e'
 gia' fatta**. Il vincolo non e' piu' il gusto ne' il budget, e' cosa c'e' in

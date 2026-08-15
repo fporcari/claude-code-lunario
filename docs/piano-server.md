@@ -56,10 +56,11 @@ alla luce del sole:
 ## Cosa si guadagna, oltre alla comodità
 
 1. **L'impossibilità di certi errori.** La macchina a stati della settimana —
-   `bozza → confermato → in corso` — oggi è una convenzione in testa a un
+   `preventivo → consuntivo` — oggi è una convenzione in testa a un
    file, che regge finché tutti la rispettano. Sul server diventa una regola
-   che non si può violare: da `confermato` non si torna a `bozza` per
-   distrazione. E con lei tutte le regole non negoziabili che non ammettono
+   che non si può violare: si passa a `consuntivo` solo esibendo uno scontrino,
+   e non si torna indietro per distrazione. E con lei tutte le regole non
+   negoziabili che non ammettono
    interpretazione: il pavimento delle 1200 kcal, il prezzo senza fonte che
    non entra, la serie storica che non si sovrascrive. Un errore di
    validazione in MCP non è un crash: torna al modello come risultato, e il
@@ -99,12 +100,12 @@ verificabile, e non si passa alla successiva finché la verifica non risponde.
 | 1 | lo stesso metodo come attrezzo MCP (`McpOpenApiApplication`, `channel_channels="mcp"`) | `tools/list` restituisce l'attrezzo |
 | 2 | collegarlo a Claude Code (`claude mcp add --transport http`) | il modello usa l'attrezzo da solo, guidato dalla firma |
 | 3 | il primo pezzo vero: il profilo, ancora su file JSON — e la skill `profilo` riscritta per chiamare gli attrezzi | l'intervista funziona identica, ma i dati stanno di là |
-| 4 | la prima regola difesa: `conferma_menu` ammesso solo da `bozza` | violarla restituisce un errore che il modello legge, non un crash |
+| 4 | la prima regola difesa: `registra_scontrino` è l'unica via da `preventivo` a `consuntivo` | violarla restituisce un errore che il modello legge, non un crash |
 | 5 | i dati in un database — **fermarsi e parlarne con Giovanni**: genro-asgi definisce il contratto, il backend è una scelta di progetto che si incrocia con l'ecosistema Genro | arrivarci con le tappe 0-4 in piedi, con domande invece che ipotesi |
 | 6 | le famiglie: identità, tag, chi vede cosa | il disegno prima del codice |
 
-La specifica della tappa 4 esiste già: è la tabella `bozza / confermato /
-in corso` nella skill `correggi`, scritta prima di sapere che sarebbe servita.
+La specifica della tappa 4 esiste già: è la tabella `preventivo / consuntivo`
+nella skill `correggi`, scritta prima di sapere che sarebbe servita.
 
 ## Le dipendenze fuori da questo repo
 

@@ -276,7 +276,7 @@ prima di rispondere in chat, e solo se `git: locale` e qualcosa e' cambiato:
 git add -A && git commit -q -m "<skill>: <cosa e' successo>"
 ```
 
-Messaggi che si leggono a distanza di mesi — `menu: 2026-W34, bozza` ·
+Messaggi che si leggono a distanza di mesi — `menu: 2026-W34, preventivo` ·
 `spesa: scontrino del 14/08, 89,40 €` · `postmortem: 2026-W34, tre tarature`.
 Se il commit fallisce, non dire niente all'utente e vai avanti: e' una rete di
 sicurezza, non un pezzo del flusso. In chat il commit non si nomina mai.
@@ -551,30 +551,44 @@ roba comprata per altri. Va separato in tre gruppi — menu, alimentare fuori
 lista, non Lunario — perche' **solo il primo e' la spesa che si confronta con
 la stima**. Un budget sporcato dai detersivi non insegna niente.
 
-### Il ciclo di vita del menu: bozza, confermato, in corso
+E' anche il punto in cui la settimana passa da `preventivo` a `consuntivo`: da
+qui in avanti il file non descrive piu' cio' che si voleva, ma cio' che c'e'.
 
-Un menu non nasce definitivo. Si prepara **durante la settimana precedente**,
-si mostra a chi mangia, si prende le contestazioni e si aggiusta. Solo quando
-tutti hanno detto la loro si fa la spesa — e da quel momento cambiare costa.
+### Il ciclo di vita del menu: preventivo e consuntivo
 
-In testa a `settimane/<ISO>.md` c'e' quindi uno `stato`:
+Un menu ha due stati, e la differenza non e' l'approvazione di qualcuno: e'
+**quanto di cio' che c'e' scritto e' verificato**.
 
-| stato | chi lo mette | cosa si puo' fare |
+| stato | chi lo mette | cos'e' |
 |---|---|---|
-| `bozza` | `lunario:menu`, appena generato | cambiare tutto: piatti, giorni, porzioni. La lista della spesa si rigenera ogni volta e non va usata |
-| `confermato` | l'utente, quando dice che va bene | la lista e' definitiva e si puo' andare a fare la spesa. Cambiare ancora si puo', ma vuol dire rifare la lista |
-| `in corso` | `lunario:spesa`, al ritiro | la spesa e' fatta: il vincolo non e' piu' il gusto, e' cosa c'e' in casa |
+| `preventivo` | `lunario:menu`, appena generato | cio' che si vuole mangiare e comprare. Ogni numero e' una previsione: formati, prezzi, e i piatti stessi |
+| `consuntivo` | `lunario:spesa`, dopo lo scontrino | cio' che c'e' davvero in casa: prodotti veri, formati veri, prezzi pagati, sostituzioni gia' applicate ai piatti |
 
-**Ogni menu nasce `bozza`.** La lista della spesa di una bozza e' indicativa e
-va detto: stamparla o andare al supermercato con quella e' esattamente
-l'errore che questi stati esistono per evitare.
+**Ogni menu nasce `preventivo`** e ci resta finche' non passa dallo scontrino.
+`lunario:correggi` lo modifica quante volte serve — le contestazioni di chi
+mangia si raccolgono li' — ma non lo promuove: un menu discusso e un menu
+approvato sono lo stesso documento con la stessa autorita', cioe' quella di una
+stima.
 
-La conferma e' un gesto esplicito dell'utente — «va bene cosi'», «confermo»,
-«vado a fare la spesa» — e in quel momento si rigenerano lista e HTML
-definitivi, si toglie il marchio «bozza» dall'HTML e, se richiesto, si scrive
-la settimana sul calendario. Non confermare mai d'ufficio: il silenzio non e'
-approvazione, soprattutto quando l'approvazione e' di altre persone che non
-stanno leggendo questa chat.
+Il «confermo» dell'utente resta un momento vero, ma vuol dire una cosa sola:
+**sto andando a fare la spesa adesso**. Congela la lista per il tempo del
+supermercato, scrive l'evento sul calendario se richiesto, e non cambia lo
+stato. Non darlo mai per acquisito d'ufficio — il silenzio non e' approvazione,
+tanto piu' che l'approvazione e' di altre persone che non stanno leggendo
+questa chat.
+
+La promozione a `consuntivo` avviene **solo in `lunario:spesa`**, ed e' il
+momento in cui il file viene riscritto sui prodotti reali. E' l'unico evento
+che sa dire se la lista era giusta: prima di lui, mettere un timbro di
+definitivo su un totale fatto di prezzi della settimana scorsa e' una bugia
+tipografica.
+
+Il preventivo non si perde: `lunario:spesa` lascia in coda al consuntivo un
+**delta leggibile** — cosa e' cambiato di formato, di prezzo, di piatto — perche'
+lo scarto fra i due e' il dato che il postmortem confronta, e leggerlo non deve
+richiedere un `git diff`. Se il consuntivo si scosta dal preventivo sempre nello
+stesso verso per tre settimane — quel pacco e' sempre piu' grande, quel prodotto
+non c'e' mai — non e' sfortuna, e' un paniere da correggere.
 
 ### Il calendario, nei due versi
 

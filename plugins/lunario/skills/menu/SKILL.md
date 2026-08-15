@@ -166,8 +166,9 @@ niente di caratteristico un titolo piano e' meglio di uno forzato.
 
 Tre cose, in quest'ordine:
 
-1. **`settimane/<anno>-W<settimana>.md`** — la fonte: in testa `stato: bozza`,
-   poi titolo, i 7 giorni e la lista per reparto in confezioni col totale.
+1. **`settimane/<anno>-W<settimana>.md`** — la fonte: in testa
+   `stato: preventivo`, poi titolo, i 7 giorni e la lista per reparto in
+   confezioni col totale.
 
    Ogni giorno porta le celle che esistono davvero: colazione e merende in una
    riga sola in testa, poi pranzo e cena col piatto, le kcal per persona e la
@@ -191,14 +192,15 @@ Tre cose, in quest'ordine:
 In chat: il titolo, il menu, la lista, il totale, e dove hai salvato l'HTML.
 Stop. Le spiegazioni solo dove la scelta non e' ovvia, una riga ciascuna.
 
-**Il menu esce sempre in bozza**, e va detto in chiaro: la lista della spesa e'
-provvisoria finche' chi mangia non ha detto la sua. Chiudi con una riga sola
-che invita a portarla in famiglia e a tornare per le contestazioni — «fammi
-sapere cosa ne pensano» — non con un invito a fare la spesa.
+**Il menu esce sempre in preventivo**, e va detto in chiaro: formati, prezzi e
+piatti sono tutti previsioni finche' non passano dallo scontrino. Chiudi con una
+riga sola che invita a portarlo in famiglia e a tornare per le contestazioni —
+«fammi sapere cosa ne pensano» — non con un invito a fare la spesa.
 
-L'HTML si genera lo stesso in bozza, perche' e' il formato con cui si mostra il
-menu agli altri, ma va marcato **BOZZA** nell'intestazione: un foglio stampato
-senza quella parola finisce sul frigo e diventa definitivo per sbaglio.
+L'HTML si genera lo stesso, perche' e' il formato con cui si mostra il menu
+agli altri, e porta **PREVENTIVO** nell'intestazione: un foglio stampato senza
+quella parola finisce sul frigo, e il suo totale viene letto come soldi spesi.
 
-Alla conferma — che gestisce `lunario:correggi` — lista e HTML si rigenerano
-puliti, e da li' si va a fare la spesa.
+Il preventivo resta tale anche dopo che l'utente dice «va bene»: `lunario:correggi`
+lo modifica, `lunario:spesa` lo promuove a consuntivo col primo scontrino.
+Nessun'altra skill cambia lo stato.

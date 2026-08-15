@@ -160,8 +160,34 @@ lascia stare il resto. Se i giorni colpiti sono tanti, e' il caso di
   `spesa_extra_alimentare` e `totale_scontrino` per memoria; e
   `scarto_per_riga`: dove la stima ha sbagliato, non solo di quanto. E' il dato
   che rende onesto il totale del lunedi' successivo
-- **`settimane/<ISO>.md`** — righe spuntate, e i giorni corretti se ci sono
-  state sostituzioni
+- **`settimane/<ISO>.md`** — diventa il consuntivo: vedi il punto 4b
+
+## 4b. Da preventivo a consuntivo
+
+Questa skill e' **l'unica** che cambia lo stato della settimana. Fino a un
+minuto fa il file diceva cosa si voleva comprare; adesso dice cosa c'e' in
+casa, ed e' una differenza di autorita', non di formattazione.
+
+1. `stato: consuntivo` in testa, con la data del ritiro
+2. **Riscrivi le righe della spesa sui prodotti reali**: nome, formato e prezzo
+   quelli dello scontrino, non quelli sperati. Una riga arrivata in 400 g resta
+   400 g anche se ne servivano 500
+3. **Applica le sostituzioni ai piatti**, non solo alla lista: se giovedi' il
+   branzino e' diventato merluzzo, giovedi' dice merluzzo. Un consuntivo che
+   nomina ancora un pesce che non e' entrato in casa non e' un registro
+4. **In coda, il delta**: poche righe, solo dove preventivo e consuntivo
+   divergono — formato, prezzo, prodotto sostituito, riga mancante. Serve al
+   postmortem e all'occhio umano, e deve leggersi senza `git diff`
+
+```markdown
+## Scarto dal preventivo
+- Fusilli integrali: previsti 2 × 500 g, dati 2 × 400 g — 200 g in meno
+- Branzino: non c'era → merluzzo surgelato (giovedi' cena)
+- Olio EVO: 7,20 € contro i 5,90 dell'ultima volta
+```
+
+Il preventivo non si conserva a parte: il delta e' la sua memoria utile, e il
+resto lo tiene git.
 
 ## 4a. L'occhio sui prezzi
 

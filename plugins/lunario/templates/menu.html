@@ -27,11 +27,15 @@
   .occhiello{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--luna)}
   h1{font-size:2rem;line-height:1.15;margin:.2rem 0 .3rem;font-weight:700}
   .date{font-size:.86rem;color:var(--tenue)}
-  .bozza{
+  /* Lo stato della settimana, sempre visibile: un preventivo stampato senza
+     questa riga finisce sul frigo e il suo totale viene letto come soldi
+     spesi. Tratteggiato quando e' una previsione, pieno quando e' un fatto. */
+  .stato{
     display:inline-block;margin:.4rem 0 .2rem;padding:.28em .7em;
     border:1px dashed var(--luna);border-radius:4px;
     font-size:.78rem;color:var(--luna);
   }
+  .stato.consuntivo{border-style:solid}
 
   h2{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;
      color:var(--luna);margin:28px 0 10px}
@@ -111,11 +115,15 @@
 
   <header>
     <p class="occhiello">Lunario · settimana {{ISO}}</p>
-    <!-- BOZZA: tieni questo blocco finche' il menu e' in discussione, e
-         toglilo alla conferma. Un foglio stampato senza questa parola finisce
-         sul frigo e diventa definitivo per sbaglio. -->
-    <p class="bozza">Bozza — in attesa del parere di chi mangia. La lista della
-      spesa non e' definitiva.</p>
+    <!-- STATO: il blocco c'e' SEMPRE, cambia solo cosa dice.
+         preventivo (finche' non c'e' lo scontrino):
+           <p class="stato">Preventivo — formati, prezzi e piatti sono stime.
+             Il totale non e' una spesa.</p>
+         consuntivo (lo scrive lunario:spesa, col ritiro fatto):
+           <p class="stato consuntivo">Consuntivo del 18 agosto — prodotti,
+             formati e prezzi sono quelli dello scontrino.</p> -->
+    <p class="stato">Preventivo — formati, prezzi e piatti sono stime. Il
+      totale non e' una spesa.</p>
     <h1>{{TITOLO_SETTIMANA}}</h1>
     <!-- N_PERSONE e' quanti sono in casa, non quanti mangiano ogni sera:
          chi c'e' pasto per pasto lo dice la griglia, giorno per giorno. -->
@@ -203,6 +211,9 @@
 
   </div>
 
+  <!-- L'etichetta segue lo stato: «Totale stimato» sul preventivo,
+       «Totale pagato» sul consuntivo. Chiamare stima un pagamento, o
+       viceversa, e' l'unico modo di rendere inutile il confronto fra i due. -->
   <div class="totale">
     <span>Totale stimato</span>
     <span>{{TOTALE}} €</span>
