@@ -112,15 +112,55 @@ Il passo che rende la lista utile. Procedura completa in `${CLAUDE_PLUGIN_ROOT}/
    × persone. Un pranzo in mensa e una merenda che nessuno fa non comprano
    niente; la merenda dei due bambini compra per due, sette volte
 2. **meno la dispensa** (`dati/dispensa.yaml`)
-3. **confezioni**: formato da `dati/prodotti.jsonl`; se il prodotto non c'e',
-   `${CLAUDE_PLUGIN_ROOT}/scripts/off_lookup.py` lo cerca su Open Food Facts e lo aggiunge. Se non
-   si trova nemmeno li' — coi prodotti a marchio del supermercato capita — il
-   formato si puo' chiedere all'utente, che il pacco ce l'ha in dispensa: il
-   dato dichiarato entra in `prodotti.jsonl` e da li' vale come uno letto da
-   OFF. Se non lo sa nessuno, la riga resta in grammi e si marca
-   `[formato da verificare]` — mai un formato a memoria
+3. **confezioni**: formato da `dati/prodotti.jsonl`. I prodotti che non ci sono
+   si risolvono adesso, col procedimento qui sotto — non si rimandano alla
+   lista
 4. Applica la soglia del 10% (limare la porzione invece di comprare una
    confezione quasi inutile) e calcola l'avanzo previsto
+
+### 3a. I formati che mancano si cercano, non si rimandano
+
+Alla prima settimana di una casa nuova `prodotti.jsonl` e' vuoto, quindi
+**tutti** i formati mancano. Se non li si cerca, l'intera lista esce in grammi
+con `[formato da verificare]` su ogni riga, la dispensa resta vuota e la
+settimana dopo si ricompra la pasta che e' gia' in casa. Il marcatore e'
+onesto, ma deve restare l'eccezione che era: sono una decina di ricerche
+meccaniche, ed e' esattamente il lavoro che fa la skill al posto dell'utente.
+
+**Prima raccogli tutti i mancanti, poi cerca.** A fine passata del fabbisogno
+hai la lista completa dei prodotti senza formato: sono ricerche indipendenti e
+si fanno in blocco, non una per volta dentro il ciclo.
+
+Per ognuno, in quest'ordine, e ci si ferma al primo che risponde:
+
+1. **Codice a barre**, se lo si conosce da uno scontrino passato:
+   `off_lookup.py --ean <ean> --salva <id>` — una chiamata, esatta
+2. **Nome su Open Food Facts**: `off_lookup.py "<nome>" --marca <marca>`.
+   Stampa i candidati col formato di ciascuno: **scegli il formato modale fra
+   i primi risultati, non il primo hit**. Una ricerca di «fusilli barilla»
+   restituisce buste artigianali da 200 g accanto allo standard da 500, e il
+   primo posto non vuol dire niente. Poi salva il candidato scelto col suo EAN
+3. **Ricerca web**, se OFF non conosce il prodotto: cerca il formato in cui
+   quel prodotto si vende in Italia, e vale la stessa regola — il formato piu'
+   ricorrente, non il primo trovato. Va in `prodotti.jsonl` con
+   `fonte_formato: {fonte: ricerca, data: oggi}`
+4. **L'utente**, che e' la fonte migliore di tutte perche' il pacco ce l'ha in
+   dispensa. Quelli rimasti si chiedono **tutti in una volta**, in una domanda
+   sola con l'elenco — mai un modulo, mai una domanda per prodotto. La risposta
+   entra come `fonte_formato: {fonte: utente, data: oggi}` e da li' vale piu'
+   di qualsiasi database
+5. **Solo se non risponde nessuno**: riga in grammi e `[formato da verificare]`
+
+Due regole che valgono per tutti i passaggi:
+
+- **Scrivi in `prodotti.jsonl` subito**, appena trovato. Open Food Facts chiede
+  «1 API call = 1 real scan»: la cache e' il modo di rispettarlo, e la seconda
+  settimana costa zero chiamate
+- **Mai un formato a memoria.** Ogni formato porta `fonte_formato` con la data:
+  un errore si corregge dove e' nato, e il primo scontrino lo corregge da solo
+
+Non raccontare all'utente le ricerche una per una: e' rumore. Se qualcosa e'
+rimasto irrisolto, lo dice la riga marcata nella lista.
 
 Aggiorna `dati/dispensa.yaml` con gli avanzi previsti — **solo non
 deperibili**, la fascia `[fine]` di `${CLAUDE_PLUGIN_ROOT}/kb/deperibilita.md`.
@@ -166,8 +206,9 @@ niente di caratteristico un titolo piano e' meglio di uno forzato.
 
 Tre cose, in quest'ordine:
 
-1. **`settimane/<anno>-W<settimana>.md`** — la fonte: in testa `stato: bozza`,
-   poi titolo, i 7 giorni e la lista per reparto in confezioni col totale.
+1. **`settimane/<anno>-W<settimana>.md`** — la fonte: in testa
+   `stato: preventivo`, poi titolo, i 7 giorni e la lista per reparto in
+   confezioni col totale.
 
    Ogni giorno porta le celle che esistono davvero: colazione e merende in una
    riga sola in testa, poi pranzo e cena col piatto, le kcal per persona e la
@@ -182,23 +223,114 @@ Tre cose, in quest'ordine:
    postmortem
 2. **`settimane/<anno>-W<settimana>.html`** — da
    `${CLAUDE_PLUGIN_ROOT}/templates/menu.html`, sostituendo i segnaposto
-   `{{...}}` e ripetendo i blocchi marcati `RIPETI`. E' la copia che si stampa
-   e si attacca al frigo: scuro a schermo, bianco in stampa, coi quadratini da
-   spuntare al supermercato. I reparti vanno nell'ordine in cui si gira il
-   negozio, non in ordine alfabetico
+   `{{...}}` e ripetendo i blocchi marcati `RIPETI`. Si stampa e si attacca al
+   frigo, ma soprattutto **si apre sul telefono al supermercato**: la lista si
+   spunta col dito e le spunte restano dov'erano se la pagina si ricarica. I
+   reparti vanno nell'ordine in cui si gira il negozio, non in ordine
+   alfabetico.
+
+   Due cose da riempire bene, perche' non si vedono guardando la pagina:
+   `{{ISO}}` compare anche nella chiave di salvataggio, quindi due settimane
+   aperte insieme non si mescolano; e ogni `input.spunta` vuole un `data-riga`
+   **unico nella pagina** — uno slug del prodotto, non l'indice della riga,
+   altrimenti aggiungere una voce sposta tutte le spunte gia' fatte
 3. **Voce in `dati/storico.yaml`** con `titolo` e `spesa_stimata`
+
+### 6a. Ogni riga della spesa dice a cosa serve
+
+Sotto ogni riga, in piccolo, **i pasti che usano quell'ingrediente**:
+
+```markdown
+- [ ] Carote — 700 g
+      → mer cena · gio cena
+- [ ] Fette biscottate — 2 × 300 g
+      → colazione adulti, tutta la settimana
+```
+
+Il dato ce l'hai gia': la sezione 3 calcola il fabbisogno come porzione ×
+celle che lo mangiano, quindi le celle sono in mano e basta portarle
+all'output. Costa niente e risponde a tre domande che davanti allo scaffale
+non hanno risposta:
+
+- **cosa salta se manca.** «Niente finocchi al banco» diventa subito «e' il
+  mercoledi' sera da ripensare» — che e' esattamente l'informazione con cui
+  `lunario:spesa` propone una sostituzione
+- **perche' questa roba e' in lista.** Uvetta e cannella in una lista italiana
+  sembrano un errore finche' non si sa che sono il cous cous. Le righe senza
+  spiegazione sono quelle che la gente salta in silenzio
+- **se la quantita' e' giusta.** «Grana 300 g» non e' verificabile; «150 g per
+  cucinare, 150 g a cubetti per la merenda dei bimbi» si controlla a colpo
+  d'occhio, e una porzione sbagliata si becca prima dello scontrino invece che
+  al postmortem
+
+Come si scrivono:
+
+- **Un pasto specifico**: giorno abbreviato e pasto — `mer cena`, `gio pranzo`
+- **Un'abitudine**, non un giorno: a parole — `colazione adulti`, `merenda
+  bimbi`, `tutta la settimana`. Elencare sette giorni per l'olio e' rumore
+- Nell'HTML sono **collegamenti al blocco del giorno**, che ha il suo `id`
+
+Falla anche come **verifica**: se una riga non ha nessun pasto che la usa, non
+e' una riga della spesa, e' un residuo di una modifica precedente. Toglila
+invece di comprarla.
+
+### 6b. Il piatto porta la sua ricetta, quando serve
+
+Un menu si approva o si contesta sulla capacita' di **immaginarsi la
+settimana**, e il nome nudo di un piatto non basta: «cous cous con verdure e
+ceci» sono quattro cene diverse a seconda di cosa c'e' dentro.
+
+- **Piatti di casa** (`dati/ricette.md`): il link e' al file, sull'ancora del
+  piatto — `dati/ricette.md#pasta-con-crema-di-zucchine-e-menta`
+- **Piatti del pool**: serve un URL, e vale la disciplina dei formati (3a) —
+  **cercato adesso, mai scritto a memoria**. Un link inventato e' identico a
+  uno vero finche' non ci si clicca. Se la ricerca non da' niente di buono,
+  nessun link: e' un'assenza, non un problema
+- **Piatti ovvi: niente link.** Se il nome determina il piatto — pasta al
+  pomodoro, hamburger alla griglia, riso freddo — un link e' decorazione, e
+  una lista dove tutto e' linkato smette di essere letta. La domanda da farsi
+  e' se chi legge, senza aprire niente, sa gia' cosa arrivera' in tavola
+
+Nel markdown il link sta accanto al piatto; nell'HTML e' il nome stesso a
+essere cliccabile. **Sulla carta non deve comparire nessun URL**: la copia del
+frigo non si riempie di indirizzi.
+
+Le ricerche si fanno in blocco come quelle dei formati: sono pochi piatti a
+settimana, e il link trovato resta scritto nel file della settimana, quindi
+non si ricerca due volte.
+
+### 6c. Vedere la cena prima di comprarla
+
+Il link dice **cos'e'** un piatto; non dice cos'e' **qui** — scalato su questa
+casa, con la base neutra tirata fuori per i bambini, dentro i trenta minuti di
+un mercoledi'. Quella roba esiste gia', la sa `lunario:prepara`, e semplicemente
+non e' raggiungibile prima di impegnarsi. Ed e' il momento in cui servirebbe:
+vedere che giovedi' vuol dire grattugiare zucchine, sbattere otto uova e
+quaranta minuti di forno e' cio' che fa dire «non il giovedi'» — prima che le
+uova siano in frigo.
+
+Quindi, chiudendo il preventivo, dillo in mezza riga: **si puo' chiedere
+l'anteprima di un piatto** — «fammi vedere il giovedi'» — e risponde
+`lunario:prepara` in modalita' anteprima, senza aprire niente e senza spuntare
+niente.
+
+Nell'HTML **non** si mette un link all'anteprima: una pagina statica non puo'
+invocare una skill, e un link che non fa niente e' peggio di nessun link.
+L'anteprima e' una cosa che si chiede parlando, ed e' giusto cosi' — a quel
+punto la conversazione c'e' gia'.
 
 In chat: il titolo, il menu, la lista, il totale, e dove hai salvato l'HTML.
 Stop. Le spiegazioni solo dove la scelta non e' ovvia, una riga ciascuna.
 
-**Il menu esce sempre in bozza**, e va detto in chiaro: la lista della spesa e'
-provvisoria finche' chi mangia non ha detto la sua. Chiudi con una riga sola
-che invita a portarla in famiglia e a tornare per le contestazioni — «fammi
-sapere cosa ne pensano» — non con un invito a fare la spesa.
+**Il menu esce sempre in preventivo**, e va detto in chiaro: formati, prezzi e
+piatti sono tutti previsioni finche' non passano dallo scontrino. Chiudi con una
+riga sola che invita a portarlo in famiglia e a tornare per le contestazioni —
+«fammi sapere cosa ne pensano» — non con un invito a fare la spesa.
 
-L'HTML si genera lo stesso in bozza, perche' e' il formato con cui si mostra il
-menu agli altri, ma va marcato **BOZZA** nell'intestazione: un foglio stampato
-senza quella parola finisce sul frigo e diventa definitivo per sbaglio.
+L'HTML si genera lo stesso, perche' e' il formato con cui si mostra il menu
+agli altri, e porta **PREVENTIVO** nell'intestazione: un foglio stampato senza
+quella parola finisce sul frigo, e il suo totale viene letto come soldi spesi.
 
-Alla conferma — che gestisce `lunario:correggi` — lista e HTML si rigenerano
-puliti, e da li' si va a fare la spesa.
+Il preventivo resta tale anche dopo che l'utente dice «va bene»: `lunario:correggi`
+lo modifica, `lunario:spesa` lo promuove a consuntivo col primo scontrino.
+Nessun'altra skill cambia lo stato.

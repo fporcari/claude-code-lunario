@@ -1,7 +1,8 @@
 ---
 name: postmortem
 description: >-
-  Chiusura della settimana, la domenica. Quattro domande — cosa e' avanzato,
+  Chiusura della settimana, la domenica. Legge prima il diario di cio' che si
+  e' mangiato davvero, poi chiede solo cio' che manca — cosa e' avanzato,
   che voto danno i commensali ai piatti e da chi viene, quali pasti non sono
   andati come previsto, che spesa c'e' stata fuori dalla lista (negozio o
   ristorante) e — per chi e' a dieta e lo vuole — il peso della domenica, per
@@ -18,14 +19,44 @@ description: >-
 E' il pezzo che distingue il sistema da un generatore di menu qualsiasi.
 Scrive il livello **appreso**. Regole di ritaratura in `CLAUDE.md`.
 
+## 0. Prima di chiedere, leggi
+
+La domenica si apre su **cio' che e' gia' scritto**, e sono due file che
+insieme raccontano quasi tutta la settimana:
+
+- il **consuntivo** (`settimane/<ISO>.md`, `stato: consuntivo`) — cosa e'
+  entrato in casa, a che prezzo, con quali sostituzioni, e in coda lo scarto
+  dal preventivo
+- il **diario** (`settimane/<ISO>/diario.yaml`) — cosa si e' mangiato davvero,
+  chi c'era, cosa e' avanzato, quali celle sono saltate, **registrato nel
+  giorno in cui e' successo** invece che ricordato adesso
+
+Comprato e cucinato, gia' assemblati. Leggili per primi, insieme al menu
+spuntato.
+
+Quello che il diario copre **non si chiede**: si propone come verificato, in
+una riga, e si passa oltre. Le domande qui sotto valgono solo per i buchi.
+
+Con un diario pieno, la domenica e' una conferma e non un interrogatorio, e
+resta una sola domanda vera: la pesata.
+
+**Un diario vuoto, o mezzo vuoto, e' normale.** Nessuno lo compila tutti i
+giorni. Un pasto senza voce si chiede come si e' sempre fatto — e non si
+commenta mai il fatto che manchi: rimproverare i buchi e' il modo piu' rapido
+di far smettere sia il diario sia il postmortem.
+
 ## Le cinque domande, e due si possono saltare
 
 Una per volta, secche. L'utente e' a fine settimana, non ha voglia di
-un'intervista.
+un'intervista. Salta senz'altro quelle a cui il diario ha gia' risposto.
 
 **1. Cosa e' avanzato?** Sia il cibo cucinato non mangiato, sia le confezioni
 non aperte. Distingui le due cose: la prima e' una porzione sbagliata, la
 seconda e' un fabbisogno sbagliato.
+
+Gli `avanzo` gia' nel diario non si ridomandano: quello che l'utente ha detto
+martedi' vale piu' di quello che ricorda oggi. La domanda copre i pasti che il
+diario non ha.
 
 Con un'eccezione che viene dal mestiere: se ad avanzare e' sempre la verdura,
 la porzione non si tocca — il taglio calorico non passa mai da li', e una
@@ -47,9 +78,11 @@ voti e chi ha votato cosa. La media guida la rotazione — sopra 4 e' un
 preferito, sotto 2 un bocciato — quindi non servono liste separate.
 
 **3. La settimana e' andata come previsto?** Non chiederlo cosi': guarda il
-menu spuntato e **proponi tu lo scarto**. «Risulta che giovedi' non avete
-cenato a casa e sabato la pizza e' saltata — torna?». Interessa solo dove la
-griglia ha sbagliato:
+diario e il menu spuntato e **proponi tu lo scarto**. «Risulta che giovedi'
+non avete cenato a casa e sabato la pizza e' saltata — torna?». Le voci del
+diario con `stato: disattesa` sono gia' la risposta: si portano in
+`celle_disattese` senza ridomandarle. Interessa solo dove la griglia ha
+sbagliato:
 
 - previsto a casa, finito fuori → un piatto cucinato per nessuno, o buttato
 - previsto fuori, finito a casa → una cena improvvisata, spesso male
@@ -152,6 +185,24 @@ preparazione o piatto, non grammatura.
 
 Correggi anche `dati/dispensa.yaml` sul reale: gli avanzi previsti dal menu
 sono una stima, quello che c'e' davvero lo sa solo l'utente.
+
+## Lo scarto fra preventivo e consuntivo
+
+Se la settimana e' passata da `lunario:spesa`, in coda a `settimane/<ISO>.md`
+c'e' la sezione **Scarto dal preventivo**. Leggila e portala in
+`storico.settimane[]`: `spesa_stimata` accanto a `spesa_reale`, e le righe
+divergenti in `scarto_per_riga`. Scrivere solo il totale reale cancella l'unica
+cosa che il confronto sa insegnare.
+
+Non commentarla riga per riga in chat — l'utente l'ha gia' vista al ritiro. Si
+guarda invece la **ripetizione**: stessa riga divergente nello stesso verso per
+tre settimane e' un dato del paniere, non della settimana.
+
+| osservazione sullo scarto | conseguenza |
+|---|---|
+| lo stesso formato arriva sempre diverso da quello atteso | correggi `formato_g` in `prodotti.jsonl`: il paniere ha il dato sbagliato, non il negozio |
+| lo stesso prodotto manca 3 volte | proponi di sostituirlo stabilmente nel paniere: non lo tengono |
+| il consuntivo supera il preventivo di piu' del 10% per 3 settimane | i prezzi del paniere sono vecchi, e il budget lo e' di conseguenza. Dillo una volta, come dato |
 
 ## Chiusura
 

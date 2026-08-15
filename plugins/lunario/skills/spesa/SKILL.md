@@ -117,6 +117,13 @@ Per le righe del gruppo **menu**, confronta con la lista in
 | **manca** | vai al punto 3 |
 | **in piu'**, fuori lista | gia' classificato sopra: nessun commento |
 
+**Se l'utente ha spuntato la lista sul telefono**, chiediglielo: una lista
+spuntata a meta' e' la risposta onesta a «cosa avete comprato davvero», e le
+righe **non** spuntate sono gia' i candidati alla sostituzione, senza chiedere
+a nessuno di ricordarsele. Non e' un dato che le skill possono leggere da sole
+— resta nel browser di quel telefono — quindi o lo racconta l'utente o non
+esiste. Se non risponde, si va avanti con lo scontrino e basta.
+
 Il riconoscimento delle sigle segue le regole del paniere: se
 `FUSILLI INTGR 500` e' gia' in `alias_scontrino`, si riconosce da solo; se e'
 nuova, chiedi conferma una volta sola e poi salvala. Raggruppa le sconosciute
@@ -125,7 +132,12 @@ in una domanda unica invece di chiederle a una a una.
 ## 3. Cosa manca, e se e' un problema
 
 Per ogni riga mancante, la domanda non e' «manca?» ma **«questo fa saltare un
-piatto?»**. Rispondi tu, guardando il menu, e distingui:
+piatto?»**. La risposta e' gia' scritta accanto alla riga: la lista dice a
+quali pasti serve ogni ingrediente (`→ mer cena · gio cena`), quindi i piatti
+colpiti non si cercano, si leggono. Se manca la riga d'uso — un menu vecchio —
+allora si guarda il menu a mano.
+
+Rispondi tu, e distingui:
 
 - **Ininfluente** — mancano i pomodorini di guarnizione: annota e basta, non
   disturbare l'utente per questo
@@ -145,7 +157,9 @@ lascia stare il resto. Se i giorni colpiti sono tanti, e' il caso di
 
 - **`dati/prodotti.jsonl`** — prezzo pagato con la data dello scontrino,
   aggiunto alla serie `prezzi` (mai sovrascrivere i vecchi); sigle nuove in
-  `alias_scontrino`; formato reale se diverso da quello che si credeva. Per un
+  `alias_scontrino`; formato reale se diverso da quello che si credeva, con
+  `fonte_formato: {fonte: scontrino, data}` — il formato che hanno dato batte
+  quello che il paniere sperava, e la prossima lista nasce giusta. Per un
   prodotto mai visto, `${CLAUDE_PLUGIN_ROOT}/scripts/off_lookup.py` recupera
   formato e nutrienti. Se Open Food Facts non lo conosce — coi prodotti a
   marchio del supermercato capita spesso — il dato si chiede a chi la
@@ -160,8 +174,58 @@ lascia stare il resto. Se i giorni colpiti sono tanti, e' il caso di
   `spesa_extra_alimentare` e `totale_scontrino` per memoria; e
   `scarto_per_riga`: dove la stima ha sbagliato, non solo di quanto. E' il dato
   che rende onesto il totale del lunedi' successivo
-- **`settimane/<ISO>.md`** — righe spuntate, e i giorni corretti se ci sono
-  state sostituzioni
+- **`settimane/<ISO>.md`** — diventa il consuntivo: vedi il punto 4b
+
+## 4b. Da preventivo a consuntivo
+
+Questa skill e' **l'unica** che cambia lo stato della settimana. Fino a un
+minuto fa il file diceva cosa si voleva comprare; adesso dice cosa c'e' in
+casa, ed e' una differenza di autorita', non di formattazione.
+
+1. `stato: consuntivo` in testa, con la data del ritiro
+2. **Riscrivi le righe della spesa sui prodotti reali**: nome, formato e prezzo
+   quelli dello scontrino, non quelli sperati. Una riga arrivata in 400 g resta
+   400 g anche se ne servivano 500
+3. **Applica le sostituzioni ai piatti**, non solo alla lista: se giovedi' il
+   branzino e' diventato merluzzo, giovedi' dice merluzzo. Un consuntivo che
+   nomina ancora un pesce che non e' entrato in casa non e' un registro
+4. **In coda, il delta**: poche righe, solo dove preventivo e consuntivo
+   divergono — formato, prezzo, prodotto sostituito, riga mancante. Serve al
+   postmortem e all'occhio umano, e deve leggersi senza `git diff`
+
+```markdown
+## Scarto dal preventivo
+- Fusilli integrali: previsti 2 × 500 g, dati 2 × 400 g — 200 g in meno
+- Branzino: non c'era → merluzzo surgelato (giovedi' cena)
+- Olio EVO: 7,20 € contro i 5,90 dell'ultima volta
+```
+
+Il preventivo non si conserva a parte: il delta e' la sua memoria utile, e il
+resto lo tiene git.
+
+### Il consuntivo e' un registro, non un modulo
+
+Rigenera anche l'HTML, con `data-stato="consuntivo"` sul `body` e **senza
+nessuna casella da spuntare**: niente `input.spunta`, restano solo i quadratini
+di carta per chi lo stampa. L'etichetta del totale diventa «Totale pagato».
+
+Nel preventivo la lista si spunta col dito, ed e' giusto: e' un documento di
+lavoro usato in un posto solo, su un telefono solo, per un'ora — uno stato che
+vive nel browser e' esattamente la quantita' di stato che serve, perche' a
+valle non lo aspetta nessuno.
+
+Il consuntivo no, e il motivo vale la pena di scriverlo: **lo stato dentro la
+pagina e' invisibile alle skill, e lo e' in silenzio.** Le skill leggono file.
+Un commento scritto in un campo del menu sembrerebbe, a chi lo scrive,
+esattamente come dire una cosa al sistema — e nessuno l'avrebbe ricevuta. Una
+pagina che raccoglie note che non legge nessuno e' peggio di una pagina che non
+ne raccoglie.
+
+E non servirebbe comunque: il momento in cui si annota meglio non e' «guardando
+il menu la domenica», e' «davanti ai fornelli il mercoledi'», dove
+`lunario:prepara` c'e' gia', sta gia' parlando e scrive gia' sui file — nel
+diario della settimana. Un secondo canale produrrebbe solo due registri mezzi
+pieni che si contraddicono.
 
 ## 4a. L'occhio sui prezzi
 

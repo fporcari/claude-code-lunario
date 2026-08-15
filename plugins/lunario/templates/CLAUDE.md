@@ -20,6 +20,22 @@ menu e chiudere la settimana.
 Non serve ricordarsi i nomi: basta dire «prepariamo la settimana» o «com'e'
 andata», e la skill giusta parte da sola.
 
+## Il menu ha due stati
+
+| stato | quando | cosa vuol dire |
+|---|---|---|
+| `preventivo` | dal lunedì fino alla spesa | quello che volete mangiare. Formati, prezzi e piatti sono stime: il totale **non** è una spesa |
+| `consuntivo` | dopo lo scontrino | quello che c'è davvero in casa: prodotti veri, prezzi pagati, sostituzioni già applicate |
+
+Il preventivo si cambia quante volte serve — è per questo che lo si fa girare
+in casa prima di uscire. Il passaggio a consuntivo lo fa `lunario:spesa` quando
+gli dai lo scontrino, e nessun'altra skill lo tocca.
+
+La lista della spesa del preventivo **si spunta col dito**: aprila sul telefono
+al supermercato, le spunte restano dov'erano anche se ricarichi la pagina.
+Restano in quel browser e basta — al ritorno, quello che è entrato in casa lo
+dice lo scontrino.
+
 ## La griglia dei pasti
 
 Il giorno non e' «pranzo e cena»: e' una griglia **pasto × persona**, e ogni
@@ -66,7 +82,16 @@ dati/
 ├── dispensa.yaml     cosa e' rimasto in casa              <- lo scrive il sistema
 └── storico.yaml      settimane passate e tarature         <- lo scrive il sistema
 settimane/            i menu generati, uno per settimana
+└── 2026-W34/
+    ├── contesto.yaml  gli impegni di QUELLA settimana      <- lo racconti tu
+    └── diario.yaml    cosa avete mangiato davvero          <- lo scrive il sistema
 ```
+
+Il diario si riempie strada facendo, senza che tu compili niente: basta dirlo
+mentre succede — «stasera niente polpette, pizza d'asporto» — e a fine cottura
+ci pensa `lunario:prepara`. Serve la domenica: quello che è già scritto il
+postmortem non te lo richiede. Se resta mezzo vuoto non è un problema, e
+nessuno te lo farà notare.
 
 `ricette.md` e' l'unico file misto: il contenuto e' tuo, la forma serve al
 motore. Basta dire in chat «mi hanno dato questa ricetta» — anche con un link

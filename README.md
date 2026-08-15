@@ -92,11 +92,11 @@ nessun altro risponde — quanto costa mangiare, non quanto costa la spesa.
 | `lunario:profilo` | una volta | ti intervista: chi siete, obiettivi, esclusioni. Bastano tre domande per partire — il resto si racconta strada facendo — o l'intervista completa per chi ha tempo. Calcola le calorie da peso e altezza, e costruisce la cartella |
 | `lunario:ritmi` | quando cambia la vita | la settimana tipo: chi pranza fuori il martedì, quale sera c'è poco tempo |
 | `lunario:settimana` | **il lunedì** | legge il calendario, ti chiede impegni, pasti già presi fuori casa, voglie e di cosa sei stufo, poi genera menu e spesa |
-| `lunario:menu` | automatica | i 7 giorni e la lista in confezioni, in markdown e in HTML stampabile |
-| `lunario:spesa` | **al ritiro** | dallo scontrino: prezzi veri, cosa manca, alternative subito. Separa il menu dai detersivi |
-| `lunario:prepara` | **mentre cucini** | ingredienti, procedimento, un video se serve. Ti avverte se manca qualcosa, poi chiede difficoltà e voto del cuoco |
+| `lunario:menu` | automatica | i 7 giorni e la lista in confezioni, in markdown e in HTML — da stampare, o da spuntare col dito al supermercato. Ogni riga dice a quali pasti serve |
+| `lunario:spesa` | **al ritiro** | dallo scontrino: prezzi veri, cosa manca, alternative subito. Separa il menu dai detersivi, e da qui il menu non è più una previsione |
+| `lunario:prepara` | **mentre cucini** | ingredienti, procedimento, un video se serve. Ti avverte se manca qualcosa, poi chiede difficoltà e voto del cuoco. Prima di cucinare fa anche l'anteprima: com'è questo piatto, qui, per voi |
 | `lunario:correggi` | a settimana in corso | cambi idea? Ti propone cosa è rimasto e rifà solo i giorni che restano |
-| `lunario:postmortem` | **la domenica** | avanzi, voti dei commensali, pasti saltati e — se vuoi — il peso → ritara porzioni, rotazione e budget |
+| `lunario:postmortem` | **la domenica** | legge cos'è successo davvero durante la settimana e chiede solo il resto: voti dei commensali e — se vuoi — il peso → ritara porzioni, rotazione e budget |
 
 ## Come impara, in concreto
 
@@ -168,6 +168,13 @@ promozioni e gli sconti fedeltà che hai avuto davvero. E siccome la spesa si
 ritira *prima* di cominciare a cucinare, lo scontrino serve a qualcosa di più
 che ai prezzi: dice cosa non è arrivato, così l'alternativa si trova il lunedì
 e non davanti al frigo il giovedì sera.
+
+È anche il momento in cui il menu cambia natura. Fino a lì è un **preventivo**:
+i formati, i prezzi e persino i piatti sono previsioni, e il totale non è una
+spesa. Dopo lo scontrino è un **consuntivo**: prodotti veri, prezzi pagati,
+sostituzioni già applicate ai giorni. Sono due documenti con due autorità
+diverse, e il foglio sul frigo dice sempre quale dei due è — perché il numero
+in fondo si legge in modo molto diverso.
 
 Uno scontrino però non è la spesa di Lunario: contiene detersivi, carta casa e
 la spesa fatta per qualcun altro. Le righe alimentari te le presenta come lista

@@ -155,8 +155,8 @@ non impara. Ogni skill scrive un livello solo.
 | `lunario:settimana` | effimero | `settimane/<ISO>/contesto.yaml`, `dati/ricette.md` | ogni lunedi' |
 | `lunario:menu` | — (consuma tutto) | `settimane/<ISO>.md` + `.html`, `dati/dispensa.yaml` | ogni lunedi' |
 | `lunario:spesa` | appreso (prezzi) | `dati/prodotti.jsonl`, `dispensa.yaml`, `storico.yaml` | al ritiro della spesa |
-| `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina` | mentre si cucina |
-| `lunario:correggi` | effimero | `settimane/<ISO>.md` (giorni residui) | quando cambia qualcosa |
+| `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina`, `settimane/<ISO>/diario.yaml` | mentre si cucina |
+| `lunario:correggi` | effimero | `settimane/<ISO>.md` (giorni residui), `settimane/<ISO>/diario.yaml` | quando cambia qualcosa |
 | `lunario:postmortem` | appreso (tavola, pesate) | `dati/storico.yaml` | domenica |
 
 L'utente ne invoca quattro: `lunario:settimana` il lunedi', `lunario:spesa`
@@ -276,7 +276,7 @@ prima di rispondere in chat, e solo se `git: locale` e qualcosa e' cambiato:
 git add -A && git commit -q -m "<skill>: <cosa e' successo>"
 ```
 
-Messaggi che si leggono a distanza di mesi — `menu: 2026-W34, bozza` ·
+Messaggi che si leggono a distanza di mesi — `menu: 2026-W34, preventivo` ·
 `spesa: scontrino del 14/08, 89,40 €` · `postmortem: 2026-W34, tre tarature`.
 Se il commit fallisce, non dire niente all'utente e vai avanti: e' una rete di
 sicurezza, non un pezzo del flusso. In chat il commit non si nomina mai.
@@ -294,7 +294,8 @@ compra davvero. Si popola da solo, settimana dopo settimana.
  "kcal_100g": 348, "proteine_100g": 13.5,
  "alias_scontrino": ["FUSILLI INTGR 500", "PASTA INT.500G"],
  "prezzi": [{"data": "2026-08-14", "eur": 1.19, "fonte": "scontrino"}],
- "fonte_nutrienti": "openfoodfacts:8002330121556"}
+ "fonte_nutrienti": "openfoodfacts:8002330121556",
+ "fonte_formato": {"fonte": "openfoodfacts:8002330121556", "data": "2026-08-14"}}
 ```
 
 `fonte` del prezzo: `scontrino` (letto da un PDF) oppure `dichiarato` (detto
@@ -310,6 +311,12 @@ come mancante.
   `peso` (banco: si compra al grammo, nessun arrotondamento) ·
   `pezzo` (uova, vasetti: l'unita' e' il pezzo)
 - `formato_g`: grammi o ml per confezione. `null` per il tipo `peso`
+- `fonte_formato`: `{fonte, data}` — da dove viene `formato_g` e quando.
+  `openfoodfacts:<ean>` · `ricerca` (una ricerca web, il formato modale fra i
+  primi risultati) · `utente` (ha il pacco in mano: batte tutti) · `scontrino`
+  (il formato che hanno dato davvero). Un formato senza questa riga e' un
+  formato a memoria, e non esiste: la data serve perche' i produttori
+  cambiano i tagli, e la fonte perche' un errore va corretto dov'e' nato
 - `alias_scontrino`: sigle viste sugli scontrini, riconosciute ai giri dopo
 - `prezzi`: serie storica, mai sovrascritta. L'ultimo elemento e' il corrente
 - `fonte_nutrienti`: `openfoodfacts:<ean>`, `crea` se generico, oppure
@@ -432,6 +439,41 @@ settimana:
       pranzo: fuori
 ```
 
+### settimane/<ISO>/diario.yaml — cosa si e' mangiato davvero
+
+Il contesto dice cosa **doveva** succedere; il diario dice cosa e' successo, e
+si riempie **giorno per giorno**, non ricostruito la domenica.
+
+```yaml
+2026-08-19:
+  pranzo:
+    previsto: Piadina con hummus e verdure grigliate
+    reale: la nonna ha portato le lasagne
+    stato: disattesa
+  cena:
+    previsto: Cous cous con verdure e ceci
+    reale: Cous cous con verdure e ceci
+    chi: [Adulto1, Adulto2, Bimbo1, Bimbo2]
+    avanzo: meta' teglia          # solo se c'e': e' un fatto di martedi'
+```
+
+`stato` si scrive **solo quando qualcosa e' andato storto** — `disattesa`
+(previsto a casa, finito altrove, o viceversa), `saltata` (non si e' mangiato
+quel pasto). Il silenzio vuol dire «come previsto», che e' il caso normale e
+non merita una riga di conferma.
+
+Scriverci non deve mai essere un modulo: una frase in chat — «stasera niente
+polpette, pizza d'asporto», «Anna ha mangiato solo la pasta» — e' tutta
+l'interazione, e `lunario:prepara` chiude il pasto da solo a fine cottura,
+quando la conversazione c'e' gia'.
+
+Vale la stessa regola di riservatezza del contesto: **il vincolo derivato, mai
+il racconto**. «Cena fuori», non con chi.
+
+**Un diario vuoto deve degradare bene.** Nessuno lo compilera' tutti i giorni,
+e un postmortem che rimprovera i buchi e' un postmortem che si smette di fare:
+un pasto senza voce si chiede la domenica, esattamente come oggi.
+
 ### dati/storico.yaml
 
 ```yaml
@@ -551,30 +593,53 @@ roba comprata per altri. Va separato in tre gruppi — menu, alimentare fuori
 lista, non Lunario — perche' **solo il primo e' la spesa che si confronta con
 la stima**. Un budget sporcato dai detersivi non insegna niente.
 
-### Il ciclo di vita del menu: bozza, confermato, in corso
+E' anche il punto in cui la settimana passa da `preventivo` a `consuntivo`: da
+qui in avanti il file non descrive piu' cio' che si voleva, ma cio' che c'e'.
 
-Un menu non nasce definitivo. Si prepara **durante la settimana precedente**,
-si mostra a chi mangia, si prende le contestazioni e si aggiusta. Solo quando
-tutti hanno detto la loro si fa la spesa — e da quel momento cambiare costa.
+### Il ciclo di vita del menu: preventivo e consuntivo
 
-In testa a `settimane/<ISO>.md` c'e' quindi uno `stato`:
+Un menu ha due stati, e la differenza non e' l'approvazione di qualcuno: e'
+**quanto di cio' che c'e' scritto e' verificato**.
 
-| stato | chi lo mette | cosa si puo' fare |
+| stato | chi lo mette | cos'e' |
 |---|---|---|
-| `bozza` | `lunario:menu`, appena generato | cambiare tutto: piatti, giorni, porzioni. La lista della spesa si rigenera ogni volta e non va usata |
-| `confermato` | l'utente, quando dice che va bene | la lista e' definitiva e si puo' andare a fare la spesa. Cambiare ancora si puo', ma vuol dire rifare la lista |
-| `in corso` | `lunario:spesa`, al ritiro | la spesa e' fatta: il vincolo non e' piu' il gusto, e' cosa c'e' in casa |
+| `preventivo` | `lunario:menu`, appena generato | cio' che si vuole mangiare e comprare. Ogni numero e' una previsione: formati, prezzi, e i piatti stessi |
+| `consuntivo` | `lunario:spesa`, dopo lo scontrino | cio' che c'e' davvero in casa: prodotti veri, formati veri, prezzi pagati, sostituzioni gia' applicate ai piatti |
 
-**Ogni menu nasce `bozza`.** La lista della spesa di una bozza e' indicativa e
-va detto: stamparla o andare al supermercato con quella e' esattamente
-l'errore che questi stati esistono per evitare.
+**Ogni menu nasce `preventivo`** e ci resta finche' non passa dallo scontrino.
+`lunario:correggi` lo modifica quante volte serve — le contestazioni di chi
+mangia si raccolgono li' — ma non lo promuove: un menu discusso e un menu
+approvato sono lo stesso documento con la stessa autorita', cioe' quella di una
+stima.
 
-La conferma e' un gesto esplicito dell'utente — «va bene cosi'», «confermo»,
-«vado a fare la spesa» — e in quel momento si rigenerano lista e HTML
-definitivi, si toglie il marchio «bozza» dall'HTML e, se richiesto, si scrive
-la settimana sul calendario. Non confermare mai d'ufficio: il silenzio non e'
-approvazione, soprattutto quando l'approvazione e' di altre persone che non
-stanno leggendo questa chat.
+Il «confermo» dell'utente resta un momento vero, ma vuol dire una cosa sola:
+**sto andando a fare la spesa adesso**. Congela la lista per il tempo del
+supermercato, scrive l'evento sul calendario se richiesto, e non cambia lo
+stato. Non darlo mai per acquisito d'ufficio — il silenzio non e' approvazione,
+tanto piu' che l'approvazione e' di altre persone che non stanno leggendo
+questa chat.
+
+La promozione a `consuntivo` avviene **solo in `lunario:spesa`**, ed e' il
+momento in cui il file viene riscritto sui prodotti reali. E' l'unico evento
+che sa dire se la lista era giusta: prima di lui, mettere un timbro di
+definitivo su un totale fatto di prezzi della settimana scorsa e' una bugia
+tipografica.
+
+I due si leggono anche diversamente. Il preventivo e' un **documento di
+lavoro**: la sua lista si spunta col dito al supermercato, e quello stato vive
+nel browser perche' a valle non lo aspetta nessuno. Il consuntivo e' un
+**registro**: niente da spuntare, niente da scrivere. Le annotazioni della
+settimana non passano mai da una pagina — passano da `lunario:prepara`, pasto
+per pasto, mentre si cucina, e finiscono nel diario. Uno stato scritto in una
+pagina e' invisibile alle skill, ed e' invisibile in silenzio: chi lo scrive
+crede di aver detto qualcosa al sistema, e non l'ha ricevuta nessuno.
+
+Il preventivo non si perde: `lunario:spesa` lascia in coda al consuntivo un
+**delta leggibile** — cosa e' cambiato di formato, di prezzo, di piatto — perche'
+lo scarto fra i due e' il dato che il postmortem confronta, e leggerlo non deve
+richiedere un `git diff`. Se il consuntivo si scosta dal preventivo sempre nello
+stesso verso per tre settimane — quel pacco e' sempre piu' grande, quel prodotto
+non c'e' mai — non e' sfortuna, e' un paniere da correggere.
 
 ### Il calendario, nei due versi
 
@@ -600,9 +665,18 @@ In `settimane/<ISO>.md` pasti e righe della spesa sono **caselle da spuntare**.
 del lancio successivo, gli ingredienti consumati spariscono da cio' che si
 presume in casa.
 
-Non serve un file di stato in piu': il menu **e'** lo stato, e si legge a
-occhio. Ci si appoggiano `lunario:correggi`, che propone cosa e' rimasto invece
-di chiederlo, e il postmortem, che corregge la dispensa sul consumo reale.
+Le caselle dicono **che** un pasto e' avvenuto; il diario dice **cosa si e'
+mangiato davvero**, ed e' la stessa informazione resa rispondibile. Ci si
+appoggiano `lunario:correggi`, che propone cosa e' rimasto invece di
+chiederlo, e il postmortem, che corregge la dispensa sul consumo reale.
+
+Perche' non bastasse la memoria della domenica: il postmortem faceva quattro
+domande su sette giorni, ed e' una prova di memoria che fallisce proprio dove
+serve. Tre mercoledi' mangiati fuori sono un ritmo da scrivere in
+`ritmi.yaml`, ma solo se sono stati registrati tutti e tre — ricostruito la
+domenica, il terzo e' l'unico che qualcuno ricorda. «E' finita o e' rimasta
+mezza teglia in frigo» e' una domanda a cui si sa rispondere il martedi', non
+sei giorni dopo, ed e' la risposta che tara `porzioni_g`.
 
 ### Correzione in corsa (lunario:correggi)
 
@@ -615,8 +689,10 @@ come tali. I giorni gia' passati non si riscrivono mai.
 
 ### Postmortem (lunario:postmortem)
 
-Quattro domande — avanzi, bocciati/promossi e da chi, la griglia che non ha
-tenuto, spesa integrativa e mangiate fuori — poi ritara:
+Si apre **leggendo il diario della settimana**, non chiedendo: cio' che e' gia'
+registrato si propone come verificato e non si ridomanda. Restano le domande
+sui buchi — avanzi, bocciati/promossi e da chi, la griglia che non ha tenuto,
+spesa integrativa e mangiate fuori — poi ritara:
 - stesso avanzo per 2+ settimane -> riduci la porzione in `tarature`
 - piatto bocciato 1 volta -> fuori rotazione 3 settimane; 2 volte -> escluso
 - stessa cella disattesa per 3 settimane -> non e' sfortuna, e' un ritmo:
