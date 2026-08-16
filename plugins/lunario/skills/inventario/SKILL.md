@@ -55,6 +55,13 @@ che c'e' e a smettere di accumulare la stessa cosa. Non ripeterlo dopo.
 | **2. dispensa secca** | e' dove vive l'accumulo, ed e' la zona che scala le quantita' della spesa | va in `scorte` |
 | **3. frigo, ma solo i non deperibili** | burro, uova, formaggi stagionati, conserve aperte che durano | va in `scorte` |
 
+**Un surgelato sta in una sezione sola.** Un pacco di filetti e' insieme un
+prodotto del paniere e una cosa che si vede aprendo lo sportello: scritto in
+tutte e due, verrebbe sottratto due volte e il menu ci costruirebbe sopra una
+cena che non esiste. Va in `freezer` quando la data di congelamento conta — e
+conta quasi sempre — e in `scorte` solo altrimenti. Mai in entrambe
+(`${CLAUDE_PLUGIN_ROOT}/kb/scorte.md`).
+
 **Il fresco non entra, mai.** Solo la fascia `[fine]` di
 `${CLAUDE_PLUGIN_ROOT}/kb/deperibilita.md`. Se l'utente nomina la rucola,
 prendine nota per il menu di questa settimana e non scriverla: fra tre giorni

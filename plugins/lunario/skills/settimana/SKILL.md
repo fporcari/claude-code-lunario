@@ -107,9 +107,12 @@ volta**, e solo per i buchi che cambiano davvero il menu:
   pagina. Sono benvenute: si mettono in `dati/ricette.md` e da li' in poi
   fanno parte del pool di casa. Vedi sotto
 - **Stanchezze** — «di cosa sei stufo». Se un piatto e' nominato con
-  insofferenza, mettilo fuori rotazione per 3 settimane. Se e' la seconda
-  volta che succede, proponi di escluderlo per sempre — e chiedi conferma,
-  perche' e' una taratura permanente
+  insofferenza, mettilo fuori rotazione per 3 settimane, e **scrivilo**: va in
+  `tarature.piatti_in_quarantena` di `dati/storico.yaml`, con `fino_al` a tre
+  settimane da oggi, `perche: stufo` e `volte` incrementato. Detto e basta, la
+  stufaggine muore con la chat e lunedi' prossimo il piatto rientra come se
+  niente fosse. Se `volte` arriva a **2**, proponi di escluderlo per sempre — e
+  chiedi conferma, perche' quella e' permanente
 - **Il corpo, se l'utente lo tira in ballo** — settimana pesante, poco sonno,
   ripresa dello sport. Qui il ruolo e' nutrizionale: si adattano porzioni,
   distribuzione dei carboidrati e orari, non si fanno diagnosi

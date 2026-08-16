@@ -160,6 +160,36 @@ def timbro_illeggibile(radice):
            "contratto: due\nmotore: 3.4.0\nmigrata: 2026-08-16\n")
 
 
+def quarantena_senza_scadenza(radice):
+    testo = leggi(radice, "dati/storico.yaml")
+    scrivi(radice, "dati/storico.yaml", inserisci_sotto(testo, "tarature", [
+        "piatti_in_quarantena:",
+        "  Polpette al sugo: {volte: 1, perche: stufo}",
+    ]))
+
+
+def quarantena_con_motivo_inventato(radice):
+    testo = leggi(radice, "dati/storico.yaml")
+    scrivi(radice, "dati/storico.yaml", inserisci_sotto(testo, "tarature", [
+        "piatti_in_quarantena:",
+        "  Polpette al sugo: {fino_al: 2026-09-07, volte: 1, perche: cosiPerCapriccio}",
+    ]))
+
+
+def scorta_gia_nel_congelatore(radice):
+    """Lo stesso pacco in due sezioni: sottratto due volte."""
+    testo = leggi(radice, "dati/dispensa.yaml")
+    testo = inserisci_sotto(testo, "scorte", [
+        "filetti-di-merluzzo-doppioni:",
+        "  quantita: 2",
+        "  visto: 2026-08-01",
+    ])
+    scrivi(radice, "dati/dispensa.yaml", inserisci_sotto(testo, "freezer", [
+        "- cosa: filetti di merluzzo doppioni",
+        "  pezzi: 2",
+    ]))
+
+
 def stato_settimana_inventato(radice):
     cartella = os.path.join(radice, "settimane")
     os.makedirs(cartella, exist_ok=True)
@@ -239,6 +269,8 @@ CORRUZIONI = [
     ("YAML_ILLEGGIBILE", yaml_con_tabulazione),
     ("STATO_SETTIMANA_SCONOSCIUTO", stato_settimana_inventato),
     ("TIMBRO_MALFORMATO", timbro_illeggibile),
+    ("QUARANTENA_SENZA_SCADENZA", quarantena_senza_scadenza),
+    ("QUARANTENA_MALFORMATA", quarantena_con_motivo_inventato),
     ("STATO_SOSPESO_SCONOSCIUTO", sospeso_con_stato_inventato),
     ("SOSPESO_SENZA_USO", sospeso_senza_uso),
     ("SOSPESO_SENZA_PRODOTTO", sospeso_su_prodotto_fantasma),
@@ -300,6 +332,24 @@ class TestCorruzioni(unittest.TestCase):
             with self.subTest(fixture=os.path.basename(radice)):
                 codici = self.esegui(radice, lambda c: scrivi_diario(c, "2026-W46-sana", DIARIO_SANO))
                 self.assertEqual(set(), codici)
+
+
+class TestAvvisi(unittest.TestCase):
+    """Alcune cose sono sospette senza essere sbagliate, e restano avvisi."""
+
+    def test_scorta_e_freezer_che_si_somigliano(self):
+        for radice in FIXTURES:
+            with self.subTest(fixture=os.path.basename(radice)):
+                with tempfile.TemporaryDirectory(prefix="lunario-lint-") as tmp:
+                    copia = os.path.join(tmp, os.path.basename(radice))
+                    shutil.copytree(radice, copia)
+                    scorta_gia_nel_congelatore(copia)
+                    violazioni = Lint(copia).esegui()
+                    codici = {v.codice for v in violazioni}
+                    self.assertIn("SCORTA_E_FREEZER_DUPLICATI", codici)
+                    # avviso, non errore: due scorte distinte sono possibili
+                    self.assertNotIn("SCORTA_E_FREEZER_DUPLICATI",
+                                     {v.codice for v in violazioni if v.livello == ERRORE})
 
 
 class TestMiniYaml(unittest.TestCase):

@@ -44,6 +44,7 @@ ROTAZIONI = {"alta", "media", "bassa"}
 # nel primo caso e `da_procurare` nel secondo.
 STATI_PASTO_DIARIO = {"disattesa", "saltata"}
 STATI_SOSPESO = {"da_procurare", "procurato", "rinunciato"}
+PERCHE_QUARANTENA = {"stufo", "bocciato"}
 
 # Deperibilita': la fascia [fine] di kb/deperibilita.md e' l'unica ammessa in
 # `avanzi`. Il reparto e' il segnale strutturato che abbiamo; dove non basta si
@@ -62,6 +63,10 @@ PAVIMENTO_KCAL = 1200
 DATA = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 ISO_SETTIMANA = re.compile(r"^\d{4}-W\d{2}$")
 NOME_SETTIMANA = re.compile(r"^\d{4}-W\d{2}(-[a-z0-9]+(-[a-z0-9]+)*)?$")
+
+
+def _parole(testo):
+    return {p for p in re.findall(r"[a-zàèéìòù]+", str(testo).lower()) if len(p) > 3}
 
 
 class Violazione:
@@ -402,6 +407,8 @@ class Lint:
                          f"`aggiornata` = {dispensa.get('aggiornata')!r}")
 
         self._controlla_scorte(dispensa.get("scorte") or {}, percorso)
+        self._controlla_doppioni(dispensa.get("scorte") or {},
+                                 dispensa.get("freezer") or [], percorso)
 
         for identificativo, quantita in (dispensa.get("avanzi") or {}).items():
             if not isinstance(quantita, (int, float)):
@@ -467,6 +474,23 @@ class Lint:
             if chiave in self.paniere:
                 self._controlla_deperibilita(chiave, percorso, dove="scorte")
 
+    def _controlla_doppioni(self, scorte, freezer, percorso):
+        """Lo stesso pacco in `scorte` e in `freezer` verrebbe sottratto due
+        volte, e il menu ci costruirebbe sopra una cena che non esiste. Avviso e
+        non errore: due scorte davvero distinte sono possibili, e lo sa l'utente."""
+        nomi_freezer = [str(v.get("cosa", "")) for v in freezer if isinstance(v, dict)]
+        for chiave in scorte:
+            prodotto = self.paniere.get(chiave) or {}
+            parole = _parole(prodotto.get("nome") or chiave)
+            if not parole:
+                continue
+            for cosa in nomi_freezer:
+                if len(parole & _parole(cosa)) >= min(2, len(parole)):
+                    self.segnala("SCORTA_E_FREEZER_DUPLICATI", AVVISO, percorso,
+                                 f"{chiave}: sta in `scorte` e in `freezer` come «{cosa}». "
+                                 "Vince il freezer, la scorta non si sottrae")
+                    break
+
     def _controlla_deperibilita(self, identificativo, percorso, dove="avanzi"):
         prodotto = self.paniere.get(identificativo)
         if not prodotto:
@@ -514,6 +538,27 @@ class Lint:
 
         for piatto, voti in (tarature.get("voti") or {}).items():
             self._controlla_voti(piatto, voti, percorso)
+
+        esclusi = set(tarature.get("piatti_esclusi") or [])
+        for piatto, voce in (tarature.get("piatti_in_quarantena") or {}).items():
+            if not isinstance(voce, dict):
+                self.segnala("QUARANTENA_MALFORMATA", ERRORE, percorso,
+                             f"{piatto}: serve {{fino_al, volte, perche}}")
+                continue
+            if not DATA.match(str(voce.get("fino_al", ""))):
+                self.segnala("QUARANTENA_SENZA_SCADENZA", ERRORE, percorso,
+                             f"{piatto}: `fino_al` = {voce.get('fino_al')!r}. Senza, non rientra mai")
+            volte = voce.get("volte")
+            if volte is not None and not (isinstance(volte, int) and volte >= 1):
+                self.segnala("QUARANTENA_MALFORMATA", ERRORE, percorso,
+                             f"{piatto}: `volte` = {volte!r}")
+            perche = voce.get("perche")
+            if perche is not None and perche not in PERCHE_QUARANTENA:
+                self.segnala("QUARANTENA_MALFORMATA", ERRORE, percorso,
+                             f"{piatto}: `perche` = {perche!r}, fuori da {sorted(PERCHE_QUARANTENA)}")
+            if piatto in esclusi:
+                self.segnala("QUARANTENA_SU_PIATTO_ESCLUSO", ERRORE, percorso,
+                             f"{piatto}: escluso per sempre e insieme in quarantena a scadenza")
 
         viste = set()
         for settimana in (storico.get("settimane") or []):

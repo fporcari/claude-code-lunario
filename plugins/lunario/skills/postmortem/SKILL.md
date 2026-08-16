@@ -183,8 +183,8 @@ Applicala e dichiarala, senza chiedere permesso per le regole automatiche:
 | osservazione | conseguenza |
 |---|---|
 | stesso avanzo per 2+ settimane | riduci la porzione in `tarature.porzioni_g` |
-| media del piatto **sotto 2** | fuori rotazione 3 settimane |
-| media sotto 2 per la seconda volta | in `piatti_esclusi` — questa **chiedila**, e' definitiva |
+| media del piatto **sotto 2** | fuori rotazione 3 settimane: scrivilo in `tarature.piatti_in_quarantena` con `fino_al`, `perche: bocciato` e `volte` incrementato |
+| `piatti_in_quarantena[<piatto>].volte` arriva a **2** | proponi `piatti_esclusi` — questa **chiedila**, e' definitiva |
 | media **sopra 4** | priorita' nella rotazione |
 | voto basso dei soli bambini | non toccare il piatto: rinforza la base neutra — e se quel bambino non ha ancora `selettivo` nel profilo, proponi di attivarlo |
 | confezione avanzata 2 volte di fila | il formato e' sbagliato: proponi di cercarne uno piu' piccolo |

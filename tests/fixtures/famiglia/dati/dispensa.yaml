@@ -58,12 +58,6 @@ scorte:
     massimo: 4
     visto: 2026-08-02
     rotazione: media
-  filetti-platessa-surg-400:
-    quantita: 1
-    soglia: 1
-    massimo: 2
-    visto: 2026-06-28
-    rotazione: media
 
 avanzi:
   fusilli-500: 200

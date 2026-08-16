@@ -239,11 +239,15 @@ postmortem, che corregge la dispensa sul reale invece che sul previsto.
 Spunta solo cio' che e' stato consumato per intero. Mezza confezione aperta
 non e' consumata: se serve, annotala accanto alla riga.
 
-Se quello che hai usato veniva dalle **scorte**, scalalo anche li' — ma come
-**stima**, e **senza toccare `visto`**: cucinare non e' contare, e una
-dispensa piena di numeri derivati che si dichiarano appena visti e' peggio di
-una dispensa vecchia che si dichiara vecchia
+Se quello che hai usato veniva dalle **scorte**, scalalo anche li'. **E' qui
+che le scorte si scaricano, e in nessun altro posto**: il menu le legge per fare
+la lista ma non le tocca, perche' un piano non consuma niente — se scaricassero
+tutti e due, la stessa scatola di ceci sparirebbe due volte
 (`${CLAUDE_PLUGIN_ROOT}/kb/scorte.md`).
+
+Vale come **stima**, e **senza toccare `visto`**: cucinare non e' contare, e una
+dispensa piena di numeri derivati che si dichiarano appena visti e' peggio di
+una dispensa vecchia che si dichiara vecchia.
 
 Fallo in silenzio: non elencare all'utente cosa hai spuntato.
 

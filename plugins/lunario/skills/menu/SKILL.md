@@ -91,8 +91,11 @@ Ordine di applicazione dei vincoli — chi viene prima vince:
    proteina a pranzo e a cena, lo stesso piatto due volte in un giorno, un
    ingrediente che torna troppo presto. Cio' che il profilo non dichiara vale
    il default conservativo: non si ripete
-6. **Rotazione** — mai i piatti delle ultime 2 settimane, mai i bocciati in
-   quarantena, priorita' ai preferiti e alle voglie dichiarate
+6. **Rotazione** — mai i piatti delle ultime 2 settimane; mai quelli in
+   `tarature.piatti_in_quarantena` con `fino_al` **non ancora passato**, e mai
+   quelli in `piatti_esclusi`, che non tornano piu'; priorita' ai preferiti e
+   alle voglie dichiarate. Le voci di quarantena scadute toglile passando: e'
+   il momento in cui le hai in mano, e nessuno deve ricordarsi di fare pulizia
 7. **Frequenze** (`${CLAUDE_PLUGIN_ROOT}/kb/porzioni-standard.md`) — pesce 2-3, carne max 3 di cui
    rossa max 1, legumi 2-4, e i tetti del profilo
 
@@ -265,10 +268,21 @@ Come dato, mai come rimprovero. Comprare in abbondanza non e' una
 dimenticanza: e' un modo di sentirsi previdenti, e un sistema che ci mette
 sopra un giudizio si fa spegnere.
 
-**Il movimento e' una stima, e non tocca `visto`.** Quando il menu sottrae da
-`scorte`, aggiorna `quantita` e lascia `visto` dov'era: solo un conteggio umano
-azzera l'eta' del dato. Una dispensa piena di numeri derivati che si dichiarano
-appena contati e' peggio di una dispensa vecchia che si dichiara vecchia.
+**Il menu sottrae per calcolare, e non scrive la sottrazione.** Le `scorte`
+servono a decidere cosa comprare: qui si leggono, non si toccano. A scaricarle
+e' `lunario:prepara`, che vede cosa si e' cucinato davvero — se lo facesse anche
+il menu, una settimana pianificata e mai cucinata lascerebbe la dispensa piu'
+vuota di com'e', e le due skill insieme scaricherebbero due volte la stessa
+scatola di ceci (`${CLAUDE_PLUGIN_ROOT}/kb/scorte.md`).
+
+Quello che il menu scrive in `dispensa.yaml` resta solo `avanzi`: gli avanzi
+**previsti** dalle confezioni comprate, dichiarati come previsione.
+
+**Una cosa sola si sottrae una volta sola.** Se una riga di `scorte` e una di
+`freezer` descrivono lo stesso pacco — capita coi surgelati, che sono insieme un
+prodotto del paniere e una cosa vista nel congelatore — vale il `freezer`, che
+e' datato e l'ha visto un umano. La scorta si ignora, e nel menu si nomina da
+dove viene quello che stai contando.
 
 ## 4. Il totale
 

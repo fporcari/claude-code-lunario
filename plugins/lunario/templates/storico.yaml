@@ -9,7 +9,17 @@ tarature:
   porzioni_g: {}
 
   # Piatti usciti definitivamente di scena (media a tavola sotto 2, due volte).
+  # Ci si finisce solo con un si' esplicito: e' permanente.
   piatti_esclusi: []
+
+  # Piatti fuori rotazione ma A SCADENZA: rientrano da soli il giorno dopo
+  # `fino_al`, senza che nessuno debba ricordarsene. Ce li mette `settimana`
+  # quando ti senti dire «sono stufo di...», e `postmortem` quando la media a
+  # tavola sta sotto 2. `volte` conta i giri: alla seconda si propone
+  # l'esclusione definitiva.
+  piatti_in_quarantena: {}
+  # esempio:
+  #   Polpette al sugo: {fino_al: 2026-09-07, volte: 1, perche: stufo}
 
   # I voti, che sono due cose diverse e non vanno mescolate:
   #   cucina  -> lo da' chi ha cucinato, appena finito (lunario:prepara)

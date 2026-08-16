@@ -4,6 +4,31 @@ Le versioni che contano sono quelle che cambiano il **contratto dei dati**: da
 4.0.0 la cartella di casa porta un timbro (`dati/versione.yaml`) e si allinea da
 sola, quindi aggiornare il motore non richiede piu' niente da parte tua.
 
+## 4.1.1 — tre regole che il motore non poteva eseguire
+
+Trovate facendo girare il tier 2 su `famiglia`: il giro passa, ma tre cose
+scritte nelle skill non avevano modo di funzionare. Tutte e tre nate con la
+4.0.0.
+
+- **«Fuori rotazione per 3 settimane» non aveva dove atterrare.** `settimana` e
+  `postmortem` lo ordinavano entrambe, ma `storico.yaml` aveva solo
+  `piatti_esclusi`, che e' permanente: il piatto rientrava il lunedi' dopo come
+  se niente fosse. Ora c'e' `tarature.piatti_in_quarantena`, con `fino_al`,
+  `volte` e `perche` — le voci scadute si tolgono passando, e alla seconda volta
+  si propone l'esclusione definitiva, che e' la regola che gia' c'era e che ora
+  ha come contarla
+- **`scorte` e `freezer` potevano descrivere lo stesso pacco**, e la formula lo
+  sottraeva due volte: il motore credeva di avere il doppio del pesce. Vale la
+  precedenza `freezer` > `scorte` > `avanzi`, chi scrive non duplica, e il tier 1
+  lo segnala come avviso — due scorte davvero distinte restano possibili
+- **`menu` e `prepara` scaricavano entrambi le scorte.** Adesso il menu le
+  **legge e basta**: un piano non consuma niente, e una settimana pianificata e
+  mai cucinata lasciava la dispensa piu' vuota del vero. Scarica solo `prepara`,
+  che vede cosa e' finito in pentola
+
+Il contratto dei dati non si muove: `piatti_in_quarantena` e' una chiave nuova e
+opzionale, e una cartella senza continua a funzionare.
+
 ## 4.1.0 — quello che manca e te lo prendi dopo
 
 Al ritiro della spesa un ingrediente puo' non esserci, e gli esiti sono sempre

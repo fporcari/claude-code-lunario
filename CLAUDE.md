@@ -152,7 +152,7 @@ non impara. Ogni skill scrive un livello solo.
 |---|---|---|---|
 | `lunario:profilo` | stabile | `dati/profilo.yaml` | una volta |
 | `lunario:ritmi` | dichiarato | `dati/ritmi.yaml`, `dati/note.md` | quando cambia la vita |
-| `lunario:settimana` | effimero | `settimane/<ISO>-<titolo>/contesto.yaml`, `dati/ricette.md`, `dispensa.yaml` (la fetta contata del lunedi') | ogni lunedi' |
+| `lunario:settimana` | effimero | `settimane/<ISO>-<titolo>/contesto.yaml`, `dati/ricette.md`, `dispensa.yaml` (la fetta contata del lunedi'), `storico.yaml` → `piatti_in_quarantena` | ogni lunedi' |
 | `lunario:menu` | — (consuma tutto) | `settimane/<ISO>-<titolo>.md` + `.html`, `dati/dispensa.yaml` | ogni lunedi' |
 | `lunario:spesa` | appreso (prezzi) | `dati/prodotti.jsonl`, `dispensa.yaml`, `storico.yaml` | al ritiro della spesa |
 | `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina`, `settimane/<ISO>-<titolo>/diario.yaml` | mentre si cucina |
@@ -549,11 +549,23 @@ convinzione**, perche' il consumo si osserva solo dove passa `lunario:prepara`,
 e la deriva ha una direzione prevedibile — il consumo e' sotto-registrato,
 quindi il motore crede di avere piu' di quello che c'e'.
 
-**Il movimento automatico non promuove mai una riga a «contata».** `spesa`,
-`menu` e `prepara` muovono `quantita` come stima e **non toccano `visto`**:
-solo un conteggio umano, o una foto confermata, azzera l'eta' del dato. Se lo
-facesse anche lo scarico automatico, una dispensa piena di numeri derivati
+**Chi muove le scorte, e chi no.** `spesa` incrementa da cio' che e' entrato,
+`prepara` decrementa cio' che ha davvero cucinato, `postmortem` corregge sul
+consumo reale. **`menu` non le tocca**: le legge per calcolare la lista, ma un
+piano non consuma niente — se scaricasse anche lui, una settimana mai cucinata
+lascerebbe la dispensa piu' vuota del vero, e insieme a `prepara` scaricherebbe
+due volte la stessa scatola.
+
+E **il movimento automatico non promuove mai una riga a «contata»**: si muove
+`quantita` come stima e **non si tocca `visto`**, perche' solo un conteggio
+umano azzera l'eta' del dato. Altrimenti una dispensa piena di numeri derivati
 sembrerebbe appena contata.
+
+**Lo stesso oggetto sta in una sezione sola.** Un pacco di surgelati e' insieme
+un prodotto del paniere e una cosa che si vede nel congelatore: scritto in
+`scorte` **e** in `freezer` verrebbe sottratto due volte. Vale la precedenza
+`freezer` > `scorte` > `avanzi`, e chi scrive non duplica
+(`${CLAUDE_PLUGIN_ROOT}/kb/scorte.md`).
 
 **Solo non deperibili**, in tutte e tre le sezioni: la fascia `[fine]` di
 `kb/deperibilita.md`. Il fresco avanzato non e' un credito, e' immondizia fra
@@ -797,7 +809,9 @@ e' un prodotto che quel negozio non tiene.
 ```yaml
 tarature:                  # stato appreso: letto SEMPRE prima di generare
   porzioni_g: {}           # per persona e alimento, default da kb/porzioni-standard.md
-  piatti_esclusi: []       # media a tavola sotto 2 per due volte
+  piatti_esclusi: []       # media a tavola sotto 2 per due volte: definitivo
+  piatti_in_quarantena:    # fuori rotazione, ma a scadenza: rientrano da soli
+    Polpette al sugo: {fino_al: 2026-09-07, volte: 1, perche: stufo}
   budget_settimana_eur: null
   voti:
     Pasta e ceci:
@@ -851,6 +865,21 @@ nessuno ha scritto.
 Niente lista `piatti_preferiti` separata: la media di `tavola` la sostituisce
 — sopra 4 e' un preferito, sotto 2 un bocciato. Due meccanismi paralleli si
 disallineano, uno solo no.
+
+`piatti_in_quarantena` e `piatti_esclusi` non sono lo stesso elenco, e servivano
+tutti e due: «fuori rotazione per 3 settimane» era scritto in due skill e non
+aveva **nessun posto dove atterrare**, quindi il piatto rientrava il lunedi'
+dopo come se niente fosse — una regola che il sistema non poteva eseguire.
+
+| campo | quanto dura | chi ce lo mette |
+|---|---|---|
+| `piatti_in_quarantena` | fino a `fino_al`, poi rientra da solo | `settimana` (una stufaggine) e `postmortem` (media sotto 2) |
+| `piatti_esclusi` | per sempre | solo `postmortem`, e **solo con un si'** dell'utente |
+
+`perche` vale `stufo` o `bocciato`, e `volte` conta quante volte quel piatto ci
+e' finito: alla **seconda** si propone l'esclusione definitiva, che e' la regola
+che gia' c'era e che ora ha come contarla. Una voce con `fino_al` passato si
+toglie quando la si incontra — nessuno deve ricordarsi di fare pulizia.
 
 ### dati/versione.yaml — il timbro
 

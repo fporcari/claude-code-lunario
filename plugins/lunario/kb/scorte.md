@@ -103,11 +103,26 @@ E si presentano come un **elenco da correggere**, mai come sei domande:
 Chi taglia corto non perde niente: la fetta si salta, invecchia ancora, e
 torna la settimana dopo — con una priorita' piu' alta, perche' e' piu' stantia.
 
-## Il movimento automatico non promuove niente a «contato»
+## Chi muove le scorte, e chi non le tocca
 
-`lunario:spesa` incrementa dallo scontrino, `lunario:menu` e `lunario:prepara`
-decrementano, `lunario:postmortem` corregge sul consumo reale. Tutti muovono la
-`quantita` come **stima**, e **nessuno tocca `visto`**.
+| skill | cosa fa a `scorte` | perche' |
+|---|---|---|
+| `lunario:spesa` | **incrementa** da quello che e' entrato in casa | e' uno scontrino: e' un fatto |
+| `lunario:prepara` | **decrementa** quello che ha usato davvero | e' l'unico momento in cui qualcuno cucina |
+| `lunario:postmortem` | **corregge** sul consumo reale della settimana | chiude i buchi che `prepara` non ha visto |
+| `lunario:menu` | **niente** | un menu e' un piano, e un piano non consuma |
+
+L'ultima riga e' quella che si sbaglia per prima, ed e' importante: il menu
+**sottrae le scorte per calcolare la lista**, ma non scrive quella sottrazione.
+Se lo facesse, una settimana pianificata e mai cucinata — o cucinata a meta' —
+lascerebbe la dispensa piu' vuota di com'e', e la lista del lunedi' dopo
+ricomprerebbe roba che c'e'. Peggio: `menu` e `prepara` insieme scaricherebbero
+**due volte** la stessa scatola di ceci.
+
+Quello che il menu scrive resta quello di sempre: gli **avanzi previsti** in
+`avanzi`, che sono una previsione dichiarata come tale e vivono una settimana.
+
+Tutti muovono la `quantita` come **stima**, e **nessuno tocca `visto`**.
 
 E' la regola che tiene in piedi la fiducia: solo un conteggio umano — o una
 foto confermata — azzera l'eta' del dato. Se il movimento automatico
@@ -117,6 +132,31 @@ appena contata, e la fiducia diventerebbe una decorazione.
 L'unica eccezione ragionevole e' lo **scontrino**: quello che e' entrato in
 casa oggi e' un fatto, non una stima. Ma incrementa e basta: dice quanto e'
 entrato, non quanto ce n'e' — perche' non sa quanto ce n'era.
+
+## Una cosa sola sta in un posto solo
+
+Le tre sezioni descrivono tre cose diverse, ma **lo stesso oggetto fisico puo'
+finire in due**: un pacco di filetti surgelati e' insieme un prodotto del
+paniere (`scorte: filetti-platessa-surg-400`) e una cosa che si vede aprendo lo
+sportello (`freezer: filetti di platessa`). Sottratto due volte, il motore crede
+di avere il doppio del pesce e ci costruisce sopra una cena che non esiste.
+
+La regola e' di precedenza, e si legge in una riga: **`freezer` batte `scorte`,
+`scorte` batte `avanzi`**.
+
+- **Chi scrive non duplica.** `lunario:inventario` mette un surgelato in
+  `freezer` **oppure** in `scorte`, mai in tutte e due. Nel congelatore ci va se
+  la data di congelamento conta — ed e' quasi sempre cosi'
+- **Chi legge sottrae una volta sola.** Se una riga di `scorte` e una di
+  `freezer` descrivono la stessa cosa, vale la seconda: e' datata, e l'ha vista
+  un essere umano. La prima si ignora, e non si sottrae
+- **Nel dubbio si dichiara.** Quando il menu conta una scorta ambigua, la nomina
+  in «Gia' in casa» dicendo da dove la sta prendendo. Un totale che non torna e'
+  fastidioso; un totale che non torna e non si sa perche' fa smettere di fidarsi
+
+Il tier 1 lo segnala come avviso, non come errore: puo' capitare che siano due
+scorte davvero distinte — un pacco in dispensa e uno gia' nel congelatore — e
+in quel caso e' l'utente a saperlo.
 
 ## `massimo`: il campo che ferma il quinto pacco
 
