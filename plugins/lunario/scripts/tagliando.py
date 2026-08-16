@@ -211,10 +211,13 @@ class Tagliando:
             if not guasto.riparabile:
                 continue
             try:
-                righe += [f"· {r}" for r in guasto.ripara()]
+                # Le righe arrivano gia' formattate da chi ha riparato, annidate
+                # comprese: aggiungere un secondo elenco sopra il loro le
+                # spezzerebbe in due livelli di puntini che non dicono niente.
+                righe += guasto.ripara()
                 fatte += 1
             except Exception as e:  # una riparazione che fallisce non ferma le altre
-                righe.append(f"· {guasto.codice}: non riparato — {e}")
+                righe.append(f"{guasto.codice}: non riparato — {e}")
         if fatte:
             # La forma e' cambiata sotto i piedi: si ridiagnostica, cosi' cio'
             # che resta e' quello che resta davvero e non la lista di prima.
