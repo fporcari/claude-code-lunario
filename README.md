@@ -32,19 +32,21 @@ il successivo — nessuno deve ricordarsi niente, perché niente vive nella chat
         │                  │                     │                    │
    racconti la        dai lo scontrino      cucini il piatto     dici com'è andata
    settimana +        in PDF                di oggi              (o non lo dici:
-   cosa c'è in casa                                              il diario c'è già)
+   sei righe di                                                  il diario c'è già)
+   dispensa da
+   correggere
         │                  │                     │                    │
         ▼                  ▼                     ▼                    ▼
    menu + spesa       prezzi veri,          spunte sul menu,     porzioni, rotazione
    in confezioni      sostituzioni,         voto del cuoco,      e budget ritarati
    → PREVENTIVO       → CONSUNTIVO          diario del giorno    → si riparte
 
-                          ┌──────────────────────────────┐
-                          │  in qualsiasi momento:       │
-                          │  lunario:correggi            │
-                          │  salta una cena, arrivano    │
-                          │  ospiti, i figli protestano  │
-                          └──────────────────────────────┘
+    una volta sola:   ┌──────────────────────────────┐
+    lunario:profilo   │  in qualsiasi momento:       │
+    lunario:inventario│  lunario:correggi            │
+                      │  salta una cena, arrivano    │
+                      │  ospiti, i figli protestano  │
+                      └──────────────────────────────┘
 ```
 
 Non serve ricordare i nomi delle skill: «prepariamo la settimana», «ho fatto la
@@ -66,6 +68,69 @@ a confezioni reali, con una dispensa che si ricorda cosa hai in casa.
 E il menu segue l'orologio del frigo: il pesce lunedì, le foglie martedì, i
 legumi il venerdì. Gli ingredienti si consumano nell'ordine in cui si rovinano,
 che è la regola che azzera lo spreco prima ancora di parlare di budget.
+
+## La dispensa profonda, e i due errori che chiude
+
+Una casa non parte da zero. Ne fa due, di errori, e sono opposti:
+
+| errore | cosa costa | quanto lo vedi |
+|---|---|---|
+| **compri quello che hai già** | soldi fermi, roba che scade | te ne accorgi svuotando la busta |
+| **il quinto pacco della stessa cosa** | cronico | **mai**: nessuno conta le bottiglie di passata |
+
+Il secondo si risolve col dato più grezzo che esista — un tetto per prodotto — e
+questa asimmetria è la licenza a **non** costruire un magazzino. Perché il
+magazzino, quello vero, muore sempre allo stesso modo: si riempie a mano per una
+settimana, poi una volta, poi mai più — e un inventario aggiornato a metà è
+*peggio* di nessun inventario, perché smetti di crederci.
+
+Quindi: `lunario:inventario` una volta, raccontando o mandando le foto degli
+scaffali. Niente da compilare.
+
+```yaml
+# dati/dispensa.yaml
+scorte:
+  pasta-integrale-500:
+    quantita: 4          # confezioni intere, oppure: pieno | medio | poco | finito
+    soglia: 2            # sotto, torna in lista
+    massimo: 6           # sopra, non te la rimetto in lista. Mai
+    visto: 2026-08-16    # quando qualcuno l'ha guardata davvero
+    rotazione: alta      # ogni quanto te la richiedo
+```
+
+Nessuno pesa la farina, e non serve: «tanto», «poco», «due pacchi» bastano a
+decidere se una riga della spesa serve o no.
+
+**Poi la dispensa invecchia, e il sistema lo sa.** Il consumo si osserva solo
+dove passi da `lunario:prepara`, e da lì non passano le colazioni, i panini e i
+caffè: quindi il motore crede sempre di avere *più* di quello che c'è. Per
+questo non memorizza una certezza, ma **quanto è vecchia la sua convinzione**:
+
+| il dato è | cosa fa il menu |
+|---|---|
+| **fresco** | lo scala dalla spesa, in silenzio |
+| **invecchiato** | lo scala, ma te lo dice: «conto sui 2 pacchi di riso visti il 12 luglio» |
+| **stantio** | non ci si fida: te lo chiede lunedì, prima di generare |
+
+E il lunedì non è un censimento. Sono **sei righe**, scelte dove l'incertezza
+incontra l'impatto, presentate come un elenco da correggere:
+
+> Dovreste avere: la pasta a 4 pacchi, la passata a `poco`, 2 scatole di tonno,
+> il riso `pieno`, e il caffè non lo vedo da luglio. Cosa è sbagliato?
+
+Se tagli corto non perdi niente: quella fetta invecchia e torna il lunedì dopo,
+più in alto. È il conteggio a rotazione delle cucine professionali, che sulla
+dispensa secca non tengono un inventario perpetuo — fissano un livello e contano
+un pezzo per volta.
+
+Infine il numero che rende sensato averlo fatto: **quanto vale la roba che avete
+in casa**, dai prezzi dei vostri scontrini. Ed è anche la frase che ferma il
+quinto pacco — detta come un dato, mai come un rimprovero:
+
+```
+Passata di pomodoro: ne servirebbe 1 bottiglia, ma ne avete già 6 (tetto: 6).
+Non la metto in lista.
+```
 
 ## Il giorno non è «pranzo e cena»
 
@@ -123,6 +188,12 @@ nessun altro risponde — quanto costa mangiare, non quanto costa la spesa.
 > la carne è tre volte invece di due: te lo dico perché il tetto è una vostra
 > preferenza, non una regola — se preferisci, lo sposto alla prossima. Il
 > branzino copre il lunedì, quindi al banco pesce non compri niente.
+>
+> **Tu:** ok. E la passata? Ne prendo sempre
+>
+> **Lunario:** Ne avete già sei bottiglie, che è il tetto che avevate messo:
+> non te la rimetto in lista. Non è un rimprovero, è che sono nove euro fermi
+> in credenza.
 >
 > **Tu:** ok. Ai bimbi le lenticchie di martedì non vanno giù
 >
@@ -399,6 +470,10 @@ Poi apri con Claude Code la cartella dove vuoi tenere i tuoi dati e lancia
 scegliere il percorso breve — tre domande e il primo menu subito — o
 l'intervista completa, che è più lunga ma poi non torna più.
 
+Se in casa tieni sempre le stesse quaranta cose, un giro di `lunario:inventario`
+ti ripaga alla prima spesa. Non è obbligatorio, e non si rifà: senza, il sistema
+funziona identico e la lista è solo più lunga.
+
 Per aggiornare il motore quando esce una versione nuova:
 
 ```bash
@@ -406,24 +481,49 @@ claude plugin marketplace update claude-code-lunario && claude plugin update lun
 ```
 
 Poi **riavvia Claude Code**: le skill si caricano all'avvio, e una sessione già
-aperta continuerebbe con quelle vecchie. Se il tuo `dati/profilo.yaml` è
-rimasto indietro di qualche versione, `lunario:profilo` lo aggiorna da solo —
-converte i campi vecchi e ti chiede solo quello che non può dedurre.
+aperta continuerebbe con quelle vecchie. La tua cartella non devi toccarla: si
+allinea da sola alla prima skill che lanci, e cosa è cambiato lo trovi in
+[CHANGELOG.md](CHANGELOG.md).
 
-## Le otto skill
+## La cartella si aggiorna da sola
 
-Ne lanci quattro; le altre partono da sole o quando servono.
+Il motore esce in versioni nuove; la tua cartella si allinea da sé. La prima
+skill che parte guarda il timbro in `dati/versione.yaml` e, se i file sono di una
+versione precedente, li porta avanti **prima** di fare quello che le hai chiesto.
+Non c'è niente da lanciare.
+
+Tre comportamenti, e il terzo è quello che conta:
+
+| il cambiamento è | cosa succede |
+|---|---|
+| **additivo** — una sezione nuova e vuota | si applica in silenzio |
+| **una riscrittura** — `fuori_trasportabile` → `trasportabile` | si applica, e te lo dice in una riga. Per tornare indietro c'è `git` |
+| **serve una tua risposta** — un nome, una preferenza | **non si applica niente**: il campo resta assente, la cartella funziona lo stesso, e te lo chiede quando serve |
+
+Da cui la regola che vincola tutto quello che verrà scritto in futuro: **ogni
+contratto nuovo deve degradare bene quando manca**. Una cartella che non si
+aggiorna mai continua a funzionare — l'aggiornamento la migliora, non è il prezzo
+del biglietto.
+
+Le settimane passate non si toccano: sono un registro, e un registro non si
+riscrive per farlo somigliare al vocabolario di oggi.
+
+## Le dieci skill
+
+Ne lanci quattro tutte le settimane; le altre partono da sole o quando servono.
 
 | skill | quando | cosa fa |
 |---|---|---|
 | `lunario:profilo` | una volta | ti intervista: chi siete, obiettivi, esclusioni, cosa tollerate a tavola. Calcola le calorie da peso e altezza, e costruisce la cartella |
 | `lunario:ritmi` | quando cambia la vita | la settimana tipo: chi pranza fuori il martedì, quale sera c'è poco tempo |
-| `lunario:settimana` | **il lunedì** | legge il calendario, ti chiede impegni, voglie, di cosa sei stufo e cosa c'è in congelatore, frigo e dispensa. Poi genera |
+| `lunario:inventario` | una volta, poi quasi mai | l'inventario di quello che tenete sempre in casa, a voce o dalle foto degli scaffali. Ne ricava soglie e tetti, e ti dice quanto vale |
+| `lunario:settimana` | **il lunedì** | legge il calendario, ti chiede impegni, voglie, di cosa sei stufo, e ti fa correggere sei righe di dispensa. Poi genera |
 | `lunario:menu` | automatica | i 7 giorni e la lista in confezioni, in markdown e in HTML. Ogni riga dice a quali pasti serve |
 | `lunario:spesa` | **al ritiro** | dallo scontrino: prezzi veri, cosa manca, alternative subito. Separa il menu dai detersivi, e da qui il menu non è più una previsione |
 | `lunario:prepara` | **mentre cucini** | ingredienti scalati, procedimento, un video se serve, poi difficoltà e voto del cuoco. Prima di cucinare fa anche l'anteprima: com'è questo piatto, qui, per voi |
 | `lunario:correggi` | a settimana in corso | cambi idea? Ti propone cosa è rimasto e rifà solo i giorni che restano |
 | `lunario:postmortem` | **la domenica** | legge cos'è successo davvero e chiede solo il resto: voti dei commensali e — se vuoi — il peso → ritara porzioni, rotazione e budget |
+| `lunario:aggiorna` | automatica | allinea la cartella quando il motore va avanti. Non la invochi: la chiamano le altre |
 
 **I due voti non sono lo stesso voto.** Chi cucina valuta difficoltà e resa
 appena finito, e quel dato decide *dove* un piatto può stare nella settimana; i
@@ -444,7 +544,8 @@ no:
 │   ├── note.md            i vincoli che detti a voce
 │   ├── ricette.md         i piatti vostri: quelli che vi hanno passato
 │   ├── prodotti.jsonl     il tuo paniere: formati, nutrienti, prezzi
-│   ├── dispensa.yaml      cosa è rimasto in casa, congelatore compreso
+│   ├── dispensa.yaml      scorte contate, avanzi calcolati, congelatore
+│   ├── versione.yaml      a che versione di Lunario sta questa cartella
 │   └── storico.yaml       settimane passate e tarature apprese
 └── settimane/             i menu generati, uno per settimana
 ```
@@ -460,6 +561,28 @@ caricato non rientra. Per lavorare dal telefono non serve comunque: con
 [`claude remote-control`](https://code.claude.com/docs/en/remote-control) la
 sessione gira sul computer di casa e la guidi dal telefono, senza spostare un
 file. Se il git non lo vuoi, `git: no` nel profilo.
+
+## Come si sa che non si è rotto niente
+
+Le skill sono markdown eseguito da un modello: due menu generati due volte sono
+due menu diversi, correttamente. Quindi la suite non asserisce mai *il menu* —
+asserisce ciò che di qualunque menu deve essere vero, e quella specifica esiste
+già: è la lista dei divieti qui sopra.
+
+| tier | cosa controlla | costo |
+|---|---|---|
+| **1** | i contratti dei dati: ogni prezzo con data e fonte, nessun deperibile in dispensa, nessuno stato di cella inventato | zero token, gira sempre |
+| **2** | il giro intero headless su una casa sintetica, e cosa lascia sui file | token veri, prima di una release |
+| **3** | il menu è *buono*? equilibrio, varietà, plausibilità di un mercoledì sera | token veri, ogni tanto |
+
+Il tier 3 **non può far fallire la suite**: esce sempre 0. Una suite che diventa
+rossa a caso viene ignorata entro due settimane, e da lì in poi riporta verde
+anche su un motore rotto.
+
+```bash
+python3 tests/test_lint.py              # zero token
+python3 tests/loop_runner.py --dry-run  # mostra cosa farebbe, non spende
+```
 
 ## Cosa gli è vietato
 
