@@ -28,12 +28,14 @@ li digita, e non deve.
 ## Prima di tutto: la cartella e' allineata?
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/tagliando.py --rapido
 ```
 
-Se risponde `migrazione necessaria`, passa da `lunario:aggiorna` e **poi torna
-qui**: senza la sezione `scorte` non c'e' dove scrivere quello che stai per
-contare. Se risponde `ok`, non dire niente.
+**Se non stampa niente, prosegui senza dire niente.** Se stampa righe `blocca`,
+riparale prima: cio' che porta `[si ripara da solo]` con `tagliando.py
+--ripara`, un `CONTRATTO_INDIETRO` passando da `lunario:aggiorna`, il resto da
+`lunario:tagliando`. Poi torna qui — senza la sezione `scorte` non c'e' dove
+scrivere quello che stai per contare.
 
 ## 0. Prima di cominciare, dillo
 

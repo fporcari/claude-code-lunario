@@ -4,6 +4,43 @@ Le versioni che contano sono quelle che cambiano il **contratto dei dati**: da
 4.0.0 la cartella di casa porta un timbro (`dati/versione.yaml`) e si allinea da
 sola, quindi aggiornare il motore non richiede piu' niente da parte tua.
 
+## 5.1.0 — il tagliando, perche' un numero non dice dove sono i file
+
+Il contratto dei dati non si muove: chi aggiorna non deve fare niente.
+
+**Il controllo automatico guardava un numero.** Ogni skill, appena partita,
+confrontava il `contratto` della cartella con quello del motore — e due interi
+uguali zittivano tutto il resto. Una cartella **col timbro giusto** e i
+documenti nella forma vecchia passava il controllo a ogni lancio, per sempre, e
+il caso piu' comune era anche il piu' fastidioso: la settimana in corso senza la
+sua lista della spesa, cioe' la ragione per cui il contratto 4 era stato
+scritto. Adesso il controllo parte **dai file**, e trova anche cio' che nessun
+salto di contratto sistemerebbe.
+
+**`lunario:tagliando`** e' la revisione completa: contratto, dove stanno
+davvero i documenti di ogni settimana, e i contratti dati riga per riga. Ripara
+da sola le cose meccaniche — spostare file, scrivere un timbro, sistemare un
+percorso — e riporta il resto in chiaro. Cio' che richiede di leggere e capire
+non lo tocca uno script: un file di dati e' pieno di commenti scritti per un
+essere umano, e uno script che lo riscrive li perde.
+
+**Una settimana si pianifica prima di viverla**, e l'adattamento non lo sapeva.
+`settimana.py --adatta` confrontava con la sola ISO di oggi, quindi di domenica
+rifiutava la settimana che apre il giorno dopo — proprio quella a cui manca la
+lista, visto che la spesa si ritira prima di accendere i fornelli. Ora le
+settimane adattabili sono due: quella in corso e quella che apre. Le passate
+restano un registro, come sempre.
+
+Il **lint dei contratti** si sposta da `tests/` a `plugins/lunario/scripts/`:
+e' la stessa verifica che serve al tier 1 prima di una release e al tagliando
+dentro una cartella di casa mesi dopo, dove `tests/` non e' mai stato copiato.
+Scritta due volte sarebbe divergente entro due contratti.
+
+Il gate che ogni skill esegue all'avvio stampa **solo cio' che blocca**, e
+quando non c'e' niente non stampa niente: gira mentre qualcuno aspetta di
+cucinare, e un elenco di difetti li' non e' aiuto — e' una skill che non parte
+mai.
+
 ## 5.0.0 — la settimana e' una cartella, e la lista torna indietro
 
 Nasce da una spesa vera all'Esselunga, col telefono in mano: la pagina HTML si

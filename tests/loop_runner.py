@@ -30,6 +30,10 @@ import tempfile
 import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Il lint dei contratti e' del motore, non dei test: e' la stessa verifica che
+# `lunario:tagliando` esegue dentro una cartella di casa.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                "plugins", "lunario", "scripts"))
 import asserzioni  # noqa: E402
 from lint_dati import ERRORE, Lint  # noqa: E402
 

@@ -532,9 +532,15 @@ allinea da sola alla prima skill che lanci, e cosa è cambiato lo trovi in
 ## La cartella si aggiorna da sola
 
 Il motore esce in versioni nuove; la tua cartella si allinea da sé. La prima
-skill che parte guarda il timbro in `dati/versione.yaml` e, se i file sono di una
-versione precedente, li porta avanti **prima** di fare quello che le hai chiesto.
+skill che parte guarda **com'è messa la cartella** — il timbro in
+`dati/versione.yaml`, dove stanno davvero i file, se i dati si rileggono — e
+mette a posto quello che blocca **prima** di fare quello che le hai chiesto.
 Non c'è niente da lanciare.
+
+Se vuoi guardare tutto insieme, o dopo un aggiornamento del motore, c'è
+`lunario:tagliando`: è il controllo completo, ripara quello che si ripara da
+solo e ti dice il resto in chiaro invece di lasciartelo scoprire a metà
+settimana.
 
 Tre comportamenti, e il terzo è quello che conta:
 
@@ -552,7 +558,7 @@ del biglietto.
 Le settimane passate non si toccano: sono un registro, e un registro non si
 riscrive per farlo somigliare al vocabolario di oggi.
 
-## Le dieci skill
+## Le undici skill
 
 Ne lanci quattro tutte le settimane; le altre partono da sole o quando servono.
 
@@ -568,6 +574,7 @@ Ne lanci quattro tutte le settimane; le altre partono da sole o quando servono.
 | `lunario:correggi` | a settimana in corso | cambi idea? Ti propone cosa è rimasto e rifà solo i giorni che restano |
 | `lunario:postmortem` | **la domenica** | legge cos'è successo davvero e chiede solo il resto: voti dei commensali e — se vuoi — il peso → ritara porzioni, rotazione e budget, e chiude la settimana con un file che si rilegge a febbraio |
 | `lunario:aggiorna` | automatica | allinea la cartella quando il motore va avanti. Non la invochi: la chiamano le altre |
+| `lunario:tagliando` | quando qualcosa non torna | il controllo completo: contratto, dove stanno i file, i dati riga per riga. Ripara quello che si ripara da solo e ti dice il resto |
 
 **I due voti non sono lo stesso voto.** Chi cucina valuta difficoltà e resa
 appena finito, e quel dato decide *dove* un piatto può stare nella settimana; i

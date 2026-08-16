@@ -129,9 +129,14 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/settimana.py --adatta
 
 Sposta markdown e HTML nella cartella col nome del ruolo — che deduce dallo
 `stato:` scritto in testa, vecchio vocabolario compreso — e sistema il `menu:`
-in `storico.yaml`. **Rifiuta di toccare una settimana che non e' quella
-corrente**, ed e' la garanzia che rende sicuro proporlo: il registro non e'
-raggiungibile da qui.
+in `storico.yaml`. **Rifiuta di toccare qualsiasi settimana che non sia quella
+in corso o quella che sta per aprire**, ed e' la garanzia che rende sicuro
+proporlo: il registro non e' raggiungibile da qui.
+
+Le settimane sono due e non una perche' una settimana **si pianifica prima di
+viverla**: il menu esce per i sette giorni che cominciano, e la spesa si ritira
+prima di accendere i fornelli. Chi lavora di domenica ha su disco una settimana
+che l'ISO di oggi non nomina ancora, ed e' proprio quella a cui manca la lista.
 
 Due cose da dire dopo, in mezza riga ciascuna e solo se sono vere: che **la
 lista non c'e' ancora** — non si inventa una spesa gia' fatta, la scrive il
@@ -189,6 +194,13 @@ Nessun percorso all'indietro: se serve, `git revert`.
 4. Se non c'era niente da fare e sei stata chiamata da un'altra skill, **taci**
    e restituisci il controllo. Un controllo di versione che si fa notare ogni
    lunedi' e' rumore, e il rumore si impara a saltare.
+
+**Il contratto non e' tutta la salute della cartella.** Qui si guarda un
+numero, e un numero allineato non dice niente su dove stiano i file: quello lo
+guarda `lunario:tagliando`, che parte dai file e trova anche cio' che nessun
+salto di contratto sistemerebbe. Se l'utente e' venuto qui perche' «qualcosa non
+torna» e il contratto risulta allineato, la risposta e' il tagliando, non
+questa skill.
 
 Se il commit fallisce, non dirlo e vai avanti: e' una rete di sicurezza, non un
 pezzo del flusso.

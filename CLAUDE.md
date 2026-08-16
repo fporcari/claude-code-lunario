@@ -160,12 +160,21 @@ non impara. Ogni skill scrive un livello solo.
 | `lunario:postmortem` | appreso (tavola, pesate) | `dati/storico.yaml`, e `-postmortem.md` nella cartella della settimana | domenica |
 | `lunario:inventario` | contato | `dati/dispensa.yaml` → `scorte` e `freezer` | una volta, poi quando si rifa' il giro |
 | `lunario:aggiorna` | — (allinea i livelli al contratto) | `dati/versione.yaml`, e i file che il salto di contratto tocca | quando il motore e la cartella non combaciano |
+| `lunario:tagliando` | — (rimette a posto la forma) | i file spostati o rinominati, e cio' che l'utente approva di correggere nei dati | quando qualcosa non torna, e dopo un aggiornamento del motore |
 
 L'utente ne invoca quattro tutte le settimane: `lunario:settimana` il lunedi',
 `lunario:spesa` quando ritira la spesa, `lunario:prepara` quando cucina e
 `lunario:postmortem` la domenica. `lunario:inventario` si invoca una volta e
 poi quasi mai. `lunario:menu` viene chiamata dalla prima e non va invocata a
 mano; le altre servono quando serve.
+
+**`aggiorna` e `tagliando` non sono la stessa skill**, e confonderle rimette in
+piedi il difetto che il tagliando esiste per togliere: la prima esegue **il
+salto di contratto**, un passo per volta, e guarda un numero; la seconda parte
+**dai file** e trova anche cio' che nessun salto sistemerebbe — una settimana
+nella forma vecchia dentro una cartella col timbro giusto, un documento con un
+nome che nessuna skill aprira', una scorta senza data. Un numero allineato non
+dice niente su dove stiano i file.
 
 **I due voti non sono lo stesso voto.** Chi cucina valuta difficolta' e resa
 appena finito, e quel dato decide **dove** un piatto puo' stare nella
@@ -192,7 +201,7 @@ cartella di lavoro e non viaggiano con esso.
 │   ├── .claude-plugin/plugin.json
 │   ├── skills/                      # profilo · ritmi · inventario
 │   │   └── ...                      # settimana · menu · spesa · prepara
-│   │                                # correggi · postmortem · aggiorna
+│   │                                # correggi · postmortem · aggiorna · tagliando
 │   ├── kb/                          # knowledge base condivisa
 │   │   ├── porzioni-standard.md     # porzioni e frequenze CREA 2018
 │   │   ├── deperibilita.md          # ordine dei giorni, durate in frigo
@@ -203,10 +212,12 @@ cartella di lavoro e non viaggiano con esso.
 │   ├── scripts/
 │   │   ├── off_lookup.py            # Open Food Facts -> dati/prodotti.jsonl
 │   │   ├── settimana.py             # dove stanno i file di una settimana, e qual e' il vivo
-│   │   └── versione.py              # il timbro della cartella, e come si deduce
+│   │   ├── versione.py              # il timbro della cartella, e come si deduce
+│   │   ├── lint_dati.py             # i contratti dati: la verifica, non i test
+│   │   ├── minyaml.py               # il sottoinsieme YAML, con la sola stdlib
+│   │   └── tagliando.py             # contratto + forma + dati, e cosa si ripara
 │   └── templates/                   # modelli commentati, copiati al setup
 ├── tests/                           # i tre tier, e tre case sintetiche
-│   ├── lint_dati.py                 # tier 1: i contratti, zero token
 │   ├── loop_runner.py               # tier 2: il giro intero headless
 │   ├── giudizio.py                  # tier 3: un parere, non un semaforo
 │   └── fixtures/                    # single · famiglia · coppia-dispensa-profonda
@@ -308,10 +319,10 @@ script le riconosce (`layout: piatto`), il file vivo e' quell'unico markdown, e
 non si rinominano d'ufficio. Una settimana passata e' un registro, e un
 registro non si riorganizza per farlo somigliare al presente.
 
-Un'eccezione sola, e si **chiede**: la settimana **in corso**. Se il motore si
-aggiorna di mercoledi', quella settimana la si sta ancora vivendo e le manca la
-lista, cioe' la ragione per cui questo contratto esiste — quindi
-`lunario:aggiorna` propone di spostarla, e su un si':
+Un'eccezione sola, e si **chiede**: la settimana **ancora da vivere**. Se il
+motore si aggiorna di mercoledi', quella settimana la si sta ancora vivendo e le
+manca la lista, cioe' la ragione per cui questo contratto esiste — quindi
+`lunario:aggiorna` e `lunario:tagliando` propongono di spostarla, e su un si':
 
 ```bash
 python3 ${CLAUDE_PLUGIN_ROOT}/scripts/settimana.py --adatta
@@ -319,10 +330,17 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/settimana.py --adatta
 
 Sposta markdown e HTML nella cartella col nome del ruolo, dedotto dallo
 `stato:` in testa (vecchio vocabolario compreso), e sistema il `menu:` in
-`storico.yaml`. **Si rifiuta di toccare qualunque settimana non sia quella
-corrente**, ed e' cio' che rende sicuro proporlo: da li' il registro non e'
-raggiungibile. La lista non la inventa — una spesa gia' fatta non si ricostruisce
-— la scrive il prossimo giro di `menu` o `correggi`.
+`storico.yaml`. **Si rifiuta di toccare qualunque settimana che non sia quella
+in corso o quella che sta per aprire**, ed e' cio' che rende sicuro proporlo: da
+li' il registro non e' raggiungibile. La lista non la inventa — una spesa gia'
+fatta non si ricostruisce — la scrive il prossimo giro di `menu` o `correggi`.
+
+Le settimane adattabili sono **due**, e la seconda non e' una concessione: una
+settimana **si pianifica prima di viverla**. Il menu esce per i sette giorni che
+cominciano, e la spesa si ritira prima di accendere i fornelli — quindi chi
+lavora di sabato o di domenica ha su disco una settimana che l'ISO di oggi non
+nomina ancora, ed e' proprio quella a cui manca la lista. Un confronto con la
+sola ISO corrente rifiutava il caso normale del sistema.
 
 ## Installazione
 
@@ -378,13 +396,43 @@ python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
 
 ### Il controllo e' automatico, non una skill da ricordarsi
 
-Ogni skill, appena parte, confronta il `contratto` della cartella con quello
-del motore. Se non combaciano, migra **prima** di fare qualsiasi altra cosa, e
-poi prosegue col compito che l'utente ha chiesto davvero. Una skill di
-aggiornamento che bisogna invocare a mano e' una skill che non invoca nessuno.
+Ogni skill, appena parte, guarda com'e' messa la cartella. Se c'e' qualcosa che
+blocca, lo ripara **prima** di fare qualsiasi altra cosa, e poi prosegue col
+compito che l'utente ha chiesto davvero. Una skill di manutenzione che bisogna
+invocare a mano e' una skill che non invoca nessuno.
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/tagliando.py --rapido
+```
+
+**Guarda i file, non solo il numero**, e questa e' la correzione di un difetto
+che il timbro da solo aveva: il controllo del contratto confronta due interi, e
+due interi uguali zittivano tutto il resto. Una cartella col timbro giusto e i
+documenti nella forma vecchia passava a **ogni** lancio, per sempre — e il caso
+piu' comune e' il piu' fastidioso: la settimana in corso senza la sua lista
+della spesa, che nessuno guardera' mai piu' perche' il numero e' a posto.
+
+Tre verifiche, in un posto solo:
+
+| cosa guarda | da dove viene | esempio di cio' che trova |
+|---|---|---|
+| il **contratto** | `versione.py` | la cartella e' al 3, il motore vuole il 4 |
+| la **forma** | `settimana.py` | W34 ha i documenti fuori dalla cartella, e le manca la lista |
+| i **contratti dati** | `lint_dati.py` | un prezzo senza data, una scorta senza `visto`, uno YAML che il motore non sa rileggere |
+
+Il rapido stampa **solo cio' che blocca**, e quando non c'e' niente non stampa
+niente: e' il controllo che gira mentre l'utente aspetta di cucinare, e un
+elenco di difetti li' non e' aiuto, e' una skill che non parte mai. Il resto si
+conta in una riga e lo guarda `lunario:tagliando`, quando c'e' tempo.
+
+**Cio' che si ripara da solo e' solo cio' che e' meccanico** — spostare un file,
+scrivere un timbro, sistemare un percorso. Un file di dati e' pieno di commenti
+scritti per un essere umano, e uno script che lo riscrive li perde: quelli li
+sistema la skill, che legge prima di scrivere e mostra la riga prima di
+cambiarla.
 
 La logica di migrazione vive tutta in `lunario:aggiorna`, in un posto solo:
-duplicata in nove skill, divergerebbe. I passi sono **dichiarativi e
+duplicata in dieci skill, divergerebbe. I passi sono **dichiarativi e
 idempotenti** — uno per salto di contratto, sicuri da applicare due volte. La
 cartella e' un repo git, quindi ogni migrazione committa, e l'annullamento e'
 `git`, non uno schema di backup.
@@ -1312,9 +1360,15 @@ asserzioni. Come si lanciano e cosa vuol dire un fallimento stanno in
 
 | tier | cosa controlla | costo | quando |
 |---|---|---|---|
-| **1** `lint_dati.py` | i contratti dati: YAML leggibile, id che esistono, ogni prezzo con data e fonte, nessun deperibile fra gli avanzi, nessuno stato di cella fuori vocabolario, e i documenti della settimana col nome che le skill cercheranno | zero token | sempre |
-| **2** `loop_runner.py` | il giro intero headless su una casa sintetica, e le proprieta' che deve lasciare dietro | token veri | prima di una release |
-| **3** `giudizio.py` | il menu e' *buono*: equilibrio, varieta', plausibilita' di un mercoledi' sera | token veri | ogni tanto |
+| **1** `scripts/lint_dati.py` | i contratti dati: YAML leggibile, id che esistono, ogni prezzo con data e fonte, nessun deperibile fra gli avanzi, nessuno stato di cella fuori vocabolario, e i documenti della settimana col nome che le skill cercheranno | zero token | sempre |
+| **2** `tests/loop_runner.py` | il giro intero headless su una casa sintetica, e le proprieta' che deve lasciare dietro | token veri | prima di una release |
+| **3** `tests/giudizio.py` | il menu e' *buono*: equilibrio, varieta', plausibilita' di un mercoledi' sera | token veri | ogni tanto |
+
+**Il tier 1 sta nel motore, non nei test**, ed e' la stessa verifica in
+entrambi gli usi: il tier 1 la lancia sui fixture prima di una release,
+`lunario:tagliando` la lancia dentro una cartella di casa mesi dopo, dove
+`tests/` non e' mai stato copiato. Scritta due volte sarebbe divergente entro
+due contratti — che e' esattamente il difetto da cui nasce la regola sotto.
 
 **Il tier 3 non fa mai fallire la suite.** Esce sempre 0, per costruzione. Una
 suite che diventa rossa a caso viene ignorata entro due settimane, e da li' in
@@ -1328,7 +1382,7 @@ Due vincoli che ricadono su chi cambia il motore:
 - **I file dei dati stanno in un sottoinsieme YAML semplice** — niente ancore,
   niente scalari multi-riga, niente documenti multipli. Non e' pigrizia del
   parser: quei file li scrivono e li rileggono dei modelli, e la semplicita' e'
-  parte del contratto. `tests/minyaml.py` li legge con la sola stdlib e
+  parte del contratto. `scripts/minyaml.py` li legge con la sola stdlib e
   segnala come violazione tutto cio' che ne esce
 
 **I fixture sono l'unica eccezione alla regola «nessun dato personale in

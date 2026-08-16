@@ -1,18 +1,24 @@
 #!/usr/bin/env python3
-"""Tier 1 — il lint dei contratti. Zero token, zero dipendenze.
+"""Il lint dei contratti. Zero token, zero dipendenze.
 
 Prende una cartella di casa Lunario e riporta le violazioni del contratto
 descritto in `CLAUDE.md`. Non giudica il menu e non sa niente di nutrizione:
 controlla solo cio' che e' verificabile leggendo i file.
 
-    python3 tests/lint_dati.py ~/lunario-casa
-    python3 tests/lint_dati.py                 # tutti i fixture del repo
-    python3 tests/lint_dati.py --json <casa>   # per il runner del tier 2
+    python3 lint_dati.py ~/lunario-casa
+    python3 lint_dati.py                 # tutti i fixture, se si e' nel repo
+    python3 lint_dati.py --json <casa>   # per chi lo consuma a macchina
 
 Uscita: 0 se non ci sono errori (gli avvisi non fanno fallire), 1 altrimenti.
 
 Ogni violazione porta un **codice stabile**: i test asseriscono sui codici, mai
 sul testo del messaggio, cosi' riformulare un messaggio non rompe una suite.
+
+**Sta nel motore, non nei test**, e non e' un dettaglio di sistemazione: e' la
+stessa verifica che serve al tier 1 prima di una release e a `lunario:tagliando`
+dentro una cartella di casa, mesi dopo, dove `tests/` non e' mai stato copiato.
+Scritto due volte sarebbe divergente entro due contratti; qui e' uno solo, e i
+test lo importano da dove vive.
 """
 
 import argparse
@@ -617,6 +623,11 @@ class Lint:
         if not os.path.isdir(cartella):
             return
         for voce in sorted(os.listdir(cartella)):
+            # I file che il sistema operativo semina da solo — `.DS_Store` e
+            # parenti — non li ha scritti nessuno e non li legge nessuno:
+            # segnalarli insegna a saltare la riga sotto, che invece conta.
+            if voce.startswith("."):
+                continue
             percorso = os.path.join(cartella, voce)
             radice_nome = voce[:-3] if voce.endswith(".md") else voce[:-5] if voce.endswith(".html") else voce
             if not NOME_SETTIMANA.match(radice_nome):
@@ -792,8 +803,14 @@ class Lint:
 # ------------------------------------------------------------------------ CLI
 
 def cartelle_predefinite():
+    """Le case sintetiche del repo, quando si e' dentro il repo.
+
+    Da un plugin installato non c'e' nessun `tests/` da trovare, e la lista
+    resta vuota: e' il caso normale, non un errore.
+    """
     qui = os.path.dirname(os.path.abspath(__file__))
-    fixtures = os.path.join(qui, "fixtures")
+    repo = os.path.dirname(os.path.dirname(os.path.dirname(qui)))
+    fixtures = os.path.join(repo, "tests", "fixtures")
     if not os.path.isdir(fixtures):
         return []
     return [os.path.join(fixtures, n) for n in sorted(os.listdir(fixtures))

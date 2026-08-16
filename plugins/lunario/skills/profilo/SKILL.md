@@ -33,9 +33,9 @@ Guarda la cartella di lavoro corrente:
 | `dati/profilo.yaml` | in una casa **gia' configurata** | e' un **aggiornamento**: salta l'intervista e vai alla sezione qui sotto |
 | niente di tutto questo | cartella **nuova** | e' il caso normale: procedi con l'intervista, e alla fine costruisci qui |
 
-Su una cartella nuova `versione.py --controlla` risponde «non e' una cartella
-di casa Lunario», ed e' giusto: qui il timbro non c'e' ancora perche' la casa
-non c'e' ancora. Lo scrivi tu alla fine, al punto 3.
+Su una cartella nuova il tagliando risponde «qui non c'e' una cartella di casa
+Lunario», ed e' giusto: il timbro non c'e' ancora perche' la casa non c'e'
+ancora. Lo scrivi tu alla fine, al punto 3.
 
 Nel caso normale non chiedere conferma sul percorso: l'utente ha gia' scelto
 dove stare aprendo quella cartella. Chiedere «dove creo i file?» a chi si trova
@@ -88,11 +88,13 @@ divergerebbe, e perche' li' e' **versionata** — sa cosa e' gia' stato fatto,
 invece di ricontrollare le stesse forme a ogni lancio.
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/tagliando.py --rapido
 ```
 
-Se dice che la cartella e' indietro, passa da `lunario:aggiorna` e torna qui:
-quando riprendi, il profilo che leggi e' gia' nella forma corrente.
+Se dice `CONTRATTO_INDIETRO`, passa da `lunario:aggiorna` e torna qui: quando
+riprendi, il profilo che leggi e' gia' nella forma corrente. Per gli altri
+guasti `blocca` vale la stessa regola delle altre skill — si riparano prima,
+col tagliando.
 
 Quello che resta a questa skill sono le cose che `aggiorna` **non puo'**
 decidere da sola, e che ti segnala: i nomi dei bambini, se qualcuno vuole la

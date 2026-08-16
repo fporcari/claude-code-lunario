@@ -266,19 +266,21 @@ def scrivi_settimana(radice, nome, documenti):
     return cartella
 
 
-def testa(stato, titolo="Guasta"):
+def intestazione(stato, titolo="Guasta"):
+    """La testa di un documento di settimana. Non si chiama `testa`: pytest
+    raccoglie come test qualsiasi callable che cominci per `test`."""
     return f"---\nstato: {stato}\ntitolo: {titolo}\n---\n\n## I sette giorni\n"
 
 
 def documento_con_un_altro_nome(radice):
     """Il prefisso non e' quello della cartella: nessuna skill lo aprira'."""
     scrivi_settimana(radice, "2026-W47-guasta",
-                     {"2026-W47-un-altro-nome-preventivo.md": testa("preventivo")})
+                     {"2026-W47-un-altro-nome-preventivo.md": intestazione("preventivo")})
 
 
 def preventivo_che_dice_consuntivo(radice):
     scrivi_settimana(radice, "2026-W48-guasta",
-                     {"2026-W48-guasta-preventivo.md": testa("consuntivo")})
+                     {"2026-W48-guasta-preventivo.md": intestazione("consuntivo")})
 
 
 def documento_senza_stato(radice):
@@ -410,10 +412,10 @@ class TestCartellaSettimana(unittest.TestCase):
         def sana(copia):
             nome = "2026-W50-sana"
             scrivi_settimana(copia, nome, {
-                f"{nome}-preventivo.md": testa("preventivo", "Sana"),
+                f"{nome}-preventivo.md": intestazione("preventivo", "Sana"),
                 f"{nome}-preventivo.html": "<html><body>preventivo</body></html>",
                 f"{nome}-lista.md": "# Spesa\n\n## Dispensa\n- [ ] Fusilli — 2 × 500 g\n",
-                f"{nome}-consuntivo.md": testa("consuntivo", "Sana"),
+                f"{nome}-consuntivo.md": intestazione("consuntivo", "Sana"),
                 f"{nome}-consuntivo.html": "<html><body>consuntivo</body></html>",
                 f"{nome}-postmortem.md": "# Postmortem\n",
                 "contesto.yaml": "settimana: {}\n",
@@ -425,7 +427,7 @@ class TestCartellaSettimana(unittest.TestCase):
     def test_un_ruolo_inventato_e_solo_un_avviso(self):
         def guasto(copia):
             scrivi_settimana(copia, "2026-W51-guasta",
-                             {"2026-W51-guasta-bozza.md": testa("preventivo")})
+                             {"2026-W51-guasta-bozza.md": intestazione("preventivo")})
         for radice in FIXTURES:
             with self.subTest(fixture=os.path.basename(radice)):
                 self.assertIn("RUOLO_SETTIMANA_SCONOSCIUTO", self.codici(radice, guasto))
@@ -443,7 +445,7 @@ class TestCartellaSettimana(unittest.TestCase):
     def test_un_consuntivo_senza_preventivo_si_nota(self):
         def guasto(copia):
             nome = "2026-W53-guasta"
-            scrivi_settimana(copia, nome, {f"{nome}-consuntivo.md": testa("consuntivo")})
+            scrivi_settimana(copia, nome, {f"{nome}-consuntivo.md": intestazione("consuntivo")})
         for radice in FIXTURES:
             with self.subTest(fixture=os.path.basename(radice)):
                 self.assertIn("PREVENTIVO_SPARITO", self.codici(radice, guasto))
@@ -469,7 +471,7 @@ class TestRisoluzioneSettimana(unittest.TestCase):
     def test_il_vivo_e_il_preventivo_finche_non_c_e_il_consuntivo(self):
         with tempfile.TemporaryDirectory() as tmp:
             esito = self.casa(tmp, {
-                "2026-W34-commando/2026-W34-commando-preventivo.md": testa("preventivo"),
+                "2026-W34-commando/2026-W34-commando-preventivo.md": intestazione("preventivo"),
                 "2026-W34-commando/2026-W34-commando-lista.md": "# Spesa\n",
             })
             self.assertEqual("cartella", esito["layout"])
@@ -478,15 +480,15 @@ class TestRisoluzioneSettimana(unittest.TestCase):
     def test_col_consuntivo_il_vivo_cambia(self):
         with tempfile.TemporaryDirectory() as tmp:
             esito = self.casa(tmp, {
-                "2026-W34-commando/2026-W34-commando-preventivo.md": testa("preventivo"),
-                "2026-W34-commando/2026-W34-commando-consuntivo.md": testa("consuntivo"),
+                "2026-W34-commando/2026-W34-commando-preventivo.md": intestazione("preventivo"),
+                "2026-W34-commando/2026-W34-commando-consuntivo.md": intestazione("consuntivo"),
             })
             self.assertTrue(esito["vivo"].endswith("-consuntivo.md"))
 
     def test_il_layout_vecchio_si_trova_lo_stesso(self):
         """Le settimane scritte prima del contratto 4 non si migrano: si leggono."""
         with tempfile.TemporaryDirectory() as tmp:
-            esito = self.casa(tmp, {"2026-W34-commando.md": testa("consuntivo")})
+            esito = self.casa(tmp, {"2026-W34-commando.md": intestazione("consuntivo")})
             self.assertEqual("piatto", esito["layout"])
             self.assertTrue(esito["vivo"].endswith("2026-W34-commando.md"))
 
@@ -500,7 +502,7 @@ class TestRisoluzioneSettimana(unittest.TestCase):
         nome = f"{iso}-commando"
         os.makedirs(os.path.join(tmp, "settimane"), exist_ok=True)
         os.makedirs(os.path.join(tmp, "dati"), exist_ok=True)
-        for estensione, contenuto in (("md", testa(stato, "Commando")),
+        for estensione, contenuto in (("md", intestazione(stato, "Commando")),
                                       ("html", "<html></html>\n")):
             with open(os.path.join(tmp, "settimane", f"{nome}.{estensione}"),
                       "w", encoding="utf-8") as f:
@@ -541,7 +543,34 @@ class TestRisoluzioneSettimana(unittest.TestCase):
             fatto, righe = self.settimana.adatta(tmp, oggi=oggi)
             self.assertFalse(fatto)
             self.assertTrue(os.path.isfile(os.path.join(tmp, "settimane", f"{nome}.md")))
-            self.assertIn("non e' la settimana corrente", " ".join(righe))
+            self.assertIn("non si tocca", " ".join(righe))
+
+    def test_adatta_prende_anche_la_settimana_che_apre(self):
+        """Il caso normale del sistema, e prima veniva rifiutato.
+
+        Una settimana si pianifica **prima** di viverla: il menu esce per i
+        sette giorni che cominciano e la spesa si ritira prima di accendere i
+        fornelli. Chi lavora di domenica ha su disco la settimana successiva —
+        proprio quella a cui manca la lista — e un confronto con la sola ISO di
+        oggi la lasciava indietro per sempre.
+        """
+        domenica = datetime.date(2026, 8, 16)
+        prossima = self.settimana.iso_di_oggi(domenica + datetime.timedelta(days=7))
+        self.assertNotEqual(prossima, self.settimana.iso_di_oggi(domenica))
+        with tempfile.TemporaryDirectory() as tmp:
+            nome = self._casa_vecchia(tmp, prossima, "consuntivo")
+            fatto, _righe = self.settimana.adatta(tmp, oggi=domenica)
+            self.assertTrue(fatto)
+            dentro = os.path.join(tmp, "settimane", nome, f"{nome}-consuntivo.md")
+            self.assertTrue(os.path.isfile(dentro))
+
+    def test_le_adattabili_sono_due_e_solo_due(self):
+        domenica = datetime.date(2026, 8, 16)
+        self.assertEqual({"2026-W33", "2026-W34"},
+                         self.settimana.iso_adattabili(domenica))
+        lunedi = datetime.date(2026, 8, 17)
+        self.assertEqual({"2026-W34", "2026-W35"},
+                         self.settimana.iso_adattabili(lunedi))
 
     def test_adatta_e_idempotente(self):
         oggi = datetime.date.today()

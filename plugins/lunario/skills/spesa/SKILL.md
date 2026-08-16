@@ -21,13 +21,24 @@ Regole e contratti in `CLAUDE.md`.
 ## Prima di tutto: la cartella e' allineata?
 
 ```bash
-python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/tagliando.py --rapido
 ```
 
-Se risponde `migrazione necessaria`, passa da `lunario:aggiorna` e **poi torna
-qui**: allineare la cartella e' il presupposto, non il lavoro che l'utente ha
-chiesto. Se risponde `ok`, non dire niente — un controllo di versione che si fa
-notare ogni lunedi' e' rumore.
+**Se non stampa niente, prosegui senza dire niente**: e' il caso normale, e un
+controllo che si fa notare a ogni lancio e' rumore.
+
+Se stampa righe `blocca`, riparale **prima** — lavorare su file che non sono
+quelli che credi non da' nessun errore, da' una settimana raccontata in un
+documento che nessuno riaprira':
+
+| cosa stampa | cosa fai |
+|---|---|
+| `[si ripara da solo]` | `python3 ${CLAUDE_PLUGIN_ROOT}/scripts/tagliando.py --ripara`, poi una riga in chat su cosa si e' mosso |
+| `CONTRATTO_INDIETRO` | passa da `lunario:aggiorna`, che esegue i passi di migrazione |
+| qualsiasi altra cosa | passa da `lunario:tagliando` |
+
+Poi torna qui: mettere a posto la cartella e' il presupposto, non il lavoro che
+l'utente ha chiesto.
 
 ## 1. Leggi lo scontrino
 

@@ -1,7 +1,7 @@
 {
   "name": "lunario",
-  "description": "Menu settimanale di famiglia e lista della spesa in confezioni reali, su una griglia pasto x persona: chi e' a dieta e chi no, pasti liberi, colazioni e merende, pasti al ristorante. Dieci skill: profilo, ritmi, inventario, settimana, menu, spesa, prepara, correggi, postmortem, aggiorna. Una dispensa contata a bande, con soglie e tetti, che sa quanto e' vecchia la sua convinzione. Nessuna dipendenza da supermercati: formati e nutrienti da Open Food Facts, prezzi dagli scontrini dell'utente.",
-  "version": "5.0.0",
+  "description": "Menu settimanale di famiglia e lista della spesa in confezioni reali, su una griglia pasto x persona: chi e' a dieta e chi no, pasti liberi, colazioni e merende, pasti al ristorante. Undici skill: profilo, ritmi, inventario, settimana, menu, spesa, prepara, correggi, postmortem, aggiorna, tagliando. Una dispensa contata a bande, con soglie e tetti, che sa quanto e' vecchia la sua convinzione. Nessuna dipendenza da supermercati: formati e nutrienti da Open Food Facts, prezzi dagli scontrini dell'utente.",
+  "version": "5.1.0",
   "author": {
     "name": "Francesco Porcari"
   }

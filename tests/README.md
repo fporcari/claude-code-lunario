@@ -13,7 +13,7 @@ trasformano in asserzioni.
 
 | tier | cosa fa | costo | quando gira |
 |---|---|---|---|
-| **1 — lint dei contratti** | `lint_dati.py`: ogni YAML e' leggibile, gli id della dispensa esistono nel paniere, ogni prezzo ha data e fonte, nessun deperibile fra gli avanzi, nessuno stato di cella fuori vocabolario, i documenti della settimana col nome che le skill cercheranno | zero token | sempre, CI compresa |
+| **1 — lint dei contratti** | `plugins/lunario/scripts/lint_dati.py`: ogni YAML e' leggibile, gli id della dispensa esistono nel paniere, ogni prezzo ha data e fonte, nessun deperibile fra gli avanzi, nessuno stato di cella fuori vocabolario, i documenti della settimana col nome che le skill cercheranno | zero token | sempre, CI compresa |
 | **2 — il giro completo** | `loop_runner.py`: `claude -p` headless su una casa sintetica, settimana → spesa → prepara → correggi → postmortem, poi le proprieta' asserite sugli artefatti | token veri | a mano, prima di una release |
 | **3 — il giudizio** | `giudizio.py`: il menu e' *buono*? equilibrato, vario, plausibile un mercoledi' sera | token veri | ogni tanto |
 
@@ -25,9 +25,10 @@ riporta verde su un motore rotto.
 ## Come si lanciano
 
 ```bash
-python3 tests/test_lint.py            # tier 1 + i test del linter stesso
-python3 tests/lint_dati.py            # tier 1 sui tre fixture
-python3 tests/lint_dati.py ~/casa     # tier 1 su una casa vera
+python3 tests/test_lint.py                            # tier 1 + i test del linter stesso
+python3 plugins/lunario/scripts/lint_dati.py          # tier 1 sui tre fixture
+python3 plugins/lunario/scripts/lint_dati.py ~/casa   # tier 1 su una casa vera
+python3 plugins/lunario/scripts/tagliando.py ~/casa   # e cosa se ne ripara da solo
 ```
 
 ```bash

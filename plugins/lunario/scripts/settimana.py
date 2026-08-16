@@ -10,7 +10,7 @@ release sarebbero cinque regole diverse.
     python3 settimana.py --iso 2026-W34
     python3 settimana.py --json
     python3 settimana.py --slug "Yellow Submarine"
-    python3 settimana.py --adatta             # la corrente, dal layout vecchio a cartella
+    python3 settimana.py --adatta             # questa o quella che apre, dal layout vecchio a cartella
 
 **Il file vivo e' l'ultimo ruolo che esiste su disco**: se c'e' il consuntivo e'
 quello, altrimenti il preventivo. Non si guardano date ne' lo `stato:` scritto
@@ -166,14 +166,30 @@ def _ruolo_dal_documento(percorso):
     return ruolo, f"`stato: {stato}`"
 
 
+def iso_adattabili(oggi=None):
+    """Le settimane che si possono ancora spostare: questa e quella che apre.
+
+    Una settimana si pianifica **prima** di viverla — il menu esce il lunedi'
+    per i sette giorni che cominciano, e la spesa si ritira prima di accendere
+    i fornelli. Chi lavora di sabato o di domenica ha quindi su disco una
+    settimana che l'ISO di oggi non nomina ancora, ed e' proprio quella che ha
+    bisogno della lista.
+
+    Un confronto con la sola ISO corrente rifiutava quel caso, che non e' un
+    limite ma il flusso normale del sistema.
+    """
+    base = oggi or datetime.date.today()
+    return {iso_di_oggi(base), iso_di_oggi(base + datetime.timedelta(days=7))}
+
+
 def adatta(radice, iso=None, oggi=None):
     """Porta **una** settimana dal layout vecchio a quello a cartella.
 
-    Non e' una migrazione: e' un'opzione, e vale solo per la settimana in
-    corso. Le passate sono un registro — spostarle vorrebbe dire muovere due
-    file, il `menu:` che ci punta in `storico.yaml` e ogni link gia' mandato a
-    qualcuno, per un ordine che su una settimana gia' mangiata non serve a
-    nessuno.
+    Non e' una migrazione: e' un'opzione, e vale per la settimana in corso e
+    per quella che sta per cominciare. Le passate sono un registro — spostarle
+    vorrebbe dire muovere due file, il `menu:` che ci punta in `storico.yaml` e
+    ogni link gia' mandato a qualcuno, per un ordine che su una settimana gia'
+    mangiata non serve a nessuno.
 
     Torna (fatto, righe): `fatto` dice se qualcosa si e' mosso, le righe si
     stampano.
@@ -184,9 +200,10 @@ def adatta(radice, iso=None, oggi=None):
     nome = esito["nome"]
     if esito["layout"] == "cartella":
         return False, [f"{nome}: e' gia' a cartella, non c'e' niente da adattare"]
-    if esito["iso"] != iso_di_oggi(oggi):
+    if esito["iso"] not in iso_adattabili(oggi):
+        quali = " o ".join(sorted(iso_adattabili(oggi)))
         return False, [
-            f"{nome} non e' la settimana corrente ({iso_di_oggi(oggi)}): non si tocca.",
+            f"{nome} non e' ne' la settimana corrente ne' quella che apre ({quali}): non si tocca.",
             "Le settimane passate sono un registro, e questo script le trova dove sono.",
         ]
 
