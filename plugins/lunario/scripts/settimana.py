@@ -10,6 +10,7 @@ release sarebbero cinque regole diverse.
     python3 settimana.py --iso 2026-W34
     python3 settimana.py --json
     python3 settimana.py --slug "Yellow Submarine"
+    python3 settimana.py --adatta             # la corrente, dal layout vecchio a cartella
 
 **Il file vivo e' l'ultimo ruolo che esiste su disco**: se c'e' il consuntivo e'
 quello, altrimenti il preventivo. Non si guardano date ne' lo `stato:` scritto
@@ -143,6 +144,92 @@ def risolvi(radice, iso=None):
     }
 
 
+# Il vocabolario vecchio dello stato, che sopravvive in testa alle settimane
+# scritte da versioni precedenti: si legge, non si riscrive.
+STATO_AL_RUOLO = {
+    "preventivo": "preventivo", "bozza": "preventivo", "confermato": "preventivo",
+    "consuntivo": "consuntivo", "in corso": "consuntivo",
+}
+
+
+def _ruolo_dal_documento(percorso):
+    """Che documento e' un markdown del layout vecchio: lo dice il suo `stato:`."""
+    with open(percorso, encoding="utf-8") as f:
+        testa = f.read(2000)
+    trovato = re.search(r"^stato:\s*(.+?)\s*$", testa, re.MULTILINE)
+    if not trovato:
+        return "preventivo", "nessuno `stato:` in testa: vale preventivo"
+    stato = trovato.group(1).strip().strip("`\"'")
+    ruolo = STATO_AL_RUOLO.get(stato.lower())
+    if not ruolo:
+        return "preventivo", f"`stato: {stato}` non e' del vocabolario: vale preventivo"
+    return ruolo, f"`stato: {stato}`"
+
+
+def adatta(radice, iso=None, oggi=None):
+    """Porta **una** settimana dal layout vecchio a quello a cartella.
+
+    Non e' una migrazione: e' un'opzione, e vale solo per la settimana in
+    corso. Le passate sono un registro — spostarle vorrebbe dire muovere due
+    file, il `menu:` che ci punta in `storico.yaml` e ogni link gia' mandato a
+    qualcuno, per un ordine che su una settimana gia' mangiata non serve a
+    nessuno.
+
+    Torna (fatto, righe): `fatto` dice se qualcosa si e' mosso, le righe si
+    stampano.
+    """
+    esito = risolvi(radice, iso)
+    if esito is None:
+        return False, ["nessuna settimana in `settimane/`"]
+    nome = esito["nome"]
+    if esito["layout"] == "cartella":
+        return False, [f"{nome}: e' gia' a cartella, non c'e' niente da adattare"]
+    if esito["iso"] != iso_di_oggi(oggi):
+        return False, [
+            f"{nome} non e' la settimana corrente ({iso_di_oggi(oggi)}): non si tocca.",
+            "Le settimane passate sono un registro, e questo script le trova dove sono.",
+        ]
+
+    posti = percorsi(radice, nome)
+    os.makedirs(posti["cartella"], exist_ok=True)
+    ruolo, perche = _ruolo_dal_documento(posti["_piatto_md"])
+    righe = [f"{nome}: e' il {ruolo} ({perche})"]
+
+    coppie = [(posti["_piatto_md"], posti[ruolo])]
+    if os.path.isfile(posti["_piatto_html"]):
+        coppie.append((posti["_piatto_html"], posti[f"{ruolo}_html"]))
+    for origine, destinazione in coppie:
+        if os.path.exists(destinazione):
+            righe.append(f"  · c'e' gia' {os.path.relpath(destinazione, radice)}: lascio stare")
+            continue
+        os.rename(origine, destinazione)
+        righe.append(f"  · {os.path.relpath(origine, radice)}"
+                     f" -> {os.path.relpath(destinazione, radice)}")
+
+    righe += _riscrivi_menu_in_storico(radice, nome, ruolo)
+    righe.append("  · la lista non c'e' e non si inventa: la scrive il prossimo "
+                 "giro di menu o correggi")
+    return True, righe
+
+
+def _riscrivi_menu_in_storico(radice, nome, ruolo):
+    """`storico.settimane[].menu` punta al file spostato: senza questo, resta
+    un percorso che non esiste piu' — e il lint lo direbbe, ma solo dopo."""
+    percorso = os.path.join(os.environ.get("LUNARIO_DATI") or os.path.join(radice, "dati"),
+                            "storico.yaml")
+    if not os.path.isfile(percorso):
+        return []
+    with open(percorso, encoding="utf-8") as f:
+        testo = f.read()
+    vecchio = f"menu: settimane/{nome}.md"
+    if vecchio not in testo:
+        return []
+    nuovo = f"menu: settimane/{nome}/{nome}-{ruolo}.md"
+    with open(percorso, "w", encoding="utf-8") as f:
+        f.write(testo.replace(vecchio, nuovo))
+    return [f"  · storico.yaml: `{vecchio}` -> `{nuovo}`"]
+
+
 def _relativi(radice, mappa):
     return {c: os.path.relpath(p, radice) for c, p in mappa.items()}
 
@@ -173,6 +260,8 @@ def main(argomenti=None):
     parser.add_argument("--json", action="store_true", help="uscita JSON")
     parser.add_argument("--slug", default="", metavar="TITOLO",
                         help="lo slug di un titolo, e basta: non guarda il disco")
+    parser.add_argument("--adatta", action="store_true",
+                        help="porta la settimana CORRENTE dal layout vecchio a quello a cartella")
     argomenti = parser.parse_args(argomenti)
 
     if argomenti.slug:
@@ -183,6 +272,12 @@ def main(argomenti=None):
     if argomenti.iso and not ISO.match(argomenti.iso):
         print(f"`--iso {argomenti.iso}` non e' un ISO di settimana (2026-W34)", file=sys.stderr)
         return 2
+
+    if argomenti.adatta:
+        fatto, righe = adatta(radice, argomenti.iso or None)
+        for riga in righe:
+            print(riga)
+        return 0 if fatto else 1
 
     esito = risolvi(radice, argomenti.iso or None)
     if esito is None:

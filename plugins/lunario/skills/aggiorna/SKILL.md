@@ -99,19 +99,47 @@ preventivo a consuntivo.
 
 | cosa trovi | tipo | cosa fai |
 |---|---|---|
-| settimane col markdown accanto alla cartella | additivo, e **non scrive niente** | restano dove sono, col nome che hanno. Le settimane nuove nascono nella cartella |
+| settimane passate col markdown accanto alla cartella | additivo, e **non scrive niente** | restano dove sono, col nome che hanno. Le settimane nuove nascono nella cartella |
+| **la settimana in corso** col markdown accanto alla cartella | serve l'utente | **proponi** di adattarla, in una riga. Se dice di si', la sposti; se non risponde, funziona lo stesso |
 
-**Questo passo non sposta un solo file**, ed e' deliberato: le settimane
-passate sono un registro, e `settimana.py` le riconosce come `layout: piatto` e
-le trova lo stesso. Spostarle vorrebbe dire muovere due file per settimana, il
-`menu:` che ci punta in `storico.yaml` e qualsiasi link mandato a qualcuno —
-per guadagnare un ordine che a nessuno serve su una settimana gia' mangiata.
+**Da sola questa migrazione non sposta un solo file**, ed e' deliberato: le
+settimane passate sono un registro, e `settimana.py` le riconosce come
+`layout: piatto` e le trova lo stesso. Spostarle vorrebbe dire muovere due file
+per settimana, il `menu:` che ci punta in `storico.yaml` e qualsiasi link
+mandato a qualcuno — per guadagnare un ordine che a nessuno serve su una
+settimana gia' mangiata.
 
-Vale anche per **la settimana in corso**, che e' il caso a cui viene voglia di
-fare un'eccezione: se il motore si aggiorna di mercoledi', quella settimana
-finisce nel layout in cui e' nata, e la prossima nasce nel nuovo. Migrare un
-documento mentre qualcuno ci sta cucinando sopra e' esattamente il tipo di
-sorpresa che questa skill esiste per non fare.
+#### La settimana in corso, se l'utente vuole
+
+C'e' un caso solo in cui l'ordine vecchio da' fastidio davvero, ed e' quando il
+motore si aggiorna di mercoledi': quella settimana la si sta ancora vivendo,
+e le manca **la lista** — cioe' la ragione per cui il contratto 4 esiste.
+Lasciarla indietro e' legittimo, adattarla e' utile, e la differenza la sa solo
+chi ci sta cucinando. Quindi si chiede, una riga, senza insistere:
+
+> Questa settimana e' scritta col formato vecchio. La sposto nella sua cartella?
+> Serve ad avere la lista della spesa come file a parte. Le settimane passate
+> le lascio dove sono.
+
+Su un si':
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/settimana.py --adatta
+```
+
+Sposta markdown e HTML nella cartella col nome del ruolo — che deduce dallo
+`stato:` scritto in testa, vecchio vocabolario compreso — e sistema il `menu:`
+in `storico.yaml`. **Rifiuta di toccare una settimana che non e' quella
+corrente**, ed e' la garanzia che rende sicuro proporlo: il registro non e'
+raggiungibile da qui.
+
+Due cose da dire dopo, in mezza riga ciascuna e solo se sono vere: che **la
+lista non c'e' ancora** — non si inventa una spesa gia' fatta, la scrive il
+prossimo giro di `menu` o `correggi` — e, se la settimana e' ancora un
+preventivo, che basta un «rigenera la lista» per averla.
+
+Su un no, o sul silenzio: si va avanti e non si torna sull'argomento. La
+settimana funziona identica dov'e'.
 
 ## 4. Cosa non si tocca, mai
 
@@ -119,10 +147,12 @@ sorpresa che questa skill esiste per non fare.
   dati vivi: si leggono come sono e non si riscrivono. Un vecchio `stato:
   bozza` o `confermato` si **legge** come `preventivo`, un `in corso` come
   `consuntivo` — nella testa di chi legge, non nel file
-- **I nomi e la posizione delle settimane.** Quelle scritte come `2026-W34.md`,
-  senza titolo, e quelle col markdown accanto alla cartella restano cosi':
-  `settimana.py` le trova lo stesso, e rinominarle o spostarle vorrebbe dire
-  muovere i file, il `menu:` in `storico.yaml` e ogni link che ci puntava
+- **I nomi e la posizione delle settimane passate.** Quelle scritte come
+  `2026-W34.md`, senza titolo, e quelle col markdown accanto alla cartella
+  restano cosi': `settimana.py` le trova lo stesso, e rinominarle o spostarle
+  vorrebbe dire muovere i file, il `menu:` in `storico.yaml` e ogni link che ci
+  puntava. L'unica eccezione e' la settimana **in corso**, e solo se l'utente
+  dice di si': lo script si rifiuta di toccare le altre
 - **I livelli dichiarati**, oltre le riscritture di grammatica qui sopra.
   Profilo, ritmi e note sono dell'utente: una migrazione traduce il vocabolario
   del motore, non cambia cio' che l'utente ha deciso

@@ -11,6 +11,7 @@ corruzione e' scritta in modo generico — si applica a tutti e tre i fixture,
 non a quello su cui e' stata provata.
 """
 
+import datetime
 import os
 import re
 import shutil
@@ -494,6 +495,62 @@ class TestRisoluzioneSettimana(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             esito = self.casa(tmp, {"2026-W34-commando/contesto.yaml": "settimana: {}\n"})
             self.assertIsNone(esito["vivo"])
+
+    def _casa_vecchia(self, tmp, iso, stato="preventivo"):
+        nome = f"{iso}-commando"
+        os.makedirs(os.path.join(tmp, "settimane"), exist_ok=True)
+        os.makedirs(os.path.join(tmp, "dati"), exist_ok=True)
+        for estensione, contenuto in (("md", testa(stato, "Commando")),
+                                      ("html", "<html></html>\n")):
+            with open(os.path.join(tmp, "settimane", f"{nome}.{estensione}"),
+                      "w", encoding="utf-8") as f:
+                f.write(contenuto)
+        with open(os.path.join(tmp, "dati", "storico.yaml"), "w", encoding="utf-8") as f:
+            f.write(f"settimane:\n  - settimana: {iso}\n"
+                    f"    menu: settimane/{nome}.md\n")
+        return nome
+
+    def test_adatta_sposta_la_settimana_corrente(self):
+        oggi = datetime.date.today()
+        with tempfile.TemporaryDirectory() as tmp:
+            nome = self._casa_vecchia(tmp, self.settimana.iso_di_oggi(oggi), "consuntivo")
+            fatto, _righe = self.settimana.adatta(tmp, oggi=oggi)
+            self.assertTrue(fatto)
+            dentro = os.path.join(tmp, "settimane", nome)
+            self.assertTrue(os.path.isfile(os.path.join(dentro, f"{nome}-consuntivo.md")))
+            self.assertTrue(os.path.isfile(os.path.join(dentro, f"{nome}-consuntivo.html")))
+            self.assertFalse(os.path.exists(os.path.join(tmp, "settimane", f"{nome}.md")))
+            with open(os.path.join(tmp, "dati", "storico.yaml"), encoding="utf-8") as f:
+                self.assertIn(f"menu: settimane/{nome}/{nome}-consuntivo.md", f.read())
+
+    def test_il_ruolo_esce_dallo_stato_anche_col_vocabolario_vecchio(self):
+        oggi = datetime.date.today()
+        for stato, ruolo in (("bozza", "preventivo"), ("confermato", "preventivo"),
+                             ("in corso", "consuntivo")):
+            with self.subTest(stato=stato), tempfile.TemporaryDirectory() as tmp:
+                nome = self._casa_vecchia(tmp, self.settimana.iso_di_oggi(oggi), stato)
+                self.settimana.adatta(tmp, oggi=oggi)
+                atteso = os.path.join(tmp, "settimane", nome, f"{nome}-{ruolo}.md")
+                self.assertTrue(os.path.isfile(atteso), f"`stato: {stato}` -> {ruolo}")
+
+    def test_adatta_non_tocca_le_settimane_passate(self):
+        """La garanzia che rende sicuro proporlo: il registro non e' raggiungibile."""
+        oggi = datetime.date.today()
+        with tempfile.TemporaryDirectory() as tmp:
+            nome = self._casa_vecchia(tmp, "2020-W02")
+            fatto, righe = self.settimana.adatta(tmp, oggi=oggi)
+            self.assertFalse(fatto)
+            self.assertTrue(os.path.isfile(os.path.join(tmp, "settimane", f"{nome}.md")))
+            self.assertIn("non e' la settimana corrente", " ".join(righe))
+
+    def test_adatta_e_idempotente(self):
+        oggi = datetime.date.today()
+        with tempfile.TemporaryDirectory() as tmp:
+            self._casa_vecchia(tmp, self.settimana.iso_di_oggi(oggi))
+            self.assertTrue(self.settimana.adatta(tmp, oggi=oggi)[0])
+            fatto, righe = self.settimana.adatta(tmp, oggi=oggi)
+            self.assertFalse(fatto)
+            self.assertIn("gia' a cartella", " ".join(righe))
 
     def test_lo_slug_e_quello_del_contratto(self):
         self.assertEqual("yellow-submarine", self.settimana.slug("Yellow Submarine"))
