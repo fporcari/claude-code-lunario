@@ -4,6 +4,22 @@ Le versioni che contano sono quelle che cambiano il **contratto dei dati**: da
 4.0.0 la cartella di casa porta un timbro (`dati/versione.yaml`) e si allinea da
 sola, quindi aggiornare il motore non richiede piu' niente da parte tua.
 
+## 5.1.2 — il lint non deve portarsi dietro la skill che l'ha chiamato
+
+Trovato su una cartella vera, non in laboratorio: `settimana:` nel
+`contesto.yaml` di una settimana portava un ISO dove il contratto vuole la
+griglia dei giorni, e il lint ci chiamava `.items()` sopra. Quel file **l'aveva
+scritto il sistema stesso**, e il crash arrivava *prima* di qualsiasi
+violazione — cioe' esattamente dove il controllo doveva proteggere.
+
+Un lint che crasha e' peggio di nessun lint: si porta giu' la skill che l'ha
+chiamato per sapere se poteva partire. Ora una forma sbagliata produce una
+violazione, ovunque il codice si fidasse del blocco e poi lo scorresse:
+`preferenze`, `tolleranze`, `tolleranze.avanzi`, `calendario`, `pasti`, la
+griglia.
+
+I tre fixture sintetici non lo avrebbero mai prodotto.
+
 ## 5.1.0 — il tagliando, perche' un numero non dice dove sono i file
 
 Il contratto dei dati non si muove: chi aggiorna non deve fare niente.
