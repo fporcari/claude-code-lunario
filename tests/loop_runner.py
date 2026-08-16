@@ -120,6 +120,11 @@ def prompt_postmortem(fixture, casa):
     )
 
 
+# I test verificano **proprieta'**, non la finezza di una frase: girano su
+# Sonnet perche' una suite che costa quanto una release non la lancia nessuno.
+# Con `--modello` si passa qualunque altro, quando serve davvero.
+MODELLO_PREDEFINITO = "sonnet"
+
 PROMPT = {
     "settimana": lambda f, c: prompt_settimana(f),
     "spesa": prompt_spesa,
@@ -279,7 +284,8 @@ def main(argomenti=None):
                         help="famiglia | single | coppia-dispensa-profonda | tutti")
     parser.add_argument("--fasi", default=",".join(FASI), help="sottoinsieme delle fasi, separate da virgola")
     parser.add_argument("--lavoro", default=None, help="dove tenere la copia di lavoro")
-    parser.add_argument("--modello", default=None, help="passa --model a claude")
+    parser.add_argument("--modello", default=MODELLO_PREDEFINITO,
+                        help=f"passa --model a claude (default: {MODELLO_PREDEFINITO})")
     parser.add_argument("--budget", type=float, default=None, help="tetto in dollari per fase")
     parser.add_argument("--timeout", type=int, default=900, help="secondi per fase")
     parser.add_argument("--dry-run", action="store_true", help="mostra i comandi, non spende niente")

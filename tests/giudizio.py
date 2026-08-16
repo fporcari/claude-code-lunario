@@ -28,6 +28,11 @@ REPO = os.path.dirname(QUI)
 sys.path.insert(0, os.path.join(REPO, "plugins", "lunario", "scripts"))
 import settimana as settimana_del_motore  # noqa: E402
 
+# I test verificano **proprieta'**, non la finezza di una frase: girano su
+# Sonnet perche' una suite che costa quanto una release non la lancia nessuno.
+# Con `--modello` si passa qualunque altro, quando serve davvero.
+MODELLO_PREDEFINITO = "sonnet"
+
 DOMANDA = """Leggi questo menu settimanale generato da Lunario e scrivi un parere per un essere
 umano. Non devi correggerlo ne' rigenerarlo: devi dire cosa ne pensi.
 
@@ -72,7 +77,8 @@ def main(argomenti=None):
     parser = argparse.ArgumentParser(description="Tier 3: un parere sul menu. Non fa mai fallire.")
     parser.add_argument("menu", nargs="?", help="il markdown della settimana")
     parser.add_argument("--casa", help="una cartella di casa: prende la settimana piu' recente")
-    parser.add_argument("--modello", default=None)
+    parser.add_argument("--modello", default=MODELLO_PREDEFINITO,
+                        help=f"default: {MODELLO_PREDEFINITO}")
     parser.add_argument("--out", default=None, help="dove scrivere il parere")
     argomenti = parser.parse_args(argomenti)
 
