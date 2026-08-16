@@ -26,6 +26,8 @@ riporta verde su un motore rotto.
 
 ```bash
 python3 tests/test_lint.py                            # tier 1 + i test del linter stesso
+python3 tests/test_tagliando.py                       # il tagliando: contratto, forma, riparazioni
+python3 tests/test_repo.py                            # il repo: versioni allineate, skill e script che esistono
 python3 plugins/lunario/scripts/lint_dati.py          # tier 1 sui tre fixture
 python3 plugins/lunario/scripts/lint_dati.py ~/casa   # tier 1 su una casa vera
 python3 plugins/lunario/scripts/tagliando.py ~/casa   # e cosa se ne ripara da solo

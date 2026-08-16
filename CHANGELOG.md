@@ -4,6 +4,20 @@ Le versioni che contano sono quelle che cambiano il **contratto dei dati**: da
 4.0.0 la cartella di casa porta un timbro (`dati/versione.yaml`) e si allinea da
 sola, quindi aggiornare il motore non richiede piu' niente da parte tua.
 
+## 5.1.3 — la versione stava in tre posti, e due sono rimasti indietro
+
+`plugins/lunario/.claude-plugin/plugin.json` era passato a 5.1.2 e
+`.claude-plugin/marketplace.json` continuava ad annunciare **5.0.0**, in due
+campi. L'aggiornamento funzionava — il marketplace di Claude Code legge il
+branch, non il manifesto — ma la pagina che si guarda per sapere che versione
+sia diceva il numero sbagliato. Nessun test funzionale poteva accorgersene.
+
+Da qui il tier 1 controlla anche **il repo**, non solo i dati di una casa
+(`tests/test_repo.py`): le tre versioni combaciano, ogni skill ha il suo
+`SKILL.md` col nome del frontmatter uguale alla cartella, e ogni
+`${CLAUDE_PLUGIN_ROOT}/scripts/…` citato da una skill esiste davvero — una
+promessa che, se non regge, fallisce dentro la cartella di qualcun altro.
+
 ## 5.1.2 — il lint non deve portarsi dietro la skill che l'ha chiamato
 
 Trovato su una cartella vera, non in laboratorio: `settimana:` nel
