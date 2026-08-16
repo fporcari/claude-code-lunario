@@ -22,6 +22,20 @@ menu e chiudere la settimana.
 Non serve ricordarsi i nomi: basta dire «prepariamo la settimana» o «com'e'
 andata», e la skill giusta parte da sola.
 
+## Si aggiorna da sola
+
+Il motore esce in versioni nuove; questa cartella si allinea da se'. La prima
+skill che parte guarda il timbro in `dati/versione.yaml` e, se i file sono di
+una versione precedente, li porta avanti **prima** di fare quello che le hai
+chiesto. Non c'e' niente da lanciare e non c'e' niente da sapere.
+
+Due cose che vale la pena sapere comunque. Le poche modifiche che riscrivono
+qualcosa te le dice in una riga, e per tornare indietro c'e' `git`. E cio' che
+non si puo' dedurre — un nome, una preferenza che allora non si chiedeva — non
+viene inventato: resta assente, la cartella funziona lo stesso, e te lo chiede
+quando serve davvero. Una cartella che non si aggiorna mai continua a
+funzionare: l'aggiornamento migliora, non e' il prezzo del biglietto.
+
 ## Il menu ha due stati
 
 | stato | quando | cosa vuol dire |
@@ -82,7 +96,8 @@ dati/
 ├── ricette.md        i piatti vostri, non del motore       <- lo detti tu
 ├── prodotti.jsonl    il paniere: formati, valori, prezzi  <- lo scrive il sistema
 ├── dispensa.yaml     cosa e' rimasto in casa              <- lo scrive il sistema
-└── storico.yaml      settimane passate e tarature         <- lo scrive il sistema
+├── storico.yaml      settimane passate e tarature         <- lo scrive il sistema
+└── versione.yaml     a che versione sta questa cartella   <- lo scrive il sistema
 settimane/                        i menu generati
 ├── 2026-W34-commando.md          il menu e la spesa
 ├── 2026-W34-commando.html        da stampare, o da spuntare al supermercato

@@ -15,6 +15,17 @@ description: >-
 Scrive il livello **dichiarato**: vale finche' l'utente non lo cambia, e il
 sistema non lo tocca mai da solo. Contratti in `CLAUDE.md`.
 
+## Prima di tutto: la cartella e' allineata?
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
+```
+
+Se risponde `migrazione necessaria`, passa da `lunario:aggiorna` e **poi torna
+qui**: allineare la cartella e' il presupposto, non il lavoro che l'utente ha
+chiesto. Se risponde `ok`, non dire niente — un controllo di versione che si fa
+notare ogni lunedi' e' rumore.
+
 ## La distinzione che regge tutto
 
 | | dove va |

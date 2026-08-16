@@ -33,6 +33,10 @@ Guarda la cartella di lavoro corrente:
 | `dati/profilo.yaml` | in una casa **gia' configurata** | e' un **aggiornamento**: salta l'intervista e vai alla sezione qui sotto |
 | niente di tutto questo | cartella **nuova** | e' il caso normale: procedi con l'intervista, e alla fine costruisci qui |
 
+Su una cartella nuova `versione.py --controlla` risponde «non e' una cartella
+di casa Lunario», ed e' giusto: qui il timbro non c'e' ancora perche' la casa
+non c'e' ancora. Lo scrivi tu alla fine, al punto 3.
+
 Nel caso normale non chiedere conferma sul percorso: l'utente ha gia' scelto
 dove stare aprendo quella cartella. Chiedere «dove creo i file?» a chi si trova
 gia' nella cartella giusta e' una domanda in piu' che non serve a niente.
@@ -74,40 +78,27 @@ mai avuto la sezione `calendario`: «e' nuova la possibilita' di ritrovare il
 menu in agenda — ti interessa?». Un campo aggiunto in silenzio con un default
 va bene; una funzione che scrive da qualche parte va chiesta.
 
-### Migrazione dal vecchio schema
+### La migrazione non e' affare di questa skill
 
-I profili scritti prima della griglia dei pasti hanno una forma diversa.
-Convertili **tu**, senza far ricompilare niente:
+Le cartelle scritte da versioni precedenti del motore hanno una forma diversa —
+la vecchia grammatica della griglia, la sezione `bambini`, sezioni che allora
+non esistevano. **Non convertirle qui.** Quella logica vive tutta in
+`lunario:aggiorna`, e ci vive per due ragioni: perche' duplicata in otto skill
+divergerebbe, e perche' li' e' **versionata** — sa cosa e' gia' stato fatto,
+invece di ricontrollare le stesse forme a ogni lancio.
 
-| vecchio | nuovo |
-|---|---|
-| `bambini: {presenti, selettivi}` | una voce in `famiglia` per ogni bambino, con `selettivo` suo |
-| persona senza `dieta` | `dieta: true` se ha un `kcal_giorno`, `false` altrimenti |
-| persona senza `pasti` | `pasti` assente = tutto `casa`: chiedi solo di spuntini e merende |
-| `pranzo: fuori_trasportabile` | `pranzo: trasportabile` |
-| `pranzo: fuori_autonomo` | `pranzo: fuori` |
-| nessun `git` | `git: locale` |
-| nessun `intervista` | `completa`: chi ha un profilo vecchio l'intervista l'ha gia' fatta |
-| persona a dieta senza `peso_obiettivo_kg` | chiedilo: senza, non si sa mai quando si e' arrivati |
-| nessun `pesata_settimanale` | `false`. **Chiedilo**, non attivarlo in silenzio: e' una domanda in piu' ogni domenica |
-| `max_pasti_*` come intero nudo | resta com'e' e vale `vincolo`. Proponi la rigidita' una volta, senza insistere: e' la differenza fra un tetto che si supera per smaltire il congelatore e uno che non si supera mai |
-| nessun `tolleranze` | i default conservativi: niente ripetizioni nel giorno, avanzi trasformati per i bambini, nessuna spesa per altri |
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
+```
 
-I nomi dei bambini non li sai: chiedili, e' una domanda sola. Il resto lo
-deduci e lo mostri in tre righe per conferma — «ho riscritto il profilo cosi',
-i bimbi ora hanno un nome e la merenda: torna?».
+Se dice che la cartella e' indietro, passa da `lunario:aggiorna` e torna qui:
+quando riprendi, il profilo che leggi e' gia' nella forma corrente.
 
-**Le settimane gia' scritte** possono avere il vecchio `stato` in testa.
-Convertilo tu, in silenzio, senza commentare: e' vocabolario del motore, non
-roba dell'utente.
-
-| vecchio `stato` | nuovo |
-|---|---|
-| `bozza`, `confermato` | `preventivo` — la spesa non era ancora stata fatta |
-| `in corso` | `consuntivo` — lo scontrino era passato |
-
-Non riscrivere il contenuto di quelle settimane: una vecchia riga della spesa
-resta com'e', e i pasti a cui serve li avranno solo quelle nuove.
+Quello che resta a questa skill sono le cose che `aggiorna` **non puo'**
+decidere da sola, e che ti segnala: i nomi dei bambini, se qualcuno vuole la
+pesata della domenica, quanto sono rigidi i tetti, dove vuole arrivare chi e' a
+dieta. Sono domande, non conversioni — e si fanno una per volta, quando c'e'
+occasione, non tutte in fila appena si apre la cartella.
 
 Due cose vanno **chieste**, perche' cambiano il menu e non si deducono:
 
@@ -428,6 +419,15 @@ Poi, **prima di toccare git**, compila quello che hai raccolto:
 4. Se dall'intervista sono emersi **orari ricorrenti**, scrivili in
    `dati/ritmi.yaml`; se sono emersi **vincoli liberi**, in `dati/note.md`.
    Quello che non e' emerso resta il modello commentato, e va bene cosi'
+5. **Timbra la cartella**, cosi' nasce sapendo a che contratto sta e nessuno
+   dovra' piu' indovinarlo dalla forma dei file:
+
+   ```bash
+   python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --scrivi <contratto corrente>
+   ```
+
+   Il numero del contratto corrente e' `CONTRATTO_CORRENTE` in quello script:
+   non e' una cosa da chiedere all'utente e non si nomina in chat
 
 **Solo adesso** il git locale, se `git: locale` (il default), cosi' il primo
 commit contiene la casa vera e non i template vuoti:

@@ -18,6 +18,17 @@ lista diceva cosa serviva, lo scontrino dice cosa c'e'.
 
 Regole e contratti in `CLAUDE.md`.
 
+## Prima di tutto: la cartella e' allineata?
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
+```
+
+Se risponde `migrazione necessaria`, passa da `lunario:aggiorna` e **poi torna
+qui**: allineare la cartella e' il presupposto, non il lavoro che l'utente ha
+chiesto. Se risponde `ok`, non dire niente — un controllo di versione che si fa
+notare ogni lunedi' e' rumore.
+
 ## 1. Leggi lo scontrino
 
 Il PDF si legge con la skill `read-document` — nessun parser da scrivere. Da

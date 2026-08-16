@@ -19,6 +19,17 @@ Questa e' la porta d'ingresso del sistema. L'utente non deve compilare niente:
 racconta la settimana che ha davanti e riceve un menu. Registro e regole in
 `CLAUDE.md`; qui la procedura.
 
+## Prima di tutto: la cartella e' allineata?
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
+```
+
+Se risponde `migrazione necessaria`, passa da `lunario:aggiorna` e **poi torna
+qui**: allineare la cartella e' il presupposto, non il lavoro che l'utente ha
+chiesto. Se risponde `ok`, non dire niente — un controllo di versione che si fa
+notare ogni lunedi' e' rumore.
+
 ## Prima di aprire bocca
 
 Leggi, in silenzio, senza riepilogare all'utente cio' che gia' sa:

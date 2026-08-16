@@ -155,6 +155,11 @@ def yaml_con_tabulazione(radice):
     accoda(radice, "dati/ritmi.yaml", "\tguasto: 1\n")
 
 
+def timbro_illeggibile(radice):
+    scrivi(radice, "dati/versione.yaml",
+           "contratto: due\nmotore: 3.4.0\nmigrata: 2026-08-16\n")
+
+
 def stato_settimana_inventato(radice):
     cartella = os.path.join(radice, "settimane")
     os.makedirs(cartella, exist_ok=True)
@@ -177,6 +182,7 @@ CORRUZIONI = [
     ("ISO_MALFORMATO", settimana_malformata),
     ("YAML_ILLEGGIBILE", yaml_con_tabulazione),
     ("STATO_SETTIMANA_SCONOSCIUTO", stato_settimana_inventato),
+    ("TIMBRO_MALFORMATO", timbro_illeggibile),
 ]
 
 

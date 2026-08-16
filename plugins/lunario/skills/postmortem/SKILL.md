@@ -19,6 +19,17 @@ description: >-
 E' il pezzo che distingue il sistema da un generatore di menu qualsiasi.
 Scrive il livello **appreso**. Regole di ritaratura in `CLAUDE.md`.
 
+## Prima di tutto: la cartella e' allineata?
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
+```
+
+Se risponde `migrazione necessaria`, passa da `lunario:aggiorna` e **poi torna
+qui**: allineare la cartella e' il presupposto, non il lavoro che l'utente ha
+chiesto. Se risponde `ok`, non dire niente — un controllo di versione che si fa
+notare ogni lunedi' e' rumore.
+
 ## 0. Prima di chiedere, leggi
 
 La domenica si apre su **cio' che e' gia' scritto**, e sono due file che

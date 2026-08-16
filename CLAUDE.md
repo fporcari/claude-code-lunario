@@ -158,6 +158,7 @@ non impara. Ogni skill scrive un livello solo.
 | `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina`, `settimane/<ISO>-<titolo>/diario.yaml` | mentre si cucina |
 | `lunario:correggi` | effimero | il menu (giorni residui) e il diario della settimana | quando cambia qualcosa |
 | `lunario:postmortem` | appreso (tavola, pesate) | `dati/storico.yaml` | domenica |
+| `lunario:aggiorna` | — (allinea i livelli al contratto) | `dati/versione.yaml`, e i file che il salto di contratto tocca | quando il motore e la cartella non combaciano |
 
 L'utente ne invoca quattro: `lunario:settimana` il lunedi', `lunario:spesa`
 quando ritira la spesa, `lunario:prepara` quando cucina e
@@ -187,8 +188,9 @@ cartella di lavoro e non viaggiano con esso.
 ├── .claude-plugin/marketplace.json  # il repo come marketplace
 ├── plugins/lunario/                 # IL MOTORE, condivisibile
 │   ├── .claude-plugin/plugin.json
-│   ├── skills/                      # profilo · ritmi · settimana
-│   │   └── ...                      # menu · correggi · postmortem
+│   ├── skills/                      # profilo · ritmi · settimana · menu
+│   │   └── ...                      # spesa · prepara · correggi
+│   │                                # postmortem · aggiorna
 │   ├── kb/                          # knowledge base condivisa
 │   │   ├── porzioni-standard.md     # porzioni e frequenze CREA 2018
 │   │   ├── deperibilita.md          # ordine dei giorni, durate in frigo
@@ -196,7 +198,8 @@ cartella di lavoro e non viaggiano con esso.
 │   │   ├── consigli-pratici.md      # bimbi selettivi, batch cooking, €/proteine
 │   │   └── piatti.md                # pool piatti taggato per deperibilita'
 │   ├── scripts/
-│   │   └── off_lookup.py            # Open Food Facts -> dati/prodotti.jsonl
+│   │   ├── off_lookup.py            # Open Food Facts -> dati/prodotti.jsonl
+│   │   └── versione.py              # il timbro della cartella, e come si deduce
 │   └── templates/                   # modelli commentati, copiati al setup
 ├── tests/                           # i tre tier, e tre case sintetiche
 │   ├── lint_dati.py                 # tier 1: i contratti, zero token
@@ -286,6 +289,78 @@ condividere, perche' il supermercato e il frigo sono gli stessi.
 
 Il setup riconosce dove viene lanciato: dentro il repo del motore si ferma e
 lo dice, in una cartella gia' configurata aggiorna invece di ricominciare.
+
+## La cartella si aggiorna da sola
+
+Il motore si installa e si aggiorna dal marketplace come qualsiasi plugin;
+`dati/` e `settimane/` restano esattamente come li ha lasciati la versione
+precedente. Finche' nessuna skill sapeva **contro quale contratto** erano stati
+scritti i file che stava leggendo, nessuna poteva adattarli — e ogni modifica
+al contratto era una rottura latente in ogni cartella gia' in uso.
+
+### Il timbro
+
+```yaml
+# dati/versione.yaml — lo scrive il sistema, mai l'utente
+contratto: 3
+motore: 4.0.0        # la versione del plugin che l'ha toccata per ultima
+migrata: 2026-08-16
+```
+
+`contratto` e' il numero che conta, e **si muove solo quando si muove il
+contratto dei dati**, non a ogni release del plugin. `motore` serve a chi apre
+una cartella fra sei mesi e vuole sapere chi l'ha scritta.
+
+Le cartelle nate prima che il timbro esistesse non ce l'hanno: la prima
+migrazione **deduce il contratto dalla forma dei file** — la grammatica della
+griglia in uso, quali sezioni ha `dispensa.yaml`, come si chiamano le settimane
+— e scrive il timbro. Da li' in poi il timbro si legge, e non si indovina piu'.
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
+```
+
+### Il controllo e' automatico, non una skill da ricordarsi
+
+Ogni skill, appena parte, confronta il `contratto` della cartella con quello
+del motore. Se non combaciano, migra **prima** di fare qualsiasi altra cosa, e
+poi prosegue col compito che l'utente ha chiesto davvero. Una skill di
+aggiornamento che bisogna invocare a mano e' una skill che non invoca nessuno.
+
+La logica di migrazione vive tutta in `lunario:aggiorna`, in un posto solo:
+duplicata in nove skill, divergerebbe. I passi sono **dichiarativi e
+idempotenti** — uno per salto di contratto, sicuri da applicare due volte. La
+cartella e' un repo git, quindi ogni migrazione committa, e l'annullamento e'
+`git`, non uno schema di backup.
+
+### Tre tipi di cambiamento, tre comportamenti
+
+E' la parte che impedisce a una migrazione di diventare un'intervista.
+
+| tipo | esempio | comportamento |
+|---|---|---|
+| **additivo** | una sezione nuova e vuota (`scorte`) | si applica **in silenzio**: non c'e' niente da chiedere |
+| **riscrittura** | `fuori_trasportabile` → `trasportabile` | si applica da sola e si **riporta in una riga**; l'annullamento e' `git` |
+| **serve l'utente** | `titoli.serie`, i nomi dei bambini | **non si applica niente**: il campo resta assente, la cartella funziona lo stesso, e la skill giusta lo **propone** al momento buono |
+
+La terza riga porta la regola vera, ed e' un vincolo di progetto su tutto cio'
+che verra' scritto da qui in avanti:
+
+> **Ogni contratto nuovo deve degradare bene quando manca.**
+
+Una cartella che non migra mai deve continuare a funzionare. La migrazione
+**migliora** una cartella; non e' mai il prezzo del biglietto.
+
+### Cosa non si migra
+
+- **Il contenuto di `settimane/`.** Le settimane passate sono un registro, non
+  dati vivi: si leggono come sono. Un vecchio `stato: bozza` o `confermato` si
+  **legge** come `preventivo`, un `in corso` come `consuntivo` — nella testa di
+  chi legge, non nel file
+- **Niente percorso all'indietro.** Una cartella portata avanti e poi aperta da
+  un motore piu' vecchio e' fuori perimetro: il motore vecchio ignora cio' che
+  non conosce, che e' esattamente il comportamento giusto
+- **Nessun backup proprio.** La cartella e' un repo git: quello e' il backup
 
 ## Git, e perche' resta locale
 
@@ -670,6 +745,21 @@ nessuno ha scritto.
 Niente lista `piatti_preferiti` separata: la media di `tavola` la sostituisce
 — sopra 4 e' un preferito, sotto 2 un bocciato. Due meccanismi paralleli si
 disallineano, uno solo no.
+
+### dati/versione.yaml — il timbro
+
+Tre scalari che dicono a che contratto sta questa cartella. Lo scrive il
+sistema, mai l'utente; forma, deduzione dalla forma dei file e regole di
+migrazione stanno in **«La cartella si aggiorna da sola»**, qui sopra.
+
+```yaml
+contratto: 2
+motore: 3.4.0
+migrata: 2026-08-16
+```
+
+Una cartella senza timbro non e' rotta: e' solo nata prima che il timbro
+esistesse, e la prima skill che ci passa lo scrive.
 
 ## Come si parla con l'utente
 

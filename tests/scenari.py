@@ -94,6 +94,33 @@ def esclusione_in_forma_nascosta(casa):
         f.write(testo)
 
 
+def cartella_al_contratto_vecchio(casa):
+    """Riporta la cartella alla grammatica di prima della griglia dei pasti.
+
+    Nessuno lo proverebbe a mano, ed e' esattamente il punto in cui una
+    migrazione si rompe: contratto vecchio, migrazione, e poi un menu.
+    """
+    percorso = os.path.join(casa, "dati", "profilo.yaml")
+    with open(percorso, encoding="utf-8") as f:
+        testo = f.read()
+    testo = testo.replace("pranzo: trasportabile", "pranzo: fuori_trasportabile")
+    testo = testo.replace("pranzo: fuori\n", "pranzo: fuori_autonomo\n")
+    testo = re.sub(r"^intervista:.*$", "", testo, count=1, flags=re.MULTILINE)
+    testo = re.sub(r"^git:.*$", "", testo, count=1, flags=re.MULTILINE)
+    with open(percorso, "w", encoding="utf-8") as f:
+        f.write(testo)
+
+    ritmi = os.path.join(casa, "dati", "ritmi.yaml")
+    with open(ritmi, encoding="utf-8") as f:
+        testo = f.read()
+    with open(ritmi, "w", encoding="utf-8") as f:
+        f.write(testo.replace("pranzo: trasportabile", "pranzo: fuori_trasportabile"))
+
+    timbro = os.path.join(casa, "dati", "versione.yaml")
+    if os.path.isfile(timbro):
+        os.remove(timbro)
+
+
 def senza_git(casa):
     percorso = os.path.join(casa, "dati", "profilo.yaml")
     with open(percorso, encoding="utf-8") as f:
@@ -198,6 +225,28 @@ def c_esclusione_nascosta_rispettata(casa):
     return Esito("l'esclusione vale anche nascosta", OK)
 
 
+def c_cartella_migrata(casa):
+    """Dopo il giro la cartella e' timbrata e la grammatica vecchia e' sparita."""
+    script = os.path.join(os.path.dirname(QUI), "plugins", "lunario", "scripts", "versione.py")
+    uscita = subprocess.run([sys.executable, script, "--casa", casa, "--controlla"],
+                            capture_output=True, text=True)
+    if uscita.returncode != 0:
+        return Esito("la cartella e' stata migrata", FALLITA,
+                     f"versione.py dice ancora: {uscita.stdout.strip()}",
+                     "ogni skill migra prima di fare il lavoro che le e' stato chiesto")
+    residui = []
+    for nome in ("profilo.yaml", "ritmi.yaml"):
+        percorso = os.path.join(casa, "dati", nome)
+        if os.path.isfile(percorso):
+            with open(percorso, encoding="utf-8") as f:
+                if re.search(r"fuori_(trasportabile|autonomo)", f.read()):
+                    residui.append(nome)
+    if residui:
+        return Esito("la cartella e' stata migrata", FALLITA,
+                     f"vecchia grammatica ancora in: {residui}")
+    return Esito("la cartella e' stata migrata", OK, uscita.stdout.strip())
+
+
 def c_nessun_commit(casa):
     messaggi = Casa(casa).commit()
     if messaggi is None:
@@ -245,6 +294,9 @@ SCENARI = [
     Scenario("esclusione-nascosta", "famiglia", ["settimana"], esclusione_in_forma_nascosta,
              [c_esclusione_nascosta_rispettata],
              "un'esclusione che si nasconde dentro altri ingredienti"),
+    Scenario("cartella-vecchia", "famiglia", ["settimana"], cartella_al_contratto_vecchio,
+             [c_cartella_migrata, c_menu_esce_lo_stesso],
+             "una cartella al contratto precedente: si migra, poi si genera"),
     Scenario("senza-git", "coppia-dispensa-profonda", ["settimana"], senza_git,
              [c_nessun_commit, c_ha_scritto_lo_stesso],
              "una casa che il versionamento non lo vuole"),

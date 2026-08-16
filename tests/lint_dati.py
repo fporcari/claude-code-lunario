@@ -122,6 +122,7 @@ class Lint:
         if not os.path.isdir(self.dati):
             self.segnala("FILE_MANCANTE", ERRORE, self.dati, "nessuna cartella dati/")
             return self.violazioni
+        self.controlla_versione()
         self.controlla_prodotti()
         self.controlla_profilo()
         self.controlla_ritmi()
@@ -129,6 +130,27 @@ class Lint:
         self.controlla_storico()
         self.controlla_settimane()
         return self.violazioni
+
+    # -------------------------------------------------------------- versione.yaml
+
+    def controlla_versione(self):
+        """Il timbro. Assente non e' un errore: le cartelle nate prima non ce
+        l'hanno, e la prima skill che ci passa lo scrive."""
+        percorso = os.path.join(self.dati, "versione.yaml")
+        if not os.path.isfile(percorso):
+            self.segnala("TIMBRO_ASSENTE", AVVISO, percorso,
+                         "nessun timbro: il contratto verra' dedotto dalla forma dei file")
+            return
+        timbro = self._leggi_yaml("versione.yaml", obbligatorio=False)
+        if timbro is None:
+            return
+        contratto = timbro.get("contratto")
+        if not isinstance(contratto, int) or contratto < 1:
+            self.segnala("TIMBRO_MALFORMATO", ERRORE, percorso, f"`contratto` = {contratto!r}")
+        if not timbro.get("motore"):
+            self.segnala("TIMBRO_MALFORMATO", ERRORE, percorso, "manca `motore`")
+        if not DATA.match(str(timbro.get("migrata", ""))):
+            self.segnala("DATA_MALFORMATA", ERRORE, percorso, f"`migrata` = {timbro.get('migrata')!r}")
 
     # -------------------------------------------------------------- prodotti.jsonl
 

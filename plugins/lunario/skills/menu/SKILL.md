@@ -14,6 +14,17 @@ description: >-
 Motore vero e proprio. Non fa domande: consuma il contesto che le altre skill
 hanno raccolto. Contratti e regole non negoziabili in `CLAUDE.md`.
 
+## Prima di tutto: la cartella e' allineata?
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
+```
+
+Se risponde `migrazione necessaria`, passa da `lunario:aggiorna` e **poi torna
+qui**: allineare la cartella e' il presupposto, non il lavoro che l'utente ha
+chiesto. Se risponde `ok`, non dire niente — un controllo di versione che si fa
+notare ogni lunedi' e' rumore.
+
 ## Input
 
 `dati/profilo.yaml` · `dati/ritmi.yaml` · `dati/note.md` ·

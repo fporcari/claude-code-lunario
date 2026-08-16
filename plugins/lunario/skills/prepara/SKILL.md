@@ -19,6 +19,17 @@ description: >-
 L'unica skill che si usa **in piedi, con le mani sporche**. Ne discende tutto
 il resto: risposte corte, un passo per volta, niente preamboli.
 
+## Prima di tutto: la cartella e' allineata?
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
+```
+
+Se risponde `migrazione necessaria`, passa da `lunario:aggiorna` e **poi torna
+qui**: allineare la cartella e' il presupposto, non il lavoro che l'utente ha
+chiesto. Se risponde `ok`, non dire niente — un controllo di versione che si fa
+notare ogni lunedi' e' rumore.
+
 ## 0. Anteprima: la stessa cosa, senza cucinare
 
 «Fammi vedere il giovedi'», «cosa vuol dire questo piatto», «quanto ci vuole

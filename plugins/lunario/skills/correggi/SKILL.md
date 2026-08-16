@@ -29,6 +29,23 @@ un piatto per cui non e' stata comprata roba, o rifare la spesa per niente.
 Questa skill **non promuove niente**: il passaggio a `consuntivo` lo fa
 `lunario:spesa` con lo scontrino in mano. Regole complete in `CLAUDE.md`.
 
+Le settimane scritte da versioni vecchie del motore portano un altro
+vocabolario, e **si legge, non si riscrive**: `bozza` e `confermato` valgono
+`preventivo`, `in corso` vale `consuntivo`. Una settimana passata e' un
+registro, e un registro non si corregge per farlo somigliare al vocabolario di
+oggi.
+
+## Prima di tutto: la cartella e' allineata?
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/versione.py --controlla
+```
+
+Se risponde `migrazione necessaria`, passa da `lunario:aggiorna` e **poi torna
+qui**: allineare la cartella e' il presupposto, non il lavoro che l'utente ha
+chiesto. Se risponde `ok`, non dire niente — un controllo di versione che si fa
+notare ogni lunedi' e' rumore.
+
 ## Se la spesa non e' ancora fatta
 
 E' il caso piu' frequente e il piu' semplice: si sta ancora decidendo, spesso

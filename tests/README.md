@@ -43,6 +43,18 @@ python3 tests/scenari.py --scenario dispensa-vuota
 python3 tests/scenari.py --scenario tutti
 ```
 
+Gli scenari sono le settimane storte: dispensa vuota alla prima settimana, una
+settimana senza nemmeno una cena a casa, uno scontrino a cui manca meta' della
+lista, un ingrediente che nessun database conosce, un'esclusione nascosta
+dentro altri ingredienti, una casa con `git: no`. Piu' uno che nessuno
+proverebbe a mano ed e' esattamente dove una migrazione si rompe:
+**`cartella-vecchia`**, una cartella al contratto precedente che va migrata e
+poi deve generare un menu.
+
+In alcuni di questi il comportamento giusto e' **rifiutare e dirlo**: una riga
+marcata `[formato da verificare]` e' un successo. Quello che non deve mai
+succedere e' che il buco venga riempito con un numero verosimile.
+
 ```bash
 python3 tests/giudizio.py /tmp/lunario-test/famiglia/settimane/2026-W34-*.md
 ```
