@@ -125,6 +125,23 @@ class Lint:
     def segnala(self, codice, livello, percorso, messaggio):
         self.violazioni.append(Violazione(codice, livello, self._relativo(percorso), messaggio))
 
+    def _mappa(self, valore, percorso, dove):
+        """Il valore se e' una mappa; `{}` con una violazione se non lo e'.
+
+        Un file di dati lo scrive un modello, e un modello prima o poi scrive
+        una stringa dove il contratto vuole una mappa. Fidarsi della forma e
+        chiamarci `.items()` sopra fa **crashare il lint** — e un lint che
+        crasha porta giu' con se' la skill che l'ha chiamato per sapere se
+        poteva partire, cioe' non protegge dal caso per cui esiste.
+        """
+        if valore is None:
+            return {}
+        if not isinstance(valore, dict):
+            self.segnala("YAML_ILLEGGIBILE", ERRORE, percorso,
+                         f"{dove}: atteso un blocco di voci, trovato {valore!r}")
+            return {}
+        return valore
+
     def _leggi_yaml(self, nome, obbligatorio):
         percorso = os.path.join(self.dati, nome)
         if not os.path.isfile(percorso):
@@ -307,7 +324,7 @@ class Lint:
         if git is not None and git not in ("locale", "no"):
             self.segnala("GIT_SCONOSCIUTO", ERRORE, percorso, f"`git` = {git!r}")
 
-        for chiave, tetto in (profilo.get("preferenze") or {}).items():
+        for chiave, tetto in self._mappa(profilo.get("preferenze"), percorso, "preferenze").items():
             if not chiave.startswith("max_"):
                 continue
             if isinstance(tetto, int):
@@ -318,13 +335,13 @@ class Lint:
             self.segnala("TETTO_MALFORMATO", ERRORE, percorso,
                          f"`{chiave}` = {tetto!r}: serve un intero o {{valore, rigidita}}")
 
-        tolleranze = profilo.get("tolleranze") or {}
-        for chi, valore in (tolleranze.get("avanzi") or {}).items():
+        tolleranze = self._mappa(profilo.get("tolleranze"), percorso, "tolleranze")
+        for chi, valore in self._mappa(tolleranze.get("avanzi"), percorso, "tolleranze.avanzi").items():
             if valore not in ("come_sono", "trasformati", "mai"):
                 self.segnala("TOLLERANZA_AVANZI_SCONOSCIUTA", ERRORE, percorso,
                              f"`tolleranze.avanzi.{chi}` = {valore!r}")
 
-        calendario = profilo.get("calendario") or {}
+        calendario = self._mappa(profilo.get("calendario"), percorso, "calendario")
         if calendario.get("scrivi") is True and not calendario.get("id"):
             self.segnala("CALENDARIO_SENZA_ID", AVVISO, percorso,
                          "`calendario.scrivi: true` ma nessun `id`: la skill dovra' chiederlo")
@@ -362,7 +379,7 @@ class Lint:
             self.segnala("KCAL_SU_CHI_NON_E_A_DIETA", ERRORE, percorso,
                          f"{nome}: `dieta: false` ma `kcal_giorno` = {kcal!r}")
 
-        for pasto, stato in (persona.get("pasti") or {}).items():
+        for pasto, stato in self._mappa(persona.get("pasti"), percorso, f"{nome}.pasti").items():
             self._controlla_cella(pasto, stato, percorso, f"{nome}")
 
     def _controlla_cella(self, pasto, stato, percorso, dove):
@@ -393,6 +410,15 @@ class Lint:
         self._controlla_griglia(ritmi.get("settimana") or {}, percorso)
 
     def _controlla_griglia(self, settimana, percorso):
+        # `settimana:` deve essere la griglia, cioe' una mappa di giorni. Se
+        # porta altro — un ISO, una data, una frase — non e' un dettaglio da
+        # tollerare: il lint crashava, e un lint che crasha su un file di dati
+        # e' peggio di nessun lint, perche' porta giu' con se' la skill che lo
+        # ha chiamato per sapere se poteva partire.
+        if not isinstance(settimana, dict):
+            self.segnala("GRIGLIA_MALFORMATA", ERRORE, percorso,
+                         f"`settimana` non e' la griglia dei giorni: {settimana!r}")
+            return
         for giorno, persone in settimana.items():
             if giorno not in GIORNI:
                 self.segnala("GIORNO_SCONOSCIUTO", ERRORE, percorso, f"giorno `{giorno}`")

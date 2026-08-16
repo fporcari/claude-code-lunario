@@ -151,6 +151,46 @@ class LaRiparazione(unittest.TestCase):
             self.assertFalse(guasto.riparabile)
 
 
+class IlLintNonDeveMaiCrashare(unittest.TestCase):
+    """Un lint che crasha porta giu' la skill che l'ha chiamato.
+
+    Trovato su una cartella vera: `settimana:` nel contesto portava un ISO
+    invece della griglia dei giorni, e il lint ci chiamava `.items()` sopra.
+    Il file era stato scritto dal sistema stesso, quindi non e' un caso
+    patologico da laboratorio — e il crash arrivava **prima** di qualsiasi
+    violazione, cioe' proprio dove il controllo doveva proteggere.
+    """
+
+    FUORI_FORMA = (
+        ("dati/ritmi.yaml", "settimana: 2026-W34\n"),
+        ("dati/profilo.yaml", PROFILO + "preferenze: nessuna\n"),
+        ("dati/profilo.yaml", PROFILO + "tolleranze: come viene\n"),
+        ("dati/profilo.yaml", PROFILO + "calendario: quello di lavoro\n"),
+    )
+
+    def test_un_blocco_che_non_e_un_blocco_si_segnala_e_non_esplode(self):
+        for relativo, contenuto in self.FUORI_FORMA:
+            with self.subTest(file=relativo, contenuto=contenuto.splitlines()[-1]), \
+                    tempfile.TemporaryDirectory() as tmp:
+                casa(tmp, contratto=motore_versione.CONTRATTO_CORRENTE)
+                with open(os.path.join(tmp, relativo), "w", encoding="utf-8") as f:
+                    f.write(contenuto)
+                guasti = Tagliando(tmp, oggi=DOMENICA).esegui()   # non deve sollevare
+                self.assertTrue(
+                    any(g.codice.startswith("DATI_") for g in guasti),
+                    "una forma sbagliata deve produrre una violazione, non il silenzio")
+
+    def test_una_griglia_che_porta_un_iso_si_segnala(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            casa(tmp, contratto=motore_versione.CONTRATTO_CORRENTE)
+            cartella = os.path.join(tmp, "settimane", "2026-W34-commando")
+            os.makedirs(cartella, exist_ok=True)
+            with open(os.path.join(cartella, "contesto.yaml"), "w", encoding="utf-8") as f:
+                f.write("settimana: 2026-W34\ndal: 2026-08-16\n")
+            guasti = Tagliando(tmp, oggi=DOMENICA).esegui()
+            self.assertIn("DATI_GRIGLIA_MALFORMATA", codici(guasti))
+
+
 class IlGateNonDeveFarRumore(unittest.TestCase):
     def test_una_casa_sana_non_produce_niente(self):
         with tempfile.TemporaryDirectory() as tmp:
