@@ -135,6 +135,45 @@ def senza_git(casa):
 
 # ---------------------------------------------------------------- controlli
 
+def _nomi_settimane(cartella):
+    """I nomi delle settimane in una cartella `settimane/`, in tutti e due i
+    layout: la cartella nuova e il markdown accanto di prima."""
+    settimane = os.path.join(cartella, "settimane")
+    if not os.path.isdir(settimane):
+        return set()
+    return {re.sub(r"\.(md|html)$", "", n) for n in os.listdir(settimane)
+            if not n.startswith(".")}
+
+
+def settimana_nuova(casa):
+    """La settimana **generata da questa corsa**, e non l'ultima che c'e'.
+
+    E' la differenza che rende onesti i controlli qui sotto. Un fixture arriva
+    con le sue settimane gia' scritte: chiedere «esiste un markdown di
+    settimana?» risponde di si' anche a una corsa che non ha fatto niente —
+    per esempio quando `claude -p` non riesce ad autenticarsi. Un verde su una
+    corsa mai avvenuta e' peggio di un rosso.
+
+    Il confronto e' col **fixture d'origine**, che nessuno tocca: la copia di
+    lavoro porta il suo stesso nome, quindi la fotografia di partenza si
+    ritrova senza doverla passare in giro.
+    """
+    prima = _nomi_settimane(os.path.join(FIXTURES, os.path.basename(casa)))
+    nuove = sorted(_nomi_settimane(casa) - prima)
+    if not nuove:
+        return None
+    return asserzioni.settimana_del_motore.risolvi(casa, nuove[-1][:8])
+
+
+def testo_nuovo(casa):
+    """Il documento vivo della settimana generata adesso. `None` se non c'e'."""
+    esito = settimana_nuova(casa)
+    if not esito or not esito.get("vivo"):
+        return None
+    with open(esito["vivo"], encoding="utf-8") as f:
+        return f.read()
+
+
 def trascrizione(casa, fase):
     cartella = os.path.join(os.path.dirname(casa), "trascrizioni")
     for nome in os.listdir(cartella) if os.path.isdir(cartella) else []:
@@ -148,14 +187,18 @@ def trascrizione(casa, fase):
 
 
 def c_menu_esce_lo_stesso(casa):
-    if Casa(casa).markdown_settimana():
-        return Esito("il menu esce anche a dispensa vuota", OK)
+    esito = settimana_nuova(casa)
+    if esito and esito.get("vivo"):
+        return Esito("il menu esce anche a dispensa vuota", OK, esito["nome"])
     return Esito("il menu esce anche a dispensa vuota", FALLITA,
-                 "nessun markdown di settimana: la prima settimana di una casa nuova e' questa")
+                 "nessuna settimana nuova: la corsa non ne ha generata una",
+                 "la prima settimana di una casa nuova e' questa")
 
 
 def c_nessuna_scorta_inventata(casa):
-    testo = Casa(casa).testo_settimana() or ""
+    testo = testo_nuovo(casa)
+    if testo is None:
+        return Esito("niente scorte inventate", NON_VERIFICABILE, "nessuna settimana nuova")
     if re.search(r"^#+\s*.*gi[aà]'? in casa", testo, re.MULTILINE | re.IGNORECASE):
         return Esito("niente scorte inventate", FALLITA,
                      "la dispensa era vuota ma il menu ha una sezione «Gia' in casa»",
@@ -164,9 +207,9 @@ def c_nessuna_scorta_inventata(casa):
 
 
 def c_nessuna_cena_cucinata(casa):
-    testo = (Casa(casa).testo_settimana() or "").lower()
+    testo = (testo_nuovo(casa) or "").lower()
     if not testo:
-        return Esito("nessuna cena cucinata", NON_VERIFICABILE, "nessun markdown")
+        return Esito("nessuna cena cucinata", NON_VERIFICABILE, "nessuna settimana nuova")
     cene = re.findall(r"^.*\bcena\b.*$", testo, re.MULTILINE)
     if not cene:
         return Esito("nessuna cena cucinata", FALLITA, "il menu non nomina nemmeno le cene",
@@ -206,7 +249,7 @@ def c_niente_formati_inventati(casa):
     if sospetti:
         return Esito("nessun formato inventato", FALLITA, f"prodotti: {sorted(set(sospetti))[:4]}",
                      "ogni formato porta fonte e data, o la riga resta in grammi marcata")
-    testo = (Casa(casa).testo_settimana() or "").lower()
+    testo = (testo_nuovo(casa) or "").lower()
     if "quinoncia" in testo and "da verificare" not in testo:
         # non e' di per se' un errore: puo' aver chiesto all'utente. Ma senza
         # nessuno che risponda, headless, il marcatore e' l'unica uscita onesta.
@@ -216,9 +259,10 @@ def c_niente_formati_inventati(casa):
 
 
 def c_esclusione_nascosta_rispettata(casa):
-    testo = (Casa(casa).testo_settimana() or "").lower()
+    testo = (testo_nuovo(casa) or "").lower()
     if not testo:
-        return Esito("l'esclusione vale anche nascosta", NON_VERIFICABILE, "nessun markdown")
+        return Esito("l'esclusione vale anche nascosta", NON_VERIFICABILE,
+                     "nessuna settimana nuova")
     forme = ["pomodoro", "pomodorini", "passata", "pelati", "concentrato di pomodoro",
              "sugo", "ketchup", "pizzaiola", "arrabbiata", "napoletana"]
     trovate = [f for f in forme if re.search(rf"\b{re.escape(f)}", testo)]
@@ -263,15 +307,15 @@ def c_la_settimana_vecchia_resta_dov_era(casa):
         return Esito("la settimana vecchia resta dov'era", FALLITA,
                      "il markdown accanto alla cartella e' stato spostato o rinominato",
                      "le settimane passate sono un registro: non si migrano")
-    nuove = [n for n in os.listdir(settimane)
-             if os.path.isdir(os.path.join(settimane, n))
-             and any(r in v for v in os.listdir(os.path.join(settimane, n))
-                     for r in ("-preventivo.md", "-lista.md"))]
-    if not nuove:
+    nuova = settimana_nuova(casa)
+    if not nuova:
+        return Esito("la settimana vecchia resta dov'era", NON_VERIFICABILE,
+                     "la corsa non ha generato nessuna settimana")
+    if nuova["layout"] != "cartella":
         return Esito("la settimana vecchia resta dov'era", FALLITA,
-                     "nessuna settimana nuova coi documenti dentro la cartella",
-                     "dal contratto 4 il menu scrive li'")
-    return Esito("la settimana vecchia resta dov'era", OK, f"nuove: {sorted(nuove)}")
+                     f"{nuova['nome']} e' nata col markdown accanto alla cartella",
+                     "dal contratto 4 il menu scrive dentro la cartella")
+    return Esito("la settimana vecchia resta dov'era", OK, nuova["nome"])
 
 
 def c_nessun_commit(casa):
@@ -286,7 +330,7 @@ def c_nessun_commit(casa):
 
 
 def c_ha_scritto_lo_stesso(casa):
-    if Casa(casa).markdown_settimana():
+    if settimana_nuova(casa):
         return Esito("senza git il motore lavora uguale", OK)
     return Esito("senza git il motore lavora uguale", FALLITA, "nessun menu generato")
 
