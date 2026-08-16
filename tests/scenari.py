@@ -382,7 +382,8 @@ def main(argomenti=None):
     parser = argparse.ArgumentParser(description="Scenari avversi sopra il runner del tier 2")
     parser.add_argument("--scenario", default="tutti", help="nome dello scenario, o `tutti`")
     parser.add_argument("--lavoro", default=None)
-    parser.add_argument("--modello", default=None)
+    parser.add_argument("--modello", default=loop_runner.MODELLO_PREDEFINITO,
+                        help=f"default: {loop_runner.MODELLO_PREDEFINITO}")
     parser.add_argument("--budget", type=float, default=None)
     parser.add_argument("--timeout", type=int, default=900)
     parser.add_argument("--dry-run", action="store_true")

@@ -65,6 +65,14 @@ Il runner carica il motore da questo repo con `--plugin-dir`: **non serve
 avere il plugin installato**, e si testa il codice che si ha davanti, non
 quello dell'ultima release.
 
+**I tier 2 e 3 girano su Sonnet**, ed e' il default (`MODELLO_PREDEFINITO` in
+`loop_runner.py`). Qui si verificano proprieta' — che il pavimento calorico
+tenga, che una scorta non venga ricomprata, che i file finiscano dove le skill
+li cercheranno — e per quelle il modello grosso non aggiunge niente. Una suite
+che costa quanto una release non la lancia nessuno, e una suite che non si
+lancia e' peggio di nessuna suite. Con `--modello` si passa altro quando serve
+davvero.
+
 Un modo di fallire che non e' un bug del motore e conviene riconoscere subito:
 
 ```
