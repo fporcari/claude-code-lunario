@@ -52,6 +52,11 @@ al supermercato, le spunte restano dov'erano anche se ricarichi la pagina.
 Restano in quel browser e basta — al ritorno, quello che è entrato in casa lo
 dice lo scontrino.
 
+Se qualcosa non c'era, `lunario:spesa` te lo dice e sceglie tu: **cambiamo il
+piatto** con quello che avete in casa, oppure **te lo procuri tu** prima del
+giorno in cui serve. Nel secondo caso il sistema se lo segna e te lo ricorda
+quel giorno, mentre cucini — una volta sola, senza insistere.
+
 ## La griglia dei pasti
 
 Il giorno non e' «pranzo e cena»: e' una griglia **pasto × persona**, e ogni

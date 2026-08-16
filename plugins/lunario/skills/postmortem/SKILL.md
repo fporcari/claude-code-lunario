@@ -119,6 +119,13 @@ Il senso di tenerle separate e' che rispondono a due domande diverse: quanto
 costa la spesa, e quanto costa mangiare. La seconda non la sa nessun altro
 campo del sistema.
 
+Sulla prima, i `sospesi` del diario evitano di chiedere alla cieca: quelli con
+`stato: procurato` **sono** la spesa integrativa della settimana — chiedi solo
+il prezzo, se lo sa. Quelli rimasti `da_procurare` a settimana finita valgono
+una domanda sola, secca, che li chiude in un verso o nell'altro: «il branzino
+alla fine l'hai preso?». Un sospeso mai chiuso non si trascina alla settimana
+dopo — il diario finisce con la settimana.
+
 **5. La pesata**, e solo per chi nel profilo ha `dieta: true` **e**
 `pesata_settimanale: true`. Se il profilo e' `intervista: minima` e nessuno a
 dieta ha ancora quel campo, questa e' la domenica in cui proporla, una volta:
@@ -234,7 +241,7 @@ tre settimane e' un dato del paniere, non della settimana.
 | osservazione sullo scarto | conseguenza |
 |---|---|
 | lo stesso formato arriva sempre diverso da quello atteso | correggi `formato_g` in `prodotti.jsonl`: il paniere ha il dato sbagliato, non il negozio |
-| lo stesso prodotto manca 3 volte | proponi di sostituirlo stabilmente nel paniere: non lo tengono |
+| lo stesso prodotto manca 3 volte — sostituito al ritiro o rimasto `sospeso`, e' la stessa mancanza | proponi di sostituirlo stabilmente nel paniere: non lo tengono |
 | il consuntivo supera il preventivo di piu' del 10% per 3 settimane | i prezzi del paniere sono vecchi, e il budget lo e' di conseguenza. Dillo una volta, come dato |
 
 ## Chiusura

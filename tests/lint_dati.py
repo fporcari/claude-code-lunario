@@ -39,6 +39,11 @@ FONTI_NUTRIENTI = {"crea", "etichetta", "openfoodfacts"}
 STATI_SETTIMANA = {"preventivo", "consuntivo"}
 BANDE = {"pieno", "medio", "poco", "finito"}
 ROTAZIONI = {"alta", "media", "bassa"}
+# Il diario: lo `stato` di un pasto si scrive solo quando qualcosa e' andato
+# storto, e un sospeso nasce `da_procurare`. Assente vale «tutto come previsto»
+# nel primo caso e `da_procurare` nel secondo.
+STATI_PASTO_DIARIO = {"disattesa", "saltata"}
+STATI_SOSPESO = {"da_procurare", "procurato", "rinunciato"}
 
 # Deperibilita': la fascia [fine] di kb/deperibilita.md e' l'unica ammessa in
 # `avanzi`. Il reparto e' il segnale strutturato che abbiamo; dove non basta si
@@ -568,14 +573,112 @@ class Lint:
             if voce.endswith(".md"):
                 self._controlla_markdown_settimana(percorso)
             elif os.path.isdir(percorso):
-                contesto = os.path.join(percorso, "contesto.yaml")
-                if os.path.isfile(contesto):
-                    try:
-                        dati = carica_file(contesto) or {}
-                    except ErroreYaml as e:
-                        self.segnala("YAML_ILLEGGIBILE", ERRORE, contesto, str(e))
-                        continue
-                    self._controlla_griglia(dati.get("settimana") or {}, contesto)
+                self._controlla_cartella_settimana(percorso)
+
+    def _controlla_cartella_settimana(self, cartella):
+        contesto = os.path.join(cartella, "contesto.yaml")
+        if os.path.isfile(contesto):
+            try:
+                dati = carica_file(contesto) or {}
+            except ErroreYaml as e:
+                self.segnala("YAML_ILLEGGIBILE", ERRORE, contesto, str(e))
+            else:
+                self._controlla_griglia(dati.get("settimana") or {}, contesto)
+        diario = os.path.join(cartella, "diario.yaml")
+        if os.path.isfile(diario):
+            self._controlla_diario(diario)
+
+    def _controlla_diario(self, percorso):
+        """Il diario e' una mappa per data, piu' l'unica chiave che data non e':
+        `sospesi`. Un diario mezzo vuoto e' normale e non si segnala — quello che
+        si segnala e' una voce che nessuna skill riuscirebbe a rileggere."""
+        try:
+            dati = carica_file(percorso) or {}
+        except ErroreYaml as e:
+            self.segnala("YAML_ILLEGGIBILE", ERRORE, percorso, str(e))
+            return
+        if not isinstance(dati, dict):
+            self.segnala("DIARIO_MALFORMATO", ERRORE, percorso, "la radice non e' una mappa")
+            return
+        for chiave, valore in dati.items():
+            if chiave == "sospesi":
+                self._controlla_sospesi(valore, percorso)
+                continue
+            if not DATA.match(str(chiave)):
+                self.segnala("DATA_MALFORMATA", ERRORE, percorso,
+                             f"`{chiave}`: le voci del diario sono date, o `sospesi`")
+                continue
+            if not isinstance(valore, dict):
+                self.segnala("DIARIO_MALFORMATO", ERRORE, percorso,
+                             f"{chiave}: non e' una mappa di pasti")
+                continue
+            for pasto, registrazione in valore.items():
+                self._controlla_voce_diario(chiave, pasto, registrazione, percorso)
+
+    def _controlla_voce_diario(self, giorno, pasto, voce, percorso):
+        dove = f"{giorno}/{pasto}"
+        if pasto not in PASTI:
+            self.segnala("PASTO_SCONOSCIUTO", ERRORE, percorso,
+                         f"{dove}: `{pasto}` fuori da {sorted(PASTI)}")
+            return
+        if not isinstance(voce, dict):
+            self.segnala("DIARIO_MALFORMATO", ERRORE, percorso, f"{dove}: non e' una mappa")
+            return
+        stato = voce.get("stato")
+        if stato is not None and stato not in STATI_PASTO_DIARIO:
+            self.segnala("STATO_PASTO_SCONOSCIUTO", ERRORE, percorso,
+                         f"{dove}: `{stato}` fuori da {sorted(STATI_PASTO_DIARIO)}")
+        chi = voce.get("chi")
+        if chi is None:
+            return
+        if not isinstance(chi, list):
+            self.segnala("DIARIO_MALFORMATO", ERRORE, percorso, f"{dove}: `chi` non e' una lista")
+            return
+        for persona in chi:
+            if self.persone and persona not in self.persone:
+                self.segnala("PERSONA_SCONOSCIUTA", ERRORE, percorso,
+                             f"{dove}: `{persona}` non e' in profilo.yaml")
+
+    def _controlla_sospesi(self, sospesi, percorso):
+        """Cio' che al ritiro non c'era e l'utente si e' impegnato a prendere.
+        Senza `serve` non e' un sospeso: e' un promemoria che nessuno sa quando
+        tirare fuori, ed e' esattamente il buco che questa lista chiude."""
+        if not isinstance(sospesi, list):
+            self.segnala("SOSPESO_MALFORMATO", ERRORE, percorso, "`sospesi` non e' una lista")
+            return
+        for voce in sospesi:
+            if not isinstance(voce, dict):
+                self.segnala("SOSPESO_MALFORMATO", ERRORE, percorso, f"voce di sospesi: {voce!r}")
+                continue
+            cosa = voce.get("cosa")
+            if not cosa:
+                self.segnala("CAMPO_OBBLIGATORIO_MANCANTE", ERRORE, percorso, "sospeso senza `cosa`")
+                continue
+            prodotto = voce.get("prodotto")
+            if prodotto and self.paniere and prodotto not in self.paniere:
+                self.segnala("SOSPESO_SENZA_PRODOTTO", ERRORE, percorso,
+                             f"{cosa}: `{prodotto}` non e' in prodotti.jsonl")
+            stato = voce.get("stato")
+            if stato is not None and stato not in STATI_SOSPESO:
+                self.segnala("STATO_SOSPESO_SCONOSCIUTO", ERRORE, percorso,
+                             f"{cosa}: `{stato}` fuori da {sorted(STATI_SOSPESO)}")
+            self._controlla_usi_sospeso(cosa, voce.get("serve"), percorso)
+
+    def _controlla_usi_sospeso(self, cosa, serve, percorso):
+        if not isinstance(serve, list) or not serve:
+            self.segnala("SOSPESO_SENZA_USO", ERRORE, percorso,
+                         f"{cosa}: `serve` manca o e' vuota, e senza non si sa quando nominarlo")
+            return
+        for uso in serve:
+            if not isinstance(uso, dict):
+                self.segnala("SOSPESO_MALFORMATO", ERRORE, percorso, f"{cosa}: uso {uso!r}")
+                continue
+            if not DATA.match(str(uso.get("giorno", ""))):
+                self.segnala("DATA_MALFORMATA", ERRORE, percorso,
+                             f"{cosa}: `giorno` = {uso.get('giorno')!r}")
+            if uso.get("pasto") not in PASTI:
+                self.segnala("PASTO_SCONOSCIUTO", ERRORE, percorso,
+                             f"{cosa}: `pasto` = {uso.get('pasto')!r}")
 
     def _controlla_markdown_settimana(self, percorso):
         with open(percorso, encoding="utf-8") as f:

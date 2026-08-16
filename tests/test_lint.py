@@ -167,6 +167,62 @@ def stato_settimana_inventato(radice):
         f.write("---\nstato: bozza\ntitolo: Guasta\n---\n\n## Lunedi'\n")
 
 
+def scrivi_diario(radice, nome, contenuto):
+    """Una cartella di settimana col solo diario: basta al lint, e non tocca i
+    consuntivi dei fixture, che raccontano gia' una loro storia coerente."""
+    cartella = os.path.join(radice, "settimane", nome)
+    os.makedirs(cartella, exist_ok=True)
+    with open(os.path.join(cartella, "diario.yaml"), "w", encoding="utf-8") as f:
+        f.write(contenuto)
+
+
+DIARIO_SANO = (
+    "sospesi:\n"
+    "  - cosa: filetti di branzino\n"
+    "    serve:\n"
+    "      - {giorno: 2026-10-08, pasto: cena}\n"
+    "    stato: da_procurare\n"
+    "\n"
+    "2026-10-08:\n"
+    "  cena:\n"
+    "    previsto: Branzino al forno\n"
+    "    reale: Pasta al pomodoro\n"
+    "    stato: disattesa\n"
+)
+
+
+def sospeso_con_stato_inventato(radice):
+    scrivi_diario(radice, "2026-W41-guasta", DIARIO_SANO.replace("da_procurare", "forseArriva"))
+
+
+def sospeso_senza_uso(radice):
+    scrivi_diario(radice, "2026-W42-guasta",
+                  "sospesi:\n"
+                  "  - cosa: filetti di branzino\n"
+                  "    stato: da_procurare\n")
+
+
+def sospeso_su_prodotto_fantasma(radice):
+    scrivi_diario(radice, "2026-W43-guasta",
+                  "sospesi:\n"
+                  "  - cosa: filetti di branzino\n"
+                  "    prodotto: prodotto-che-non-esiste-250\n"
+                  "    serve:\n"
+                  "      - {giorno: 2026-10-08, pasto: cena}\n")
+
+
+def pasto_di_diario_con_stato_inventato(radice):
+    scrivi_diario(radice, "2026-W44-guasta", DIARIO_SANO.replace("disattesa", "quasiFatta"))
+
+
+def pasto_di_diario_inventato(radice):
+    scrivi_diario(radice, "2026-W45-guasta",
+                  "2026-10-08:\n"
+                  "  merendina:\n"
+                  "    previsto: Pane e marmellata\n"
+                  "    reale: Pane e marmellata\n")
+
+
 CORRUZIONI = [
     ("KCAL_SOTTO_PAVIMENTO", persona_a_dieta_troppo_bassa),
     ("KCAL_SU_CHI_NON_E_A_DIETA", deficit_a_chi_non_e_a_dieta),
@@ -183,6 +239,11 @@ CORRUZIONI = [
     ("YAML_ILLEGGIBILE", yaml_con_tabulazione),
     ("STATO_SETTIMANA_SCONOSCIUTO", stato_settimana_inventato),
     ("TIMBRO_MALFORMATO", timbro_illeggibile),
+    ("STATO_SOSPESO_SCONOSCIUTO", sospeso_con_stato_inventato),
+    ("SOSPESO_SENZA_USO", sospeso_senza_uso),
+    ("SOSPESO_SENZA_PRODOTTO", sospeso_su_prodotto_fantasma),
+    ("STATO_PASTO_SCONOSCIUTO", pasto_di_diario_con_stato_inventato),
+    ("PASTO_SCONOSCIUTO", pasto_di_diario_inventato),
 ]
 
 
@@ -231,6 +292,14 @@ class TestCorruzioni(unittest.TestCase):
             for radice in FIXTURES:
                 with self.subTest(codice=codice, fixture=os.path.basename(radice)):
                     self.assertIn(codice, self.esegui(radice, corruzione))
+
+    def test_un_diario_sano_non_produce_niente(self):
+        """L'altra meta' del lint: un contratto rispettato deve passare in
+        silenzio. Un controllo troppo severo si scopre solo cosi'."""
+        for radice in FIXTURES:
+            with self.subTest(fixture=os.path.basename(radice)):
+                codici = self.esegui(radice, lambda c: scrivi_diario(c, "2026-W46-sana", DIARIO_SANO))
+                self.assertEqual(set(), codici)
 
 
 class TestMiniYaml(unittest.TestCase):

@@ -80,8 +80,8 @@ def prompt_spesa(fixture, casa):
         f"{SCONTRINO}\n\n"
         "Rispondo in anticipo a tutto, non farmi domande: le righe alimentari sono tutte "
         "nostre, non compriamo per nessun altro. Il pane lo prendo dal panettiere come "
-        "sempre. Se manca qualcosa, decidi tu la sostituzione con quello che c'e' in casa "
-        "e applicala al menu. Vai fino in fondo e salva i file."
+        "sempre. Se manca qualcosa non cambiare il piatto: me lo procuro io prima del "
+        "giorno in cui serve. Vai fino in fondo e salva i file."
     )
 
 

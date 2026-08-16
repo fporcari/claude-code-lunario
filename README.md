@@ -413,6 +413,11 @@ ritira *prima* di cominciare a cucinare, lo scontrino serve a qualcosa di più
 che ai prezzi: dice cosa non è arrivato, così l'alternativa si trova il lunedì
 e non davanti al frigo il giovedì sera.
 
+Su quello che manca decidi tu, e le strade sono due: **cambiamo il piatto** con
+quello che avete in casa, oppure **te lo procuri tu** prima del giorno in cui
+serve. Nel secondo caso il rimando non resta in chat — viene scritto, e mentre
+cucini quel piatto te lo ricorda una volta sola.
+
 Uno scontrino però non è la spesa di Lunario. Viene diviso in tre, e solo il
 primo gruppo si confronta con la stima:
 

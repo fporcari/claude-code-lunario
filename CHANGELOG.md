@@ -4,6 +4,40 @@ Le versioni che contano sono quelle che cambiano il **contratto dei dati**: da
 4.0.0 la cartella di casa porta un timbro (`dati/versione.yaml`) e si allinea da
 sola, quindi aggiornare il motore non richiede piu' niente da parte tua.
 
+## 4.1.0 — quello che manca e te lo prendi dopo
+
+Al ritiro della spesa un ingrediente puo' non esserci, e gli esiti sono sempre
+stati due: **si cambia il piatto**, oppure **te lo procuri tu** prima del giorno
+in cui serve. Il primo era completo; il secondo viveva soltanto in chat, e una
+chat non la rilegge nessuna skill. Il giovedi' `lunario:prepara` faceva cucinare
+un piatto convinta che il branzino fosse in casa.
+
+- **`sospesi`** nel `diario.yaml` della settimana: cosa manca, per quale pasto
+  serve, e uno stato fra `da_procurare`, `procurato` e `rinunciato`. Effimero
+  come la settimana — nasce allo scontrino, muore la domenica
+- `lunario:spesa` offre i due esiti come due strade, non come una domanda
+  aperta, e scrive il rimando invece di ricordarlo
+- `lunario:prepara` lo nomina **il giorno in cui serve**, per primo e una volta
+  sola: «il branzino era rimasto da prendere, l'hai preso?». Un no va dritto
+  alla sostituzione, senza rimproveri
+- `lunario:correggi` non ricolloca su un ingrediente che non e' in casa
+- `lunario:postmortem` chiude quelli aperti, e conta i sospesi fra le mancanze:
+  tre volte lo stesso prodotto non e' sfortuna, e' un paniere da correggere
+- **un sospeso non e' una scorta**: finche' e' `da_procurare` non entra in
+  dispensa, altrimenti il menu del lunedi' dopo scala un fabbisogno su roba che
+  nessuno ha comprato
+- il consuntivo porta in coda **«Da procurare»**, senza casella: lo stato vero
+  sta nel diario, e due posti dove segnare la stessa cosa si contraddicono
+
+Il **contratto dei dati non cambia** — la chiave e' nuova, opzionale e vive
+dentro una settimana — quindi non c'e' niente da migrare: le cartelle esistenti
+funzionano come sono.
+
+Il tier 1 ora controlla il diario, che prima non guardava nessuno: date, pasti,
+stati, e la forma dei sospesi. Due proprieta' nuove al tier 2 — il rimando
+scritto in pagina deve stare anche nei file, e un sospeso non compare in
+dispensa.
+
 ## 4.0.0 — la dispensa che sa cosa hai in casa
 
 Tre issue in una release. Il contratto di `dati/dispensa.yaml` cambia, e da qui

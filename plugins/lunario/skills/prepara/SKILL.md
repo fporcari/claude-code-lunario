@@ -107,10 +107,26 @@ Segnala subito le due cose che fanno fallire una cena:
 
 Prima di far accendere il fuoco, controlla gli ingredienti contro quello che il
 sistema crede di sapere: la dispensa, le righe di spesa spuntate al ritiro, i
-prodotti marcati `fuori_scontrino`. Se qualcosa non risulta, **dillo adesso** —
-a meta' cottura e' un guaio, prima e' un'informazione.
+prodotti marcati `fuori_scontrino`, e i **sospesi** del `diario.yaml` di questa
+settimana (contratto in `CLAUDE.md`). Se qualcosa non risulta, **dillo adesso**
+— a meta' cottura e' un guaio, prima e' un'informazione.
 
-Dillo come un dubbio del sistema, non come un'accusa:
+I sospesi non sono un dubbio: sono roba che al ritiro non c'era e che l'utente
+si e' impegnato a prendere. Se uno di quelli con `stato: da_procurare` ha in
+`serve` questo pasto, **e' la prima cosa che dici**, prima degli ingredienti:
+
+> Il branzino di stasera era rimasto da prendere. L'hai preso?
+
+Un si' mette `stato: procurato` e la roba entra in casa come sempre — dispensa
+e, se l'utente dice quanto e' costata, prezzo con `fonte: dichiarato`. Un no
+non e' un rimprovero: si va dritti alla sostituzione qui sotto, e il sospeso
+diventa `rinunciato`.
+
+Chiedilo **una volta sola**. Un sospeso e' un promemoria, non un debito da
+riscuotere: se l'utente lascia cadere la domanda, si cucina lo stesso con
+quello che c'e'.
+
+Per tutto il resto vale il dubbio, e si dice come tale, non come un'accusa:
 
 > Non mi risulta la panna da cucina: ce l'hai?
 
@@ -262,6 +278,11 @@ Due cose vanno scritte solo se l'utente le dice da solo, mentre parla:
 Se l'utente accenna a un altro pasto — «a pranzo abbiamo mangiato fuori» —
 registralo e basta, senza approfondire: e' un'informazione che passava di li'.
 Nel diario va il vincolo, non il racconto: «pranzo fuori», non con chi.
+
+Nella stessa passata **chiudi il sospeso di stasera**, se ce n'era uno:
+`procurato` se e' arrivato, `rinunciato` se il piatto e' andato diversamente.
+Uno rimasto `da_procurare` dopo il giorno in cui serviva e' rumore che la
+domenica qualcuno dovra' interpretare.
 
 Anche questo in silenzio.
 

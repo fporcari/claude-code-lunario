@@ -481,6 +481,55 @@ def a_diario_e_caselle_concordano(casa):
     return Esito("diario e caselle concordano", OK, f"{fatte} caselle, {voci} voci di diario")
 
 
+def a_rimando_registrato(casa):
+    """Se il consuntivo dice che qualcosa resta da procurare, il diario deve
+    avere il sospeso corrispondente.
+
+    E' la stessa regola dello stato scritto in pagina: cio' che vive solo nel
+    markdown e' invisibile alle skill, e lo e' in silenzio. Chi legge crede di
+    aver detto qualcosa al sistema, e non l'ha ricevuta nessuno.
+    """
+    testo = casa.testo_settimana()
+    if testo is None:
+        return Esito("il rimando finisce nei file", NON_VERIFICABILE, "nessun markdown")
+    blocco = _blocco(testo, r"da procurare")
+    righe = [r for r in (blocco or "").splitlines() if r.strip().startswith("-")]
+    if not righe:
+        return Esito("il rimando finisce nei file", NON_VERIFICABILE, "niente da procurare")
+    sospesi = (casa.diario() or {}).get("sospesi")
+    if not isinstance(sospesi, list) or not sospesi:
+        return Esito("il rimando finisce nei file", FALLITA,
+                     f"{len(righe)} righe da procurare nel menu, nessun sospeso nel diario",
+                     "un promemoria che sta solo nella pagina non lo legge nessuna skill")
+    return Esito("il rimando finisce nei file", OK, f"{len(righe)} righe, {len(sospesi)} sospesi")
+
+
+def a_sospesi_non_sono_scorte(casa):
+    """Un sospeso e' cio' che al ritiro non c'era e si prende dopo: finche' e'
+    `da_procurare` non e' in casa, e la dispensa non deve contarlo.
+
+    E' l'errore che si paga due volte — il menu del lunedi' scala un fabbisogno
+    su roba che nessuno ha comprato, e il piatto salta lo stesso il giovedi'.
+    """
+    diario = casa.diario()
+    if diario is None:
+        return Esito("i sospesi non entrano in dispensa", NON_VERIFICABILE, "nessun diario")
+    sospesi = diario.get("sospesi")
+    if not isinstance(sospesi, list) or not sospesi:
+        return Esito("i sospesi non entrano in dispensa", NON_VERIFICABILE, "nessun sospeso")
+    dispensa = casa.dispensa() or {}
+    dentro = set(dispensa.get("avanzi") or {}) | set(dispensa.get("scorte") or {})
+    contati = [v.get("cosa") for v in sospesi
+               if isinstance(v, dict)
+               and v.get("stato", "da_procurare") == "da_procurare"
+               and v.get("prodotto") in dentro]
+    if contati:
+        return Esito("i sospesi non entrano in dispensa", FALLITA,
+                     f"da procurare, ma gia' contati in dispensa: {contati}",
+                     "una scorta promessa falsa il fabbisogno del lunedi' dopo")
+    return Esito("i sospesi non entrano in dispensa", OK, f"{len(sospesi)} sospesi")
+
+
 def a_dispensa_si_e_mossa(casa):
     prima = casa.prima.get("dispensa")
     dopo = casa.dispensa()
@@ -551,6 +600,8 @@ def dopo_spesa(casa):
         a_consuntivo_senza_caselle(casa),
         a_prezzi_con_data_e_fonte(casa),
         a_nome_settimana_stabile(casa),
+        a_rimando_registrato(casa),
+        a_sospesi_non_sono_scorte(casa),
         a_un_commit_per_skill(casa, ["spesa"]),
     ]
 
@@ -559,6 +610,7 @@ def dopo_prepara(casa):
     return [
         a_diario_e_caselle_concordano(casa),
         a_nome_settimana_stabile(casa),
+        a_sospesi_non_sono_scorte(casa),
         a_un_commit_per_skill(casa, ["prepara"]),
     ]
 

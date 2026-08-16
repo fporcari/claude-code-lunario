@@ -306,7 +306,7 @@ al contratto era una rottura latente in ogni cartella gia' in uso.
 ```yaml
 # dati/versione.yaml — lo scrive il sistema, mai l'utente
 contratto: 3
-motore: 4.0.0        # la versione del plugin che l'ha toccata per ultima
+motore: 4.1.0        # la versione del plugin che l'ha toccata per ultima
 migrata: 2026-08-16
 ```
 
@@ -749,6 +749,49 @@ il racconto**. «Cena fuori», non con chi.
 e un postmortem che rimprovera i buchi e' un postmortem che si smette di fare:
 un pasto senza voce si chiede la domenica, esattamente come oggi.
 
+#### I sospesi — quello che manca e si prende dopo
+
+Al ritiro della spesa un ingrediente puo' non esserci, e gli esiti sono due:
+**si sostituisce** — e allora il piatto cambia, il consuntivo lo dice e non
+resta niente in aria — oppure **si rimanda**, perche' l'utente se lo procura
+prima del giorno in cui serve.
+
+Solo il secondo ha bisogno di un posto dove stare. Detto in chat e basta, il
+rimando muore con la chat: il giovedi' `lunario:prepara` fa cucinare un piatto
+convinta che il branzino sia in casa.
+
+```yaml
+sospesi:
+  - cosa: filetti di branzino
+    prodotto: branzino-filetti-250     # l'id del paniere, quando c'e'
+    serve:
+      - {giorno: 2026-08-20, pasto: cena}
+    stato: da_procurare                # da_procurare | procurato | rinunciato
+```
+
+Sta nel diario perche' e' **effimero come la settimana**: nasce allo
+scontrino, muore la domenica, e le tre skill che devono saperlo — chi cucina,
+chi corregge, chi chiude — quel file lo aprono gia'.
+
+| stato | vuol dire | chi lo scrive |
+|---|---|---|
+| `da_procurare` | non e' in casa, e serve entro il primo giorno di `serve` | `lunario:spesa` |
+| `procurato` | e' entrato in casa dopo | `lunario:prepara`, o `correggi` se l'utente lo dice |
+| `rinunciato` | non e' arrivato: il piatto e' cambiato o saltato | chi ne prende atto |
+
+Uno `stato` assente vale `da_procurare`, che e' lo stato in cui la voce nasce.
+
+**Un sospeso non e' una scorta.** Finche' e' `da_procurare` non entra in
+`dispensa.yaml` da nessuna parte: non c'e'. Una dispensa che conta cio' che
+qualcuno ha promesso di comprare e' peggio di una dispensa vuota, perche' il
+menu del lunedi' ci si appoggia. Ci entra quando diventa `procurato`, con le
+regole di sempre.
+
+E non e' nemmeno una lista della spesa: non si ripropone ogni volta e non si
+insiste. Si nomina **il giorno in cui serve**, una volta, e la domenica se e'
+rimasto aperto — perche' li' e' un dato: cio' che manca sempre non e' sfortuna,
+e' un prodotto che quel negozio non tiene.
+
 ### dati/storico.yaml
 
 ```yaml
@@ -921,7 +964,9 @@ perche'.
 Fra il menu e la prima cena c'e' un passaggio che non e' burocrazia: lo
 scontrino dice cosa e' **davvero** entrato in casa. Si riconcilia con la lista,
 si spunta cio' che e' arrivato, si scopre cosa manca — e per cio' che manca si
-sostituisce subito con quello che c'e', o si ricorda di ricomprarlo.
+sostituisce subito con quello che c'e', oppure si rimanda, e allora il rimando
+si scrive: e' un `sospeso` nel diario della settimana, non un promemoria in
+chat.
 
 Lo scontrino contiene anche cio' che con Lunario non c'entra: detersivi, casa,
 roba comprata per altri. Va separato in tre gruppi — menu, alimentare fuori

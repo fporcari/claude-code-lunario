@@ -140,6 +140,13 @@ farla alla cieca. Nel menu, `lunario:prepara` ha spuntato i pasti fatti e gli
 ingredienti consumati: quello che resta **non** spuntato e' quello che c'e'
 ancora in casa.
 
+Una cosa **non** c'e', e va tolta prima di proporla: i `sospesi` del
+`diario.yaml` con `stato: da_procurare` (contratto in `CLAUDE.md`). Al ritiro
+non sono arrivati, e ricollocarli su un altro giorno vorrebbe dire spostare un
+piatto su un ingrediente che nessuno ha in casa. Se l'utente dice che nel
+frattempo l'ha preso, mettilo a `procurato` e trattalo come tutto il resto; se
+sta cambiando proprio quel giorno, il sospeso diventa `rinunciato`.
+
 Quindi non chiedere l'inventario: **proponi la lista che hai gia**, e fatti
 solo correggere. «Dovrebbero esserti rimasti 400 g di straccetti, le zucchine
 e mezza busta di rucola — torna?». Una domanda sola invece di dieci.

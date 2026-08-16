@@ -155,10 +155,32 @@ Rispondi tu, e distingui:
 - **Sostituibile con quello che c'e'** — proponi la sostituzione gia' fatta:
   «non c'e' il branzino: giovedi' sposto sul merluzzo che hai nel
   congelatore». Una riga, non una domanda aperta
-- **Compromette il piatto** — qui chiedi: cosa c'e' in casa che puo' sostituire,
-  oppure se preferisce ricomprarlo. Se sceglie di ricomprare, tieni la riga in
-  sospeso e ricordagliela; se sceglie di sostituire, aggiorna quel giorno nel
-  menu
+- **Compromette il piatto** — qui chiedi, e le risposte possibili sono due:
+  **cambiamo il piatto** con quello che c'e' in casa, oppure **me lo procuro
+  io** prima di quel giorno. Sono due strade diverse e vanno offerte come tali,
+  non lasciate a una domanda aperta
+
+| la risposta | cosa fai |
+|---|---|
+| **si sostituisce** | aggiorna quel giorno nel menu e nel consuntivo, e finisce li': non resta niente in aria |
+| **se lo procura dopo** | scrivi un `sospeso` nel diario della settimana, e non nominarlo piu' fino al giorno in cui serve |
+
+Il rimando detto e basta e' un rimando perso: giovedi' `lunario:prepara` fa
+cucinare quel piatto convinta che il branzino sia in casa. Quindi si scrive,
+nel `diario.yaml` della cartella della settimana (contratto in `CLAUDE.md`):
+
+```yaml
+sospesi:
+  - cosa: filetti di branzino
+    prodotto: branzino-filetti-250
+    serve:
+      - {giorno: 2026-08-20, pasto: cena}
+    stato: da_procurare
+```
+
+`serve` esce dalla riga d'uso della lista, che i pasti colpiti li dice gia'.
+E **il sospeso non entra in dispensa**: non e' in casa, e una scorta promessa
+falsa il menu del lunedi' successivo.
 
 Non riscrivere l'intera settimana per un ingrediente: tocca i giorni colpiti e
 lascia stare il resto. Se i giorni colpiti sono tanti, e' il caso di
@@ -195,6 +217,9 @@ lascia stare il resto. Se i giorni colpiti sono tanti, e' il caso di
   `spesa_extra_alimentare` e `totale_scontrino` per memoria; e
   `scarto_per_riga`: dove la stima ha sbagliato, non solo di quanto. E' il dato
   che rende onesto il totale del lunedi' successivo
+- **`diario.yaml` della settimana** — la lista `sospesi`, e **solo se qualcosa
+  e' stato rimandato**. Se e' arrivato tutto, o e' stato tutto sostituito, il
+  file non si tocca: una lista vuota non e' un dato
 - **il markdown della settimana** — diventa il consuntivo: vedi il punto 4b.
   Il **nome del file non cambia**: il titolo e' quello di sempre, e rinominare
   vorrebbe dire muovere markdown, HTML e cartella insieme
@@ -221,7 +246,14 @@ casa, ed e' una differenza di autorita', non di formattazione.
 - Fusilli integrali: previsti 2 × 500 g, dati 2 × 400 g — 200 g in meno
 - Branzino: non c'era → merluzzo surgelato (giovedi' cena)
 - Olio EVO: 7,20 € contro i 5,90 dell'ultima volta
+
+## Da procurare
+- Filetti di branzino — servono giovedi' a cena
 ```
+
+**«Da procurare» solo se ci sono sospesi**, e senza casella da spuntare: lo
+stato vero sta nel diario, e due posti dove segnare la stessa cosa sono due
+posti che si contraddicono. Qui la riga serve all'occhio di chi riapre il file.
 
 Il preventivo non si conserva a parte: il delta e' la sua memoria utile, e il
 resto lo tiene git.
@@ -274,7 +306,8 @@ L'utente ha le buste da svuotare. Due o tre righe:
 
 - quanto ha speso davvero e di quanto si e' discostato dalla stima
 - cosa manca e cosa hai fatto di conseguenza
-- se resta qualcosa da ricomprare
+- cosa resta da procurare, **e per quale giorno**: e' l'unica cosa di questa
+  risposta che gli chiede di fare qualcosa
 
 Se e' andato tutto liscio, **una riga sola**: «Tutto arrivato, 89,40 € contro
 i 92,50 stimati. Buona settimana.»
