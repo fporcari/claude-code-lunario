@@ -72,12 +72,19 @@ Altro, piu' piccolo:
 - l'HTML resta e cambia mestiere: si stampa, si attacca al frigo, si mostra a
   chi la settimana la deve mangiare. Niente piu' caselle cliccabili
 
-**Il contratto dei dati sale a 4**, e la migrazione **non sposta un solo file**.
-Le settimane gia' scritte restano dove sono, col nome che hanno: lo script le
-riconosce come `layout: piatto` e le trova comunque. Vale anche per la settimana
-in corso, che e' il caso a cui viene voglia di fare un'eccezione — migrare un
-documento mentre qualcuno ci sta cucinando sopra e' la sorpresa che questo
-meccanismo esiste per non fare. Le settimane nuove nascono nella cartella.
+**Il contratto dei dati sale a 4**, e la migrazione **non sposta un solo file**
+da sola. Le settimane gia' scritte restano dove sono, col nome che hanno: lo
+script le riconosce come `layout: piatto` e le trova comunque. Le settimane
+nuove nascono nella cartella.
+
+Con un'eccezione che si **chiede**, ed e' il caso che vale la pena coprire: la
+settimana **in corso**. Se il motore si aggiorna di mercoledi', quella settimana
+la si sta ancora vivendo e le manca la lista — cioe' la ragione per cui il
+contratto 4 esiste. `lunario:aggiorna` propone di spostarla in una riga, e su un
+si' lo fa `settimana.py --adatta`, che sistema anche il `menu:` in
+`storico.yaml`. Lo script **si rifiuta di toccare qualunque settimana non sia
+quella corrente**, ed e' cio' che rende sicuro proporlo. Su un no, o sul
+silenzio, la settimana funziona identica dov'e'.
 
 ## 4.1.1 — tre regole che il motore non poteva eseguire
 

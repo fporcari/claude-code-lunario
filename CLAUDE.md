@@ -308,6 +308,22 @@ script le riconosce (`layout: piatto`), il file vivo e' quell'unico markdown, e
 non si rinominano d'ufficio. Una settimana passata e' un registro, e un
 registro non si riorganizza per farlo somigliare al presente.
 
+Un'eccezione sola, e si **chiede**: la settimana **in corso**. Se il motore si
+aggiorna di mercoledi', quella settimana la si sta ancora vivendo e le manca la
+lista, cioe' la ragione per cui questo contratto esiste — quindi
+`lunario:aggiorna` propone di spostarla, e su un si':
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/settimana.py --adatta
+```
+
+Sposta markdown e HTML nella cartella col nome del ruolo, dedotto dallo
+`stato:` in testa (vecchio vocabolario compreso), e sistema il `menu:` in
+`storico.yaml`. **Si rifiuta di toccare qualunque settimana non sia quella
+corrente**, ed e' cio' che rende sicuro proporlo: da li' il registro non e'
+raggiungibile. La lista non la inventa — una spesa gia' fatta non si ricostruisce
+— la scrive il prossimo giro di `menu` o `correggi`.
+
 ## Installazione
 
 ```
