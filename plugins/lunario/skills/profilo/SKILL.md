@@ -448,6 +448,24 @@ Se `git` non e' installato, se `git init` fallisce, o se la cartella sta gia'
 dentro un altro repo, non e' un problema: dillo in mezza riga e vai avanti.
 Lunario funziona identico senza.
 
+### La lista sul telefono, detta una volta e mai piu'
+
+Chiudendo il setup, **mezza riga** su una cosa che nessuno indovina da solo:
+la lista della spesa e' un file markdown dentro la cartella della settimana, e
+se questa cartella sta in un servizio sincronizzato — iCloud, Dropbox, Drive,
+Syncthing, quello che gia' usa — la si apre col telefono al supermercato, si
+spunta e si annota, e al ritorno `lunario:spesa` rilegge lo stesso file.
+
+Due cose da dire e nient'altro, senza farne un'installazione:
+
+- se sincronizza, **meglio solo `settimane/`**: in `dati/` ci sono pesi e
+  obiettivi, ed e' la stessa ragione per cui il git resta locale
+- **non e' necessario.** Una cartella non sincronizzata funziona identica: la
+  lista si legge dal computer
+
+Non e' una domanda, non aspetta risposta, e non si ripropone mai piu': e' una
+comodita' che o si e' capita o non interessa.
+
 ## 4. Se accanto c'e' un'altra casa Lunario
 
 Guarda le cartelle sorelle (`../*/dati/prodotti.jsonl`). Se ne trovi una, e'

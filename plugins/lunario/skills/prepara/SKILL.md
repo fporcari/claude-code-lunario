@@ -62,11 +62,19 @@ tutto vale come sempre.
 
 ## 1. Che piatto e'
 
-Leggi il markdown della settimana — glob su `settimane/<ISO>*`. I pasti gia'
-fatti sono spuntati (`- [x]`):
-**escludili sempre**, anche se sono di oggi. Fra quelli che restano, il
-candidato e' il pasto di oggi secondo l'ora — pranzo o cena — e secondo il
-contesto della settimana.
+Leggi **il documento vivo** della settimana: dopo la spesa e' il consuntivo,
+prima e' il preventivo, e non si indovina —
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/settimana.py
+```
+
+la riga `vivo:` dice su quale file si lavora. Spuntare quello sbagliato vuol
+dire raccontare la settimana su un documento che nessuno riaprira'.
+
+I pasti gia' fatti sono spuntati (`- [x]`): **escludili sempre**, anche se sono
+di oggi. Fra quelli che restano, il candidato e' il pasto di oggi secondo l'ora
+— pranzo o cena — e secondo il contesto della settimana.
 
 **Chiedi conferma in una riga**, perche' la vita non seguo il menu:
 
@@ -106,9 +114,9 @@ Segnala subito le due cose che fanno fallire una cena:
 ## 2a. Se qualcosa risulta mancante
 
 Prima di far accendere il fuoco, controlla gli ingredienti contro quello che il
-sistema crede di sapere: la dispensa, le righe di spesa spuntate al ritiro, i
-prodotti marcati `fuori_scontrino`, e i **sospesi** del `diario.yaml` di questa
-settimana (contratto in `CLAUDE.md`). Se qualcosa non risulta, **dillo adesso**
+sistema crede di sapere: la dispensa, il consuntivo — che dice cosa e' entrato
+in casa davvero — i prodotti marcati `fuori_scontrino`, e i **sospesi** del
+`diario.yaml` di questa settimana (contratto in `CLAUDE.md`). Se qualcosa non risulta, **dillo adesso**
 — a meta' cottura e' un guaio, prima e' un'informazione.
 
 I sospesi non sono un dubbio: sono roba che al ritiro non c'era e che l'utente
@@ -225,21 +233,17 @@ archivia.
 
 ## 6. Segnare che e' fatto
 
-Nel markdown della settimana, spunta due cose:
+Nel documento vivo della settimana, spunta **il pasto**: `- [ ]` diventa
+`- [x]`, cosi' al prossimo lancio e' fuori dai candidati. Stessa cosa per la
+riga dello scongelamento in «Gia' in casa», la sera in cui la roba esce dal
+congelatore.
 
-- **il pasto**: `- [ ]` diventa `- [x]`, cosi' al prossimo lancio e' fuori dai
-  candidati
-- **gli ingredienti che hai davvero usato**, nella lista della spesa
+La casella vuol dire **fatto**, e niente altro. Cio' che si e' consumato non e'
+una casella: sta in `dati/dispensa.yaml` e nel diario, che sono i posti da cui
+`lunario:correggi` e il postmortem lo rileggono. Una casella con due significati
+— comprato e consumato — e' una casella di cui non si fida piu' nessuno.
 
-Il secondo punto e' quello che vale: una lista dove il consumato e' spuntato
-dice a colpo d'occhio cosa e' rimasto in frigo. Ci si appoggiano
-`lunario:correggi`, che smette di chiedere alla cieca cosa c'e' in casa, e il
-postmortem, che corregge la dispensa sul reale invece che sul previsto.
-
-Spunta solo cio' che e' stato consumato per intero. Mezza confezione aperta
-non e' consumata: se serve, annotala accanto alla riga.
-
-Se quello che hai usato veniva dalle **scorte**, scalalo anche li'. **E' qui
+Se quello che hai usato veniva dalle **scorte**, scalalo li'. **E' qui
 che le scorte si scaricano, e in nessun altro posto**: il menu le legge per fare
 la lista ma non le tocca, perche' un piano non consuma niente — se scaricassero
 tutti e due, la stessa scatola di ceci sparirebbe due volte

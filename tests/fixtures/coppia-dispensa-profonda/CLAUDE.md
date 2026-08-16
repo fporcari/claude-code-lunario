@@ -16,3 +16,6 @@ lievito, scatolame di riserva — non stanno legittimamente in nessuna delle due
 oggi **non hanno un posto dove vivere**, e ogni lunedi' vanno ridichiarate a
 memoria, o si ricomprano. Il paniere invece le conosce tutte
 (`dati/prodotti.jsonl`, 54 righe): la dispensa no.
+
+Le sue settimane sono al **contratto 4**: una cartella ciascuna, con dentro
+preventivo, lista e consuntivo.

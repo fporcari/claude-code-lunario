@@ -153,11 +153,11 @@ non impara. Ogni skill scrive un livello solo.
 | `lunario:profilo` | stabile | `dati/profilo.yaml` | una volta |
 | `lunario:ritmi` | dichiarato | `dati/ritmi.yaml`, `dati/note.md` | quando cambia la vita |
 | `lunario:settimana` | effimero | `settimane/<ISO>-<titolo>/contesto.yaml`, `dati/ricette.md`, `dispensa.yaml` (la fetta contata del lunedi'), `storico.yaml` → `piatti_in_quarantena` | ogni lunedi' |
-| `lunario:menu` | — (consuma tutto) | `settimane/<ISO>-<titolo>.md` + `.html`, `dati/dispensa.yaml` | ogni lunedi' |
-| `lunario:spesa` | appreso (prezzi) | `dati/prodotti.jsonl`, `dispensa.yaml`, `storico.yaml` | al ritiro della spesa |
-| `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina`, `settimane/<ISO>-<titolo>/diario.yaml` | mentre si cucina |
-| `lunario:correggi` | effimero | il menu (giorni residui) e il diario della settimana | quando cambia qualcosa |
-| `lunario:postmortem` | appreso (tavola, pesate) | `dati/storico.yaml` | domenica |
+| `lunario:menu` | — (consuma tutto) | nella cartella della settimana: `-preventivo.md` + `.html` e `-lista.md`; `dati/dispensa.yaml` | ogni lunedi' |
+| `lunario:spesa` | appreso (prezzi) | `-consuntivo.md` + `.html` (**accanto** al preventivo, mai sopra), `dati/prodotti.jsonl`, `dispensa.yaml`, `storico.yaml` | al ritiro della spesa |
+| `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina`, il `diario.yaml` della settimana, le caselle dei pasti sul documento vivo | mentre si cucina |
+| `lunario:correggi` | effimero | il documento vivo (giorni residui) e il diario della settimana | quando cambia qualcosa |
+| `lunario:postmortem` | appreso (tavola, pesate) | `dati/storico.yaml`, e `-postmortem.md` nella cartella della settimana | domenica |
 | `lunario:inventario` | contato | `dati/dispensa.yaml` → `scorte` e `freezer` | una volta, poi quando si rifa' il giro |
 | `lunario:aggiorna` | — (allinea i livelli al contratto) | `dati/versione.yaml`, e i file che il salto di contratto tocca | quando il motore e la cartella non combaciano |
 
@@ -202,6 +202,7 @@ cartella di lavoro e non viaggiano con esso.
 │   │   └── piatti.md                # pool piatti taggato per deperibilita'
 │   ├── scripts/
 │   │   ├── off_lookup.py            # Open Food Facts -> dati/prodotti.jsonl
+│   │   ├── settimana.py             # dove stanno i file di una settimana, e qual e' il vivo
 │   │   └── versione.py              # il timbro della cartella, e come si deduce
 │   └── templates/                   # modelli commentati, copiati al setup
 ├── tests/                           # i tre tier, e tre case sintetiche
@@ -225,7 +226,7 @@ famiglia non appartengono al motore. Vivono nella cartella da cui si lavora:
 │   ├── prodotti.jsonl        # il paniere: formato, nutrienti, prezzi
 │   ├── dispensa.yaml         # scorte contate, avanzi calcolati, congelatore
 │   └── storico.yaml          # settimane e tarature
-└── settimane/                # menu generati: <ISO>-<titolo>
+└── settimane/                # una cartella per settimana: <ISO>-<titolo>
 ```
 
 Dentro le skill, i file del motore si citano con `${CLAUDE_PLUGIN_ROOT}/kb/...`
@@ -233,26 +234,33 @@ perche' il plugin, una volta installato, vive fuori dal progetto. I file di
 `dati/` e `settimane/` sono invece relativi alla cartella di lavoro, e
 `LUNARIO_DATI` permette di spostarli altrove.
 
-### Come si chiama una settimana
+### La settimana e' una cartella
 
 Ogni settimana ha un titolo, ed e' l'unico appiglio che un essere umano usa
 davvero: in un'altra chat, al telefono, due mesi dopo, nessuno dice «apri
-2026-W34», dice «Commando». Quindi il titolo sta **anche nel nome del file**,
-dopo l'ISO:
+2026-W34», dice «Commando». Quindi il titolo sta nel nome della cartella,
+dopo l'ISO — e **tutta la settimana sta li' dentro**:
 
 ```
-settimane/
-├── 2026-W34-commando.md
-├── 2026-W34-commando.html
-└── 2026-W34-commando/
-    └── contesto.yaml
+settimane/2026-W34-commando/
+├── 2026-W34-commando-preventivo.md      # i sette giorni, come si voleva
+├── 2026-W34-commando-preventivo.html    # la copia leggibile, da frigo
+├── 2026-W34-commando-lista.md           # la spesa, sola: si annota e torna
+├── 2026-W34-commando-consuntivo.md      # cosa c'e' davvero in casa
+├── 2026-W34-commando-consuntivo.html
+├── 2026-W34-commando-postmortem.md      # com'e' andata, cosa si e' cambiato
+├── contesto.yaml
+└── diario.yaml
 ```
+
+**Nomi interi, non `preventivo.md` nudo**: un file scaricato sul telefono o
+allegato a un messaggio perde la cartella e resta col suo nome soltanto, e
+`preventivo.md` a quel punto non dice di quale settimana sia.
 
 L'ISO resta davanti, e vale la pena difenderlo: l'ordine alfabetico continua a
-essere l'ordine cronologico, e il motore trova una settimana **con un glob su
-`settimane/2026-W34*`**, senza dover conoscere il titolo. La chiave in
-`storico.yaml` resta l'ISO nudo; lo slug e' una comodita' per gli occhi
-aggiunta sopra l'identificatore, non al posto suo.
+essere l'ordine cronologico, e il motore trova una settimana senza conoscerne
+il titolo. La chiave in `storico.yaml` resta l'ISO nudo; lo slug e' una
+comodita' per gli occhi aggiunta sopra l'identificatore, non al posto suo.
 
 Lo slug: minuscolo, accenti tolti, tutto cio' che non e' lettera o cifra
 diventa `-`, niente `-` doppi ne' in testa o in coda. I titoli sono corti per
@@ -264,12 +272,41 @@ cartella** appena ha il titolo. E' l'unico rename previsto dal sistema, e
 avviene prima che qualcuno abbia visto un nome.
 
 **Da li' in poi il nome si fissa e non cambia piu'.** Rinominare vuol dire
-spostare tre cose insieme — markdown, HTML e cartella — e qualsiasi link che
-ci puntava: `lunario:correggi` non lo fa mai, nemmeno se cambia il menu. Se un
-titolo va davvero cambiato, si spostano tutti e tre o nessuno.
+spostare la cartella, sei documenti e qualsiasi link che ci puntava:
+`lunario:correggi` non lo fa mai, nemmeno se cambia il menu.
 
-Le settimane scritte prima di questa regola si chiamano `2026-W34.md` e
-restano valide: il glob le trova lo stesso, e non si rinominano d'ufficio.
+#### Qual e' il documento vivo
+
+Preventivo e consuntivo sono **due file, non uno stato che si sovrascrive** —
+il perche' sta piu' sotto, in «Il ciclo di vita del menu». Ne discende una
+domanda che va risolta una volta sola: a meta' settimana, **su quale si
+scrive?**
+
+> **Il vivo e' l'ultimo ruolo che esiste su disco**: se c'e' il consuntivo e'
+> quello, altrimenti il preventivo.
+
+Nessuna data da confrontare, nessuno `stato:` da interpretare. `prepara`
+spunta li', `correggi` riscrive li', il postmortem legge li'. Spuntare il file
+sbagliato non da' nessun errore: da' una settimana raccontata in un documento
+che nessuno riaprira'.
+
+Chi lo risolve non e' il modello a mente, e' uno script:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/settimana.py
+```
+
+Stampa la cartella, i documenti che ci sono e la riga `vivo:`. La stessa
+funzione la usano i test, cosi' non esistono due idee di dove stiano i file.
+
+#### Le settimane scritte prima
+
+Fino al contratto 3 markdown e HTML stavano **accanto** alla cartella, in un
+file solo che si riscriveva da preventivo a consuntivo, e le piu' vecchie si
+chiamavano `2026-W34.md`, senza titolo. **Restano dove sono e come sono**: lo
+script le riconosce (`layout: piatto`), il file vivo e' quell'unico markdown, e
+non si rinominano d'ufficio. Una settimana passata e' un registro, e un
+registro non si riorganizza per farlo somigliare al presente.
 
 ## Installazione
 
@@ -305,8 +342,8 @@ al contratto era una rottura latente in ogni cartella gia' in uso.
 
 ```yaml
 # dati/versione.yaml — lo scrive il sistema, mai l'utente
-contratto: 3
-motore: 4.1.0        # la versione del plugin che l'ha toccata per ultima
+contratto: 4
+motore: 5.0.0        # la versione del plugin che l'ha toccata per ultima
 migrata: 2026-08-16
 ```
 
@@ -356,10 +393,16 @@ Una cartella che non migra mai deve continuare a funzionare. La migrazione
 
 ### Cosa non si migra
 
-- **Il contenuto di `settimane/`.** Le settimane passate sono un registro, non
-  dati vivi: si leggono come sono. Un vecchio `stato: bozza` o `confermato` si
-  **legge** come `preventivo`, un `in corso` come `consuntivo` — nella testa di
-  chi legge, non nel file
+- **Il contenuto di `settimane/`, e nemmeno la loro disposizione.** Le settimane
+  passate sono un registro, non dati vivi: si leggono come sono, dove sono. Un
+  vecchio `stato: bozza` o `confermato` si **legge** come `preventivo`, un `in
+  corso` come `consuntivo` — nella testa di chi legge, non nel file. E quelle
+  scritte quando markdown e HTML stavano accanto alla cartella restano li': lo
+  script che risolve i percorsi le trova comunque, e spostarle vorrebbe dire
+  muovere due file, il `menu:` che ci punta in `storico.yaml` e ogni link gia'
+  mandato a qualcuno. Vale **anche per la settimana in corso**, che e' il caso
+  a cui viene voglia di fare un'eccezione: migrare un documento mentre qualcuno
+  ci sta cucinando sopra e' la sorpresa che questo meccanismo esiste per non fare
 - **Niente percorso all'indietro.** Una cartella portata avanti e poi aperta da
   un motore piu' vecchio e' fuori perimetro: il motore vecchio ignora cio' che
   non conosce, che e' esattamente il comportamento giusto
@@ -711,6 +754,65 @@ settimana:
 ancora in lettura, e `lunario:profilo` li converte in `trasportabile` e
 `fuori` al primo aggiornamento.
 
+### <nome>-lista.md — la spesa, e l'unico file che torna indietro
+
+Tutti gli altri documenti li scrive il sistema e li legge l'utente. Questo va
+nel verso opposto: l'utente lo apre al supermercato, lo spunta, ci scrive
+sopra, e al ritorno `lunario:spesa` rilegge **lo stesso file**. Non e' una
+comodita' di formato: e' **un ingresso di dati**, e prima non c'era.
+
+Un file solo, la sola spesa, niente menu dentro:
+
+```markdown
+# Spesa — 2026-W34 Commando
+preventivo del 2026-08-17 · spunta col dito, annota accanto: rileggo tutto io
+
+## Ortofrutta
+- [ ] Zucchine — 1,5 kg
+      → mer cena · gio cena
+- [x] Rucola — 2 buste da 100 g      non c'erano, prese 2 da 70 g
+
+## Fuori Lunario
+- [ ] detersivo lavastoviglie
+```
+
+- **i reparti nell'ordine in cui si gira il negozio**, e sotto ogni riga i
+  pasti che la usano: al banco e' cio' che dice cosa salta se manca
+- **la casella vuol dire preso**, e niente altro. Non «consumato», non
+  «arrivato in casa». Una casella con due significati e' una casella di cui non
+  si fida piu' nessuno
+- **«Fuori Lunario» in coda**, in una sezione sua: cio' che si compra comunque
+  e che il motore non pianifica, compresa la spesa che viaggia per un'altra
+  casa. In markdown il colore non esiste, e una sezione separata dice da sola
+  cosa il motore deve ignorare — sopravvive a qualsiasi app la apra
+- **le annotazioni sono testo libero**, in linea, dopo la riga. Nessuna sintassi
+  da imparare, e non deve essercene una: chi scrive ha una mano sola e uno
+  scaffale davanti
+
+Come si legge un'annotazione sta in `lunario:spesa`, e la regola che conta e'
+la gerarchia di fiducia: **l'annotazione vince su quale prodotto e' entrato in
+casa** — l'utente era li' — **lo scontrino vince su quanto e' costato**, che e'
+stampato. Una frase che non si classifica non si interpreta: si chiede una
+volta.
+
+Il file **non si riscrive**: e' il documento che l'utente ha annotato in piedi,
+ed e' la prova di cosa e' successo quel giorno.
+
+**Perche' non l'HTML.** C'e' stata una versione in cui la lista si spuntava sul
+telefono e le spunte vivevano in `localStorage`. Funzionava, ed era inutile:
+quelle spunte restavano nel browser di quel telefono, `lunario:spesa` non le
+vedeva mai, e chi le faceva credeva di aver detto qualcosa al sistema. E' la
+stessa regola gia' scritta per il consuntivo — uno stato dentro una pagina e'
+invisibile alle skill, e lo e' **in silenzio**.
+
+Che il file arrivi sul telefono e' una proprieta' della **cartella**, non del
+formato: se `settimane/` sta in un servizio sincronizzato — iCloud, Dropbox,
+Drive, Nextcloud, Syncthing si equivalgono — la lista si apre con un qualsiasi
+editor markdown. Non c'e' niente da installare e niente da esportare, e **una
+cartella non sincronizzata funziona identica**: la lista si legge dal computer.
+Se qualcuno chiede cosa mettere in sincronizzazione, la risposta e' `settimane/`
+e non tutta la cartella di casa: in `dati/` ci sono pesi e obiettivi.
+
 ### settimane/<ISO>-<titolo>/contesto.yaml — l'eccezione di questa settimana
 
 Stessa grammatica di `ritmi.yaml`, ma vale una settimana sola e si sovrappone
@@ -826,7 +928,9 @@ tarature:                  # stato appreso: letto SEMPRE prima di generare
 settimane:
   - settimana: 2026-W34
     titolo: "La settimana dei legumi coraggiosi"
-    menu: settimane/2026-W34-commando.md   # la chiave resta l'ISO, il file porta il titolo
+    menu: settimane/2026-W34-commando/2026-W34-commando-consuntivo.md
+                           # la chiave resta l'ISO nudo; il percorso punta al documento
+                           # piu' avanzato che c'e' — il consuntivo se e' arrivato
     spesa_stimata: 92.50
     spesa_reale: null      # SOLO il menu, dallo scontrino del ritiro
     spesa_extra_alimentare: null   # cibo comprato ma non previsto
@@ -888,8 +992,8 @@ sistema, mai l'utente; forma, deduzione dalla forma dei file e regole di
 migrazione stanno in **«La cartella si aggiorna da sola»**, qui sopra.
 
 ```yaml
-contratto: 2
-motore: 3.4.0
+contratto: 4
+motore: 5.0.0
 migrata: 2026-08-16
 ```
 
@@ -959,8 +1063,9 @@ va usata apertamente, con tre regole che non si negoziano:
    dichiara, una stantia non si crede. Sopra `massimo` non si compra, e lo si
    dice. La lista dice «2 pacchi da 500 g», mai «1050 g». Cio' che copre una
    scorta **esce dalla lista e viene nominato uscendo**
-6. Salva `settimane/<ISO>-<titolo>.md`, aggiorna `dispensa.yaml` con gli avanzi
-   previsti, aggiungi la voce a storico con `spesa_stimata`
+6. Salva, nella cartella della settimana: `-preventivo.md`, `-lista.md` e
+   `-preventivo.html`. Poi aggiorna `dispensa.yaml` con gli avanzi previsti e
+   aggiungi la voce a storico con `spesa_stimata`
 
 ### Le scorte si chiedono prima, non si scoprono dopo
 
@@ -1007,18 +1112,30 @@ qualcun altro sta nel terzo gruppo e ci resta: fuori dai totali, fuori dal
 paniere, fuori dalla dispensa. Non e' cibo di questa casa, e contarlo
 falserebbe insieme il budget e le porzioni.
 
-E' anche il punto in cui la settimana passa da `preventivo` a `consuntivo`: da
-qui in avanti il file non descrive piu' cio' che si voleva, ma cio' che c'e'.
+La lista non si riconcilia a memoria: **e' tornata indietro annotata**. Le
+caselle dicono cosa e' stato preso, le frasi scritte accanto dicono cosa e'
+cambiato — un formato, una sostituzione, un rimando. Come si leggono sta nel
+contratto di `<nome>-lista.md`, qui sopra.
+
+E' anche il punto in cui la settimana passa da preventivo a consuntivo: da qui
+in avanti il documento vivo non descrive piu' cio' che si voleva, ma cio' che
+c'e'.
 
 ### Il ciclo di vita del menu: preventivo e consuntivo
 
 Un menu ha due stati, e la differenza non e' l'approvazione di qualcuno: e'
 **quanto di cio' che c'e' scritto e' verificato**.
 
-| stato | chi lo mette | cos'e' |
+| documento | chi lo scrive | cos'e' |
 |---|---|---|
-| `preventivo` | `lunario:menu`, appena generato | cio' che si vuole mangiare e comprare. Ogni numero e' una previsione: formati, prezzi, e i piatti stessi |
-| `consuntivo` | `lunario:spesa`, dopo lo scontrino | cio' che c'e' davvero in casa: prodotti veri, formati veri, prezzi pagati, sostituzioni gia' applicate ai piatti |
+| `-preventivo.md` | `lunario:menu`, appena generato | cio' che si vuole mangiare e comprare. Ogni numero e' una previsione: formati, prezzi, e i piatti stessi |
+| `-consuntivo.md` | `lunario:spesa`, dopo lo scontrino | cio' che c'e' davvero in casa: prodotti veri, formati veri, prezzi pagati, sostituzioni gia' applicate ai piatti |
+
+**Sono due file, non uno stato che si sovrascrive**, e il motivo e' che il
+preventivo serve ancora: lo scarto fra quello che si voleva e quello che c'e'
+e' l'unica cosa che insegna qualcosa al paniere, e leggerlo non deve richiedere
+un `git diff`. Lo `stato:` in testa a ciascuno resta, e dice quale dei due si
+sta leggendo quando il file viaggia da solo.
 
 **Ogni menu nasce `preventivo`** e ci resta finche' non passa dallo scontrino.
 `lunario:correggi` lo modifica quante volte serve — le contestazioni di chi
@@ -1033,27 +1150,41 @@ stato. Non darlo mai per acquisito d'ufficio — il silenzio non e' approvazione
 tanto piu' che l'approvazione e' di altre persone che non stanno leggendo
 questa chat.
 
-La promozione a `consuntivo` avviene **solo in `lunario:spesa`**, ed e' il
-momento in cui il file viene riscritto sui prodotti reali. E' l'unico evento
-che sa dire se la lista era giusta: prima di lui, mettere un timbro di
-definitivo su un totale fatto di prezzi della settimana scorsa e' una bugia
-tipografica.
+Il consuntivo lo scrive **solo `lunario:spesa`**, ed e' il momento in cui i
+prodotti reali entrano nel documento. E' l'unico evento che sa dire se la lista
+era giusta: prima di lui, mettere un timbro di definitivo su un totale fatto di
+prezzi della settimana scorsa e' una bugia tipografica.
 
-I due si leggono anche diversamente. Il preventivo e' un **documento di
-lavoro**: la sua lista si spunta col dito al supermercato, e quello stato vive
-nel browser perche' a valle non lo aspetta nessuno. Il consuntivo e' un
-**registro**: niente da spuntare, niente da scrivere. Le annotazioni della
-settimana non passano mai da una pagina — passano da `lunario:prepara`, pasto
-per pasto, mentre si cucina, e finiscono nel diario. Uno stato scritto in una
-pagina e' invisibile alle skill, ed e' invisibile in silenzio: chi lo scrive
-crede di aver detto qualcosa al sistema, e non l'ha ricevuta nessuno.
+**Il consuntivo, di solito, non si tocca piu'.** Ma la settimana la scrivono
+anche i fatti — una cena salta, arrivano ospiti, un ingrediente va a male — e
+allora `lunario:correggi` lavora li' sopra, perche' quello e' il documento vivo.
+Non e' ripianificare: e' registrare cosa e' successo davvero, che e' il mestiere
+di un consuntivo. Si toccano **i giorni**, mai la parte che registra la spesa:
+cosa e' entrato in casa e a che prezzo e' un fatto chiuso.
 
-Il preventivo non si perde: `lunario:spesa` lascia in coda al consuntivo un
-**delta leggibile** — cosa e' cambiato di formato, di prezzo, di piatto — perche'
-lo scarto fra i due e' il dato che il postmortem confronta, e leggerlo non deve
-richiedere un `git diff`. Se il consuntivo si scosta dal preventivo sempre nello
+Nessuno dei due si spunta e nessuno dei due raccoglie note. Le caselle dei
+pasti dicono **che** un pasto e' avvenuto e le marca `lunario:prepara`; le
+annotazioni della settimana passano dal diario, pasto per pasto, mentre si
+cucina. Uno stato scritto in una pagina HTML e' invisibile alle skill, ed e'
+invisibile in silenzio: chi lo scrive crede di aver detto qualcosa al sistema,
+e non l'ha ricevuta nessuno.
+
+In coda al consuntivo c'e' comunque un **delta leggibile** — cosa e' cambiato
+di formato, di prezzo, di piatto — perche' il confronto si fa a colpo d'occhio
+e non file contro file. Se il consuntivo si scosta dal preventivo sempre nello
 stesso verso per tre settimane — quel pacco e' sempre piu' grande, quel prodotto
 non c'e' mai — non e' sfortuna, e' un paniere da correggere.
+
+**Il totale del consuntivo e' il cibo di questa casa** — `spesa_reale` +
+`spesa_extra_alimentare` — e non il totale della cassa. Il non alimentare e la
+spesa di altre case sono gia' stati scorporati, e rimetterli dentro nell'ultima
+riga disfa tutto lo scorporo: uno zaino da 45 € fa sembrare la settimana costata
+il doppio, e quel numero non risponde a nessuna domanda. Se serve la
+tracciabilita' col pezzo di carta, una riga «fuori da questo conto, per memoria»
+dice il totale di cassa e cosa lo separa da questo. E cio' che si e' comprato
+per un'altra casa **resta in pagina**, voce per voce e col suo subtotale: e'
+fuori dai conti di Lunario, non cancellato dal documento — quanto si deve a
+qualcuno e' esattamente il numero che si sta cercando.
 
 ### Il calendario, nei due versi
 
@@ -1072,12 +1203,17 @@ di lavoro lo leggono i colleghi.
 L'evento e' una comodita', non un pezzo del sistema: se fallisce, si dice e si
 va avanti.
 
-### Il menu e' anche lo stato di avanzamento
+### Il documento vivo e' anche lo stato di avanzamento
 
-Nel markdown della settimana, pasti e righe della spesa sono **caselle da spuntare**.
-`lunario:prepara` le marca mentre si cucina: il pasto fatto esce dai candidati
-del lancio successivo, gli ingredienti consumati spariscono da cio' che si
-presume in casa.
+Nel documento vivo della settimana **i pasti sono caselle da spuntare**, e la
+casella vuol dire una cosa sola: quel pasto e' stato fatto. Le marca
+`lunario:prepara` mentre si cucina, e da li' in poi il pasto esce dai candidati
+del lancio successivo.
+
+**Una sola casella, un solo significato.** Le caselle della spesa vivono nella
+lista e vogliono dire «preso»; il consumo non e' una casella affatto — sta in
+`dispensa.yaml` e nel diario. Tre significati sulla stessa casella (comprato,
+consumato, cucinato) sono una casella di cui non si fida piu' nessuno.
 
 Le caselle dicono **che** un pasto e' avvenuto; il diario dice **cosa si e'
 mangiato davvero**, ed e' la stessa informazione resa rispondibile. Ci si
@@ -1096,7 +1232,7 @@ sei giorni dopo, ed e' la risposta che tara `porzioni_g`.
 
 A meta' settimana cambia qualcosa: una cena salta, un piatto non va, arriva un
 ospite. **La spesa e' gia' fatta**: il vincolo non e' piu' il budget, e' cosa
-c'e' in casa. Quindi si chiede cosa deve cambiare e cosa c'e' in frigo, si
+c'e' in casa, e il documento su cui si scrive e' il consuntivo. Quindi si chiede cosa deve cambiare e cosa c'e' in frigo, si
 rigenerano solo i **giorni residui** riusando gli ingredienti gia' comprati, e
 si propone una spesa integrativa solo se e' inevitabile — poche righe, dette
 come tali. I giorni gia' passati non si riscrivono mai.
@@ -1114,6 +1250,13 @@ spesa integrativa e mangiate fuori — poi ritara:
 - ristorante e pizzeria -> `spesa_fuori_casa`, mai dentro `spesa_reale`
 - scontrino PDF -> prezzi in `prodotti.jsonl`, `spesa_reale` e
   `scarto_per_riga` in storico, dispensa corretta sul reale
+
+Poi **lascia un file**: `<nome>-postmortem.md` nella cartella della settimana —
+com'e' andata, cosa ha cambiato, cosa resta aperto. Le tarature stanno in
+`storico.yaml` perche' le rilegge una skill; il ragionamento che le ha prodotte
+finiva in chat, e una chat a febbraio non la rilegge nessuno. Ne' voti uno per
+uno ne' il peso di nessuno: quello sta in `storico.yaml`, e un numero sul corpo
+di una persona non si scrive in un documento che qualcun altro puo' aprire.
 
 ### Note operative
 
@@ -1153,7 +1296,7 @@ asserzioni. Come si lanciano e cosa vuol dire un fallimento stanno in
 
 | tier | cosa controlla | costo | quando |
 |---|---|---|---|
-| **1** `lint_dati.py` | i contratti dati: YAML leggibile, id che esistono, ogni prezzo con data e fonte, nessun deperibile fra gli avanzi, nessuno stato di cella fuori vocabolario | zero token | sempre |
+| **1** `lint_dati.py` | i contratti dati: YAML leggibile, id che esistono, ogni prezzo con data e fonte, nessun deperibile fra gli avanzi, nessuno stato di cella fuori vocabolario, e i documenti della settimana col nome che le skill cercheranno | zero token | sempre |
 | **2** `loop_runner.py` | il giro intero headless su una casa sintetica, e le proprieta' che deve lasciare dietro | token veri | prima di una release |
 | **3** `giudizio.py` | il menu e' *buono*: equilibrio, varieta', plausibilita' di un mercoledi' sera | token veri | ogni tanto |
 

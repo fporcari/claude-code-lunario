@@ -204,14 +204,14 @@ nessun altro risponde — quanto costa mangiare, non quanto costa la spesa.
 > da 700 g, il Grana Padano che avete già in casa non lo ricompro…
 
 <!-- SEGNAPOSTO: screenshot del menu HTML di una settimana vera.
-     Lo genera l'autore da settimane/<ISO>-<titolo>.html e lo committa a mano.
+     Lo genera l'autore dal `-preventivo.html` di una settimana e lo committa a mano.
      Non generarlo in modo sintetico: un menu inventato violerebbe la
      regola «mai inventare» che regge il progetto. -->
 
 ## Cosa esce
 
-Due file con lo stesso contenuto e due mestieri diversi. Il markdown è la
-fonte, e porta lo stato di avanzamento della settimana:
+Una cartella per settimana, e dentro tre documenti che fanno tre mestieri.
+Il primo è il menu: i sette giorni, e lo stato di avanzamento della settimana.
 
 ```markdown
 ---
@@ -224,21 +224,41 @@ colazione: yogurt greco, frutta, fette biscottate · merenda bimbi: pane e marme
 - [ ] pranzo — Insalata di farro, pomodorini e mozzarella      450 / 380 kcal
 - [ ] cena — Filetti di branzino al forno con patate           520 / 430 kcal
 
-## Dal congelatore
+## Già in casa
 - [ ] Filetti di branzino, 2 × 250 g → lun cena
       in frigo domenica sera (8-12 h)
 
-## La spesa — ortofrutta
-- [ ] Zucchine — 600 g · 1,49 €
-      → lun cena · gio pranzo
-
-### Non si compra, c'è già
+### Dalla dispensa, non si compra
 - Branzino al banco, 800 g → i due pacchi nel congelatore (lun cena)
 ```
 
-L'HTML è lo stesso menu da stampare e attaccare al frigo — ma soprattutto da
-aprire sul telefono al supermercato, dove **la lista si spunta col dito** e le
-spunte restano dov'erano anche se ricarichi la pagina.
+Il secondo è **la lista della spesa, in un file suo** — ed è l'unico documento
+che scrivi tu. Lo apri sul telefono al supermercato con un editor markdown,
+spunti quello che prendi e **annoti accanto quello che non torna**:
+
+```markdown
+## Ortofrutta
+- [x] Zucchine — 600 g
+      → lun cena · gio pranzo
+- [x] Rucola — 2 buste da 100 g      non c'erano, prese 2 da 70 g
+
+## Fuori Lunario
+- [ ] detersivo lavastoviglie
+```
+
+Al ritorno, `lunario:spesa` riapre **lo stesso file** insieme allo scontrino:
+niente da esportare, niente da ricopiare in chat, nessuna seconda copia da
+riconciliare. C'è stata una versione in cui la lista si spuntava nell'HTML, e
+funzionava benissimo tranne che per una cosa: quelle spunte restavano nel
+browser del telefono, e il sistema non le vedeva mai.
+
+Perché il telefono la veda, la cartella deve stare in un posto sincronizzato —
+iCloud, Dropbox, Drive, Syncthing, quello che usi già. Meglio solo
+`settimane/`: in `dati/` ci sono i pesi. Se non sincronizzi niente, funziona
+tutto uguale e la lista si legge dal computer.
+
+Il terzo è l'HTML: lo stesso menu da stampare e attaccare al frigo, o da
+mostrare a chi la settimana la deve mangiare. Si legge, e basta.
 
 Tre dettagli che sembrano piccoli e non lo sono:
 
@@ -254,35 +274,54 @@ E ogni settimana ha un nome — il tuo filone: canzoni dei Beatles, pesci
 tropicali, film. Il nome sta anche nel file, perché è così che la chiami:
 
 ```
-settimane/
-├── 2026-W34-commando.md
-├── 2026-W34-commando.html
-└── 2026-W34-commando/
-    ├── contesto.yaml     gli impegni di quella settimana
-    └── diario.yaml       cosa avete mangiato davvero
+settimane/2026-W34-commando/
+├── 2026-W34-commando-preventivo.md     i sette giorni
+├── 2026-W34-commando-preventivo.html   da frigo
+├── 2026-W34-commando-lista.md          la spesa, che va e torna
+├── 2026-W34-commando-consuntivo.md     dopo lo scontrino
+├── 2026-W34-commando-consuntivo.html
+├── 2026-W34-commando-postmortem.md     com'è andata
+├── contesto.yaml     gli impegni di quella settimana
+└── diario.yaml       cosa avete mangiato davvero
 ```
 
 L'ISO davanti tiene l'ordine alfabetico uguale all'ordine cronologico; il
-titolo dietro serve a te, che due mesi dopo non dirai mai «apri 2026-W34».
+titolo dietro serve a te, che due mesi dopo non dirai mai «apri 2026-W34». E
+ogni file porta il nome intero, non `preventivo.md` nudo: uno scaricato sul
+telefono perde la cartella, e deve dire lo stesso di che settimana è.
 
 ## Preventivo e consuntivo
 
 Un menu ha due stati, e la differenza non è l'approvazione di qualcuno: è
 **quanto di ciò che c'è scritto è verificato**.
 
-| | `preventivo` | `consuntivo` |
+| | `-preventivo.md` | `-consuntivo.md` |
 |---|---|---|
 | **quando** | dal lunedì fino alla spesa | dopo lo scontrino |
 | **cosa dice** | quello che volete mangiare | quello che c'è davvero in casa |
 | **i numeri** | stime: formati, prezzi, e i piatti stessi | prodotti veri, formati veri, prezzi pagati |
-| **come si usa** | documento di lavoro: la lista si spunta al supermercato | registro: non c'è niente da spuntare |
+| **il totale** | una stima, e non è una spesa | il **cibo di casa**: non quello che hai pagato alla cassa |
 | **chi lo scrive** | `lunario:menu` | `lunario:spesa`, e nessun altro |
+
+Sono **due file**, non uno riscritto sopra l'altro: il preventivo resta lì, ed
+è quello contro cui si misura tutto il resto.
 
 Il «confermo» tuo non promuove niente, e vuol dire una cosa sola: *sto andando
 a fare la spesa adesso*. Mettere il timbro di definitivo su un totale fatto di
 prezzi della settimana scorsa sarebbe una bugia tipografica.
 
-Il preventivo non si perde: in coda al consuntivo resta il **delta leggibile**
+Da lì in poi il documento vivo è il consuntivo: se una cena salta,
+`lunario:correggi` scrive lì. Di solito non si tocca — è un registro — ma un
+fatto che scombina il piano è esattamente quello che un registro deve dire.
+
+Il totale merita una riga a sé, perché è l'errore più facile: alla cassa hai
+pagato 233 €, ma dentro c'erano uno zaino e la spesa di tua suocera. Il
+consuntivo chiude sul **cibo di questa casa**, e il totale dello scontrino
+resta accanto, dichiarato per quello che è. Quello che hai comprato per altri
+resta in pagina, voce per voce e col suo subtotale: quanto devi a qualcuno è
+esattamente il numero che stai cercando.
+
+In coda al consuntivo resta il **delta leggibile**
 — cosa è cambiato di formato, di prezzo, di piatto — perché lo scarto fra i due
 è il dato che la domenica insegna qualcosa, e leggerlo non deve richiedere un
 `git diff`.
@@ -527,7 +566,7 @@ Ne lanci quattro tutte le settimane; le altre partono da sole o quando servono.
 | `lunario:spesa` | **al ritiro** | dallo scontrino: prezzi veri, cosa manca, alternative subito. Separa il menu dai detersivi, e da qui il menu non è più una previsione |
 | `lunario:prepara` | **mentre cucini** | ingredienti scalati, procedimento, un video se serve, poi difficoltà e voto del cuoco. Prima di cucinare fa anche l'anteprima: com'è questo piatto, qui, per voi |
 | `lunario:correggi` | a settimana in corso | cambi idea? Ti propone cosa è rimasto e rifà solo i giorni che restano |
-| `lunario:postmortem` | **la domenica** | legge cos'è successo davvero e chiede solo il resto: voti dei commensali e — se vuoi — il peso → ritara porzioni, rotazione e budget |
+| `lunario:postmortem` | **la domenica** | legge cos'è successo davvero e chiede solo il resto: voti dei commensali e — se vuoi — il peso → ritara porzioni, rotazione e budget, e chiude la settimana con un file che si rilegge a febbraio |
 | `lunario:aggiorna` | automatica | allinea la cartella quando il motore va avanti. Non la invochi: la chiamano le altre |
 
 **I due voti non sono lo stesso voto.** Chi cucina valuta difficoltà e resa
@@ -552,7 +591,7 @@ no:
 │   ├── dispensa.yaml      scorte contate, avanzi calcolati, congelatore
 │   ├── versione.yaml      a che versione di Lunario sta questa cartella
 │   └── storico.yaml       settimane passate e tarature apprese
-└── settimane/             i menu generati, uno per settimana
+└── settimane/             una cartella per settimana, con dentro tutta la settimana
 ```
 
 Per tenerli altrove: `LUNARIO_DATI=/percorso/che/preferisci`.
@@ -576,7 +615,7 @@ già: è la lista dei divieti qui sopra.
 
 | tier | cosa controlla | costo |
 |---|---|---|
-| **1** | i contratti dei dati: ogni prezzo con data e fonte, nessun deperibile in dispensa, nessuno stato di cella inventato | zero token, gira sempre |
+| **1** | i contratti dei dati: ogni prezzo con data e fonte, nessun deperibile in dispensa, nessuno stato di cella inventato, i documenti della settimana col nome giusto | zero token, gira sempre |
 | **2** | il giro intero headless su una casa sintetica, e cosa lascia sui file | token veri, prima di una release |
 | **3** | il menu è *buono*? equilibrio, varietà, plausibilità di un mercoledì sera | token veri, ogni tanto |
 

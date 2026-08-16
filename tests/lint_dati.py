@@ -64,6 +64,14 @@ DATA = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 ISO_SETTIMANA = re.compile(r"^\d{4}-W\d{2}$")
 NOME_SETTIMANA = re.compile(r"^\d{4}-W\d{2}(-[a-z0-9]+(-[a-z0-9]+)*)?$")
 
+# La settimana e' una cartella, e dentro ci sta un insieme chiuso di file: un
+# documento per ruolo, piu' i due file di dati. Un nome fuori da questo elenco
+# non lo cerchera' nessuna skill — e' un file che esiste e non serve a niente.
+RUOLI_MD = {"preventivo", "lista", "consuntivo", "postmortem"}
+RUOLI_HTML = {"preventivo", "consuntivo"}
+DATI_SETTIMANA = {"contesto.yaml", "diario.yaml"}
+DOCUMENTO = re.compile(r"^(.+)-([a-z]+)\.(md|html)$")
+
 
 def _parole(testo):
     return {p for p in re.findall(r"[a-zàèéìòù]+", str(testo).lower()) if len(p) > 3}
@@ -632,6 +640,46 @@ class Lint:
         diario = os.path.join(cartella, "diario.yaml")
         if os.path.isfile(diario):
             self._controlla_diario(diario)
+        self._controlla_documenti_settimana(cartella)
+
+    def _controlla_documenti_settimana(self, cartella):
+        """I documenti dentro la cartella: un ruolo ciascuno, e il nome della
+        cartella davanti.
+
+        Il prefisso non e' pedanteria: `settimana.py` compone i percorsi da
+        `<nome cartella>-<ruolo>`, quindi un documento che porta un altro nome
+        e' un documento che nessuna skill aprira' mai — e non aprirlo non da'
+        nessun errore, da' una settimana che sembra vuota.
+        """
+        nome = os.path.basename(os.path.normpath(cartella))
+        trovati = {}
+        for voce in sorted(os.listdir(cartella)):
+            percorso = os.path.join(cartella, voce)
+            if voce in DATI_SETTIMANA or voce.startswith("."):
+                continue
+            documento = DOCUMENTO.match(voce)
+            if not documento:
+                self.segnala("FILE_ESTRANEO_ALLA_SETTIMANA", AVVISO, percorso,
+                             f"`{voce}`: non e' un documento della settimana ne' contesto/diario")
+                continue
+            radice_nome, ruolo, estensione = documento.groups()
+            ammessi = RUOLI_MD if estensione == "md" else RUOLI_HTML
+            if ruolo not in ammessi:
+                self.segnala("RUOLO_SETTIMANA_SCONOSCIUTO", AVVISO, percorso,
+                             f"`{voce}`: ruolo `{ruolo}` fuori da {sorted(ammessi)}")
+                continue
+            if radice_nome != nome:
+                self.segnala("DOCUMENTO_DISALLINEATO", ERRORE, percorso,
+                             f"`{voce}`: il prefisso non e' `{nome}`, e le skill lo cercano da li'")
+                continue
+            trovati[(ruolo, estensione)] = percorso
+            if estensione == "md" and ruolo in ("preventivo", "consuntivo"):
+                self._controlla_markdown_settimana(percorso, atteso=ruolo)
+
+        if ("consuntivo", "md") in trovati and ("preventivo", "md") not in trovati:
+            self.segnala("PREVENTIVO_SPARITO", AVVISO, trovati[("consuntivo", "md")],
+                         "c'e' il consuntivo e non il preventivo: lo scarto fra i due "
+                         "non si legge piu'")
 
     def _controlla_diario(self, percorso):
         """Il diario e' una mappa per data, piu' l'unica chiave che data non e':
@@ -725,15 +773,20 @@ class Lint:
                 self.segnala("PASTO_SCONOSCIUTO", ERRORE, percorso,
                              f"{cosa}: `pasto` = {uso.get('pasto')!r}")
 
-    def _controlla_markdown_settimana(self, percorso):
+    def _controlla_markdown_settimana(self, percorso, atteso=None):
         with open(percorso, encoding="utf-8") as f:
             testa = f.read(2000)
         trovato = re.search(r"^stato:\s*(\S+)\s*$", testa, re.MULTILINE)
         if not trovato:
             self.segnala("SETTIMANA_SENZA_STATO", ERRORE, percorso, "manca `stato:` in testa")
-        elif trovato.group(1) not in STATI_SETTIMANA:
+            return
+        stato = trovato.group(1)
+        if stato not in STATI_SETTIMANA:
             self.segnala("STATO_SETTIMANA_SCONOSCIUTO", ERRORE, percorso,
-                         f"`stato: {trovato.group(1)}` fuori da {sorted(STATI_SETTIMANA)}")
+                         f"`stato: {stato}` fuori da {sorted(STATI_SETTIMANA)}")
+        elif atteso and stato != atteso:
+            self.segnala("STATO_SETTIMANA_INCOERENTE", ERRORE, percorso,
+                         f"il file e' il {atteso} e dentro dice `stato: {stato}`")
 
 
 # ------------------------------------------------------------------------ CLI

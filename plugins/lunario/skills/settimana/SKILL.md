@@ -248,7 +248,9 @@ Riepiloga in tre-quattro righe cosa hai capito e fatti confermare. Poi scrivi
 settimana, mai i ritmi permanenti, che vivono altrove.
 
 La cartella si chiama con l'ISO nudo, senza titolo: il titolo non esiste
-ancora, lo genera `lunario:menu`, che rinomina la cartella quando ce l'ha.
+ancora, lo genera `lunario:menu`, che rinomina la cartella quando ce l'ha. Da
+li' in poi **tutta la settimana vive li' dentro** — preventivo, lista,
+consuntivo, postmortem — e il nome non cambia piu'.
 
 Nel riepilogo **i pasti che saltano vanno nominati**, non dati per scontati:
 «quindi giovedi' non cucino per nessuno e sabato sera e' libero». E' la riga

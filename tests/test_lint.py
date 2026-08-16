@@ -20,8 +20,10 @@ import unittest
 
 QUI = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, QUI)
+sys.path.insert(0, os.path.join(os.path.dirname(QUI), "plugins", "lunario", "scripts"))
 
 import minyaml  # noqa: E402
+import settimana as settimana_del_motore  # noqa: E402
 from lint_dati import ERRORE, Lint, cartelle_predefinite  # noqa: E402
 
 FIXTURES = cartelle_predefinite()
@@ -253,6 +255,36 @@ def pasto_di_diario_inventato(radice):
                   "    reale: Pane e marmellata\n")
 
 
+def scrivi_settimana(radice, nome, documenti):
+    """Una cartella di settimana coi documenti che le si passano."""
+    cartella = os.path.join(radice, "settimane", nome)
+    os.makedirs(cartella, exist_ok=True)
+    for voce, contenuto in documenti.items():
+        with open(os.path.join(cartella, voce), "w", encoding="utf-8") as f:
+            f.write(contenuto)
+    return cartella
+
+
+def testa(stato, titolo="Guasta"):
+    return f"---\nstato: {stato}\ntitolo: {titolo}\n---\n\n## I sette giorni\n"
+
+
+def documento_con_un_altro_nome(radice):
+    """Il prefisso non e' quello della cartella: nessuna skill lo aprira'."""
+    scrivi_settimana(radice, "2026-W47-guasta",
+                     {"2026-W47-un-altro-nome-preventivo.md": testa("preventivo")})
+
+
+def preventivo_che_dice_consuntivo(radice):
+    scrivi_settimana(radice, "2026-W48-guasta",
+                     {"2026-W48-guasta-preventivo.md": testa("consuntivo")})
+
+
+def documento_senza_stato(radice):
+    scrivi_settimana(radice, "2026-W49-guasta",
+                     {"2026-W49-guasta-preventivo.md": "# Settimana senza stato\n"})
+
+
 CORRUZIONI = [
     ("KCAL_SOTTO_PAVIMENTO", persona_a_dieta_troppo_bassa),
     ("KCAL_SU_CHI_NON_E_A_DIETA", deficit_a_chi_non_e_a_dieta),
@@ -276,6 +308,9 @@ CORRUZIONI = [
     ("SOSPESO_SENZA_PRODOTTO", sospeso_su_prodotto_fantasma),
     ("STATO_PASTO_SCONOSCIUTO", pasto_di_diario_con_stato_inventato),
     ("PASTO_SCONOSCIUTO", pasto_di_diario_inventato),
+    ("DOCUMENTO_DISALLINEATO", documento_con_un_altro_nome),
+    ("STATO_SETTIMANA_INCOERENTE", preventivo_che_dice_consuntivo),
+    ("SETTIMANA_SENZA_STATO", documento_senza_stato),
 ]
 
 
@@ -350,6 +385,122 @@ class TestAvvisi(unittest.TestCase):
                     # avviso, non errore: due scorte distinte sono possibili
                     self.assertNotIn("SCORTA_E_FREEZER_DUPLICATI",
                                      {v.codice for v in violazioni if v.livello == ERRORE})
+
+
+class TestCartellaSettimana(unittest.TestCase):
+    """Il contratto della cartella: quali file ci stanno, e cosa e' solo sospetto."""
+
+    def violazioni(self, radice, guasto):
+        with tempfile.TemporaryDirectory(prefix="lunario-lint-") as tmp:
+            copia = os.path.join(tmp, os.path.basename(radice))
+            shutil.copytree(radice, copia)
+            guasto(copia)
+            return Lint(copia).esegui()
+
+    def codici(self, radice, guasto, livello=None):
+        # `single` non ha il timbro, ed e' voluto: e' il fixture che esercita la
+        # deduzione dalla forma. L'avviso non riguarda la cartella settimana.
+        return {v.codice for v in self.violazioni(radice, guasto)
+                if v.codice != "TIMBRO_ASSENTE"
+                and (livello is None or v.livello == livello)}
+
+    def test_una_settimana_completa_passa_in_silenzio(self):
+        """L'altra meta' del lint: il contratto rispettato non produce niente."""
+        def sana(copia):
+            nome = "2026-W50-sana"
+            scrivi_settimana(copia, nome, {
+                f"{nome}-preventivo.md": testa("preventivo", "Sana"),
+                f"{nome}-preventivo.html": "<html><body>preventivo</body></html>",
+                f"{nome}-lista.md": "# Spesa\n\n## Dispensa\n- [ ] Fusilli — 2 × 500 g\n",
+                f"{nome}-consuntivo.md": testa("consuntivo", "Sana"),
+                f"{nome}-consuntivo.html": "<html><body>consuntivo</body></html>",
+                f"{nome}-postmortem.md": "# Postmortem\n",
+                "contesto.yaml": "settimana: {}\n",
+            })
+        for radice in FIXTURES:
+            with self.subTest(fixture=os.path.basename(radice)):
+                self.assertEqual(set(), self.codici(radice, sana))
+
+    def test_un_ruolo_inventato_e_solo_un_avviso(self):
+        def guasto(copia):
+            scrivi_settimana(copia, "2026-W51-guasta",
+                             {"2026-W51-guasta-bozza.md": testa("preventivo")})
+        for radice in FIXTURES:
+            with self.subTest(fixture=os.path.basename(radice)):
+                self.assertIn("RUOLO_SETTIMANA_SCONOSCIUTO", self.codici(radice, guasto))
+                self.assertNotIn("RUOLO_SETTIMANA_SCONOSCIUTO", self.codici(radice, guasto, ERRORE))
+
+    def test_un_file_estraneo_e_solo_un_avviso(self):
+        """Uno scontrino lasciato li' non e' un errore: e' roba dell'utente."""
+        def guasto(copia):
+            scrivi_settimana(copia, "2026-W52-guasta", {"scontrino.txt": "TOTALE 12,00\n"})
+        for radice in FIXTURES:
+            with self.subTest(fixture=os.path.basename(radice)):
+                self.assertIn("FILE_ESTRANEO_ALLA_SETTIMANA", self.codici(radice, guasto))
+                self.assertNotIn("FILE_ESTRANEO_ALLA_SETTIMANA", self.codici(radice, guasto, ERRORE))
+
+    def test_un_consuntivo_senza_preventivo_si_nota(self):
+        def guasto(copia):
+            nome = "2026-W53-guasta"
+            scrivi_settimana(copia, nome, {f"{nome}-consuntivo.md": testa("consuntivo")})
+        for radice in FIXTURES:
+            with self.subTest(fixture=os.path.basename(radice)):
+                self.assertIn("PREVENTIVO_SPARITO", self.codici(radice, guasto))
+
+
+class TestRisoluzioneSettimana(unittest.TestCase):
+    """Lo script che dice alle skill su quale file scrivere.
+
+    Sbagliare il file vivo non da' nessun errore: da' una settimana raccontata
+    in un documento che nessuno riaprira'. Quindi si verifica qui."""
+
+    settimana = settimana_del_motore
+
+    def casa(self, tmp, documenti, nome="2026-W34-commando"):
+        os.makedirs(os.path.join(tmp, "settimane", nome), exist_ok=True)
+        for relativo, contenuto in documenti.items():
+            percorso = os.path.join(tmp, "settimane", relativo)
+            os.makedirs(os.path.dirname(percorso), exist_ok=True)
+            with open(percorso, "w", encoding="utf-8") as f:
+                f.write(contenuto)
+        return self.settimana.risolvi(tmp)
+
+    def test_il_vivo_e_il_preventivo_finche_non_c_e_il_consuntivo(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            esito = self.casa(tmp, {
+                "2026-W34-commando/2026-W34-commando-preventivo.md": testa("preventivo"),
+                "2026-W34-commando/2026-W34-commando-lista.md": "# Spesa\n",
+            })
+            self.assertEqual("cartella", esito["layout"])
+            self.assertTrue(esito["vivo"].endswith("-preventivo.md"))
+
+    def test_col_consuntivo_il_vivo_cambia(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            esito = self.casa(tmp, {
+                "2026-W34-commando/2026-W34-commando-preventivo.md": testa("preventivo"),
+                "2026-W34-commando/2026-W34-commando-consuntivo.md": testa("consuntivo"),
+            })
+            self.assertTrue(esito["vivo"].endswith("-consuntivo.md"))
+
+    def test_il_layout_vecchio_si_trova_lo_stesso(self):
+        """Le settimane scritte prima del contratto 4 non si migrano: si leggono."""
+        with tempfile.TemporaryDirectory() as tmp:
+            esito = self.casa(tmp, {"2026-W34-commando.md": testa("consuntivo")})
+            self.assertEqual("piatto", esito["layout"])
+            self.assertTrue(esito["vivo"].endswith("2026-W34-commando.md"))
+
+    def test_una_cartella_senza_documenti_non_ha_un_vivo(self):
+        """`lunario:settimana` ha creato la cartella, il menu non e' ancora uscito."""
+        with tempfile.TemporaryDirectory() as tmp:
+            esito = self.casa(tmp, {"2026-W34-commando/contesto.yaml": "settimana: {}\n"})
+            self.assertIsNone(esito["vivo"])
+
+    def test_lo_slug_e_quello_del_contratto(self):
+        self.assertEqual("yellow-submarine", self.settimana.slug("Yellow Submarine"))
+        self.assertEqual("impressioni-di-settembre",
+                         self.settimana.slug("Impressioni di settembre"))
+        self.assertEqual("perche-no", self.settimana.slug("Perché no?!"))
+        self.assertEqual("tre-pesci-e-un-forno", self.settimana.slug("  Tre pesci — e un forno  "))
 
 
 class TestMiniYaml(unittest.TestCase):

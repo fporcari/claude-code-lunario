@@ -16,3 +16,6 @@ Lo scontrino sintetico che gli fa da coppia sta in
 `tests/fixtures/scontrino/`: contiene di proposito una sostituzione di formato,
 una riga mai vista, un prodotto della lista che manca e quattro righe non
 alimentari.
+
+Le sue settimane sono al **contratto 4**: una cartella ciascuna, con dentro
+preventivo, lista, consuntivo e — per l'ultima — il postmortem.

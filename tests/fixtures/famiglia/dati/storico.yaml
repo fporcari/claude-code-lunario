@@ -55,7 +55,7 @@ tarature:
 settimane:
   - settimana: 2026-W31
     titolo: Orione
-    menu: settimane/2026-W31-orione.md
+    menu: settimane/2026-W31-orione/2026-W31-orione-consuntivo.md
     spesa_stimata: 100.00
     spesa_reale: 96.00
     spesa_extra_alimentare: 8.00
@@ -73,7 +73,7 @@ settimane:
 
   - settimana: 2026-W32
     titolo: Cassiopea
-    menu: settimane/2026-W32-cassiopea.md
+    menu: settimane/2026-W32-cassiopea/2026-W32-cassiopea-consuntivo.md
     spesa_stimata: 105.00
     spesa_reale: 110.00
     spesa_extra_alimentare: 5.00
