@@ -269,6 +269,11 @@ class TestMiniYaml(unittest.TestCase):
         letto = minyaml.carica("id: pasta#500   # questo e' un commento\n")
         self.assertEqual("pasta#500", letto["id"])
 
+    def test_apostrofi_italiani_non_sono_virgolette(self):
+        """`gia'` e `ce n'erano` sono ovunque: non aprono una stringa."""
+        letto = minyaml.carica("causa: ricomprata mentre ce n'erano gia' tre   # nota\n")
+        self.assertEqual("ricomprata mentre ce n'erano gia' tre", letto["causa"])
+
     def test_chiave_duplicata_e_un_errore(self):
         with self.assertRaises(minyaml.ErroreYaml):
             minyaml.carica("a: 1\na: 2\n")

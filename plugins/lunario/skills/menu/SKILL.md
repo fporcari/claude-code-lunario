@@ -29,7 +29,7 @@ notare ogni lunedi' e' rumore.
 
 `dati/profilo.yaml` · `dati/ritmi.yaml` · `dati/note.md` ·
 `dati/ricette.md` · `dati/storico.yaml` (tarature) · `dati/dispensa.yaml`
-(`avanzi` **e** `freezer`) · il `contesto.yaml` della settimana, che si trova
+(`scorte`, `avanzi` **e** `freezer`) · il `contesto.yaml` della settimana, che si trova
 con un glob su `settimane/<ISO>*`. Se il contesto manca, chiama
 `lunario:settimana` invece di indovinare.
 
@@ -146,7 +146,8 @@ Il passo che rende la lista utile. Procedura completa in `${CLAUDE_PLUGIN_ROOT}/
 1. **fabbisogno** per ingrediente: porzione × **celle che lo mangiano** — non
    × persone. Un pranzo in mensa e una merenda che nessuno fa non comprano
    niente; la merenda dei due bambini compra per due, sette volte
-2. **meno la dispensa** (`avanzi`) **e meno le scorte** (`freezer`)
+2. **meno quello che c'e' gia' in casa** — `avanzi`, `freezer` e `scorte`, in
+   quest'ordine e con la fiducia che ognuno si merita: vedi 3c
 3. **confezioni**: formato da `dati/prodotti.jsonl`. I prodotti che non ci sono
    si risolvono adesso, col procedimento qui sotto — non si rimandano alla
    lista
@@ -219,6 +220,55 @@ rimasto irrisolto, lo dice la riga marcata nella lista.
 
 Aggiorna `dati/dispensa.yaml` con gli avanzi previsti — **solo non
 deperibili**, la fascia `[fine]` di `${CLAUDE_PLUGIN_ROOT}/kb/deperibilita.md`.
+
+### 3c. Quello che c'e' gia' in casa si sottrae per gradi
+
+Il fabbisogno non si confronta con un magazzino: si confronta con tre cose che
+il sistema conosce con tre gradi di certezza diversi, e l'ordine conta.
+
+```
+fabbisogno − avanzi − freezer − scorte = da comprare
+```
+
+1. **`avanzi`** — calcolati dal motore la settimana scorsa, in grammi. Si
+   sottraggono per intero
+2. **`freezer`** — visto dall'utente, con la data. Si sottrae per intero, e
+   comanda anche **quali piatti** entrano in settimana (vedi il punto 3 dei
+   vincoli)
+3. **`scorte`** — contate una volta, e poi invecchiate. Qui la sottrazione
+   **dipende da quanto e' vecchia la convinzione**
+
+La fiducia si calcola da `visto`, `rotazione` e da quanto la settimana si
+appoggia a quella riga — la tabella e' in `${CLAUDE_PLUGIN_ROOT}/kb/scorte.md`:
+
+| fiducia | cosa fai |
+|---|---|
+| **fresca** | sottrai in silenzio |
+| **invecchiata** | sottrai, e **dillo nel menu**: «conto sui 2 pacchi di riso visti il 12 luglio» |
+| **stantia** | **non fidarti**: non sottrarre, e segnala che quella riga andava contata prima di generare |
+
+Una banda non si sottrae in grammi, decide se la riga serve: `pieno` e `medio`
+la fanno sparire, `poco` e `finito` la lasciano intera. Un numero si sottrae
+come una quantita' vera.
+
+**Sopra `massimo` non si compra, punto.** Se il fabbisogno chiederebbe una
+confezione ma la scorta e' gia' al tetto, la riga non esce, e **lo si dice in
+mezza riga** — perche' e' l'unico momento in cui l'errore che nessuno nota
+diventa visibile:
+
+```markdown
+- Passata di pomodoro: ne servirebbe 1 bottiglia, ma ne avete gia' 6 (tetto: 6).
+  Non la metto in lista.
+```
+
+Come dato, mai come rimprovero. Comprare in abbondanza non e' una
+dimenticanza: e' un modo di sentirsi previdenti, e un sistema che ci mette
+sopra un giudizio si fa spegnere.
+
+**Il movimento e' una stima, e non tocca `visto`.** Quando il menu sottrae da
+`scorte`, aggiorna `quantita` e lascia `visto` dov'era: solo un conteggio umano
+azzera l'eta' del dato. Una dispensa piena di numeri derivati che si dichiarano
+appena contati e' peggio di una dispensa vecchia che si dichiara vecchia.
 
 ## 4. Il totale
 

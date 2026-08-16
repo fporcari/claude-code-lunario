@@ -2,6 +2,69 @@
 
 aggiornata: 2026-08-16
 
+scorte:
+  # Dispensa normale: nessuna riga al tetto, nessun accumulo cronico.
+  fusilli-500:
+    quantita: 3
+    soglia: 2
+    massimo: 6
+    visto: 2026-08-16
+    rotazione: alta
+  riso-arborio-1000:
+    quantita: 1
+    soglia: 1
+    massimo: 3
+    visto: 2026-08-16
+    rotazione: alta
+  passata-pomodoro-700:
+    quantita: 2
+    soglia: 2
+    massimo: 5
+    visto: 2026-08-16
+    rotazione: alta
+  ceci-lessati-400:
+    quantita: 2
+    soglia: 2
+    massimo: 6
+    visto: 2026-08-09
+    rotazione: media
+  lenticchie-secche-500:
+    quantita: 1
+    soglia: 1
+    massimo: 3
+    visto: 2026-07-05
+    rotazione: media
+  olio-oliva-1000:
+    quantita: 1
+    soglia: 1
+    massimo: 3
+    visto: 2026-08-09
+    rotazione: alta
+  biscotti-frollini-350:
+    quantita: 2
+    soglia: 1
+    massimo: 4
+    visto: 2026-08-16
+    rotazione: alta
+  crackers-250:
+    quantita: poco
+    soglia: 1
+    massimo: 4
+    visto: 2026-08-09
+    rotazione: alta
+  piselli-surgelati-450:
+    quantita: 2
+    soglia: 1
+    massimo: 4
+    visto: 2026-08-02
+    rotazione: media
+  filetti-platessa-surg-400:
+    quantita: 1
+    soglia: 1
+    massimo: 2
+    visto: 2026-06-28
+    rotazione: media
+
 avanzi:
   fusilli-500: 200
   riso-arborio-1000: 400

@@ -30,11 +30,12 @@ import sys
 # Il numero di contratto si muove SOLO quando si muove il contratto dei dati,
 # non a ogni versione del plugin. La tabella completa, con cosa cambia a ogni
 # passo, sta nella skill `lunario:aggiorna`.
-CONTRATTO_CORRENTE = 2
+CONTRATTO_CORRENTE = 3
 
 DESCRIZIONE = {
     1: "prima della griglia dei pasti: `bambini:`, `fuori_trasportabile`, settimane senza titolo",
     2: "griglia dei pasti, preventivo/consuntivo, settimane <ISO>-<titolo>, diario",
+    3: "dispensa a tre sezioni: le scorte contate accanto agli avanzi e al congelatore",
 }
 
 
@@ -122,7 +123,12 @@ def rileva(dati, radice):
     if motivi:
         return 1, motivi
 
+    dispensa = _testo(os.path.join(dati, "dispensa.yaml"))
+    if re.search(r"^scorte:\s*$", dispensa, re.MULTILINE):
+        return 3, ["la dispensa ha gia' la sezione `scorte`"]
+
     motivi.append("griglia dei pasti presente")
+    motivi.append("la dispensa non ha ancora la sezione `scorte`")
     settimane = os.path.join(radice, "settimane")
     if os.path.isdir(settimane):
         nomi = [n for n in os.listdir(settimane) if n.endswith(".md")]

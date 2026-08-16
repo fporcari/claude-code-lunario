@@ -1,6 +1,6 @@
 # Il timbro della cartella. Lo scrive il sistema, mai l'utente.
 # `contratto` si muove solo quando si muove il contratto dei dati;
 # `motore` e' la versione del plugin che ha toccato questa cartella per ultima.
-contratto: 2
-motore: 3.4.0
+contratto: 3
+motore: 4.0.0
 migrata: 2026-08-16

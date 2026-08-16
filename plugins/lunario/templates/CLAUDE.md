@@ -155,16 +155,41 @@ non va in nessuno di questi file. Va detto a chi il plugin lo mantiene.
 
 ## Cosa c'e' in casa, il lunedi'
 
-`lunario:settimana` chiede ogni lunedi' cosa c'e' nel congelatore, nel frigo e
-in dispensa, e lo chiede mostrandoti quello che crede di avere: correggere un
-elenco e' facile, ricordarlo no. Vale la pena rispondere davvero al primo —
-il congelatore e' roba gia' pagata, e un branzino comprato al banco mentre due
-filetti invecchiano nel freezer e' l'errore piu' caro che questo sistema possa
-farvi fare.
+`lunario:settimana` guarda ogni lunedi' cosa c'e', e lo fa mostrandoti quello
+che crede di avere: correggere un elenco e' facile, ricordarlo no. Il
+congelatore te lo mostra tutto — e' corto, ed e' roba gia' pagata: un branzino
+comprato al banco mentre due filetti invecchiano nel freezer e' l'errore piu'
+caro che questo sistema possa farvi fare.
 
 Quello che entra nel menu da li' **esce dalla lista della spesa**, e il menu
 lo dice; e ogni surgelato porta la riga dello scongelamento — la sera prima, o
 la cena non si fa.
+
+## La dispensa, e perche' e' volutamente imprecisa
+
+Se in casa tenete sempre le stesse quaranta cose, `lunario:inventario` le
+registra una volta: le racconti a voce, o mandi le foto degli scaffali. Non c'e'
+niente da compilare — le app di dispensa muoiono tutte cosi', riempite a mano
+per una settimana e poi mai piu'.
+
+Nessuno pesa la farina, e non serve: «quattro pacchi», «poco», «finito»
+bastano. Ogni riga ha due numeri che fanno il lavoro:
+
+- **`soglia`** — sotto, il prodotto torna in lista
+- **`massimo`** — sopra, **non te lo rimetto in lista**, anche se il menu lo
+  userebbe. E' il campo che ferma il quinto pacco della stessa cosa, che e'
+  l'errore che nessuno nota
+
+Poi la dispensa invecchia, e il sistema lo sa: non tiene una certezza, tiene
+**quanto e' vecchia la sua convinzione**. Un dato fresco lo scala in silenzio,
+uno invecchiato lo scala dicendotelo, uno stantio non se lo beve e te lo
+chiede. Il lunedi' non e' un censimento: sono **sei righe**, quelle piu' a
+rischio, da correggere in una frase. Se tagli corto non perdi niente: tornano
+la settimana dopo, piu' in alto.
+
+Il numero che rende sensato tenerla: **quanto vale la roba che avete in casa**,
+dai prezzi dei vostri scontrini. Non e' un rimprovero, e' il motivo per cui
+l'inventario si mantiene.
 
 ## Se tieni piu' di una cartella
 

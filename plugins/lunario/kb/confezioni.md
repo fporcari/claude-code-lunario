@@ -23,15 +23,17 @@ gia' una riga della spesa, non serve tradurla.
 ## Il calcolo, tre passi
 
 ```
-fabbisogno − dispensa = mancante → confezioni
+fabbisogno − avanzi − freezer − scorte = mancante → confezioni
 ```
 
 1. **Fabbisogno**: somma dei grammi dell'ingrediente su tutti i pasti della
    settimana (porzione × celle che lo mangiano davvero), con le porzioni scalate
    sulle tarature.
-2. **Meno la dispensa**: `dati/dispensa.yaml` dice cosa c'e' gia' in casa.
-   Sottrarlo e' l'anello che evita di ricomprare ogni lunedi' la pasta di cui
-   resta mezzo pacco.
+2. **Meno quello che c'e' gia' in casa**, nell'ordine: `avanzi` (calcolati dal
+   motore, in grammi), `freezer` (visto dall'utente), `scorte` (contate una
+   volta e poi invecchiate — e quanto ci si fida lo dice `scorte.md`). E' l'anello
+   che evita di ricomprare ogni lunedi' la pasta di cui resta mezzo pacco. Sopra
+   `massimo` non si compra, punto, e lo si dice.
 3. **Confezioni**: `ceil(mancante / formato_g)`, con l'eccezione qui sotto.
    L'avanzo previsto — `confezioni × formato_g − mancante` — torna in dispensa.
 
@@ -58,7 +60,8 @@ postmortem.
 ## Cosa entra in dispensa, cosa no
 
 Solo i non deperibili, cioe' la fascia `[fine]` di `kb/deperibilita.md`:
-dispensa secca, scatolame, surgelati, uova, formaggi stagionati.
+dispensa secca, scatolame, surgelati, uova, formaggi stagionati. Vale per tutte
+e tre le sezioni — `scorte`, `avanzi`, `freezer`.
 
 **Il fresco avanzato non e' un credito.** Mezza busta di rucola avanzata non
 va scritta da nessuna parte: fra tre giorni non esiste. Segnarla come dispensa

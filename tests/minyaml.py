@@ -37,12 +37,19 @@ class ErroreYaml(Exception):
 
 def _senza_commento(riga):
     """Toglie il commento finale. `#` apre un commento solo se e' a inizio riga
-    o preceduto da spazio: `id: pasta#500` non e' un commento."""
+    o preceduto da spazio: `id: pasta#500` non e' un commento.
+
+    L'apostrofo in mezzo a una parola non apre una stringa: in italiano
+    `ce n'erano` e `gia'` sono ovunque, e trattarli da virgolette farebbe
+    sparire meta' riga.
+    """
     virgoletta = None
     for i, c in enumerate(riga):
         if virgoletta:
             if c == virgoletta and (i == 0 or riga[i - 1] != "\\"):
                 virgoletta = None
+        elif c == "'" and i > 0 and (riga[i - 1].isalnum() or riga[i - 1] == "'"):
+            continue
         elif c in "\"'":
             virgoletta = c
         elif c == "#" and (i == 0 or riga[i - 1] in " \t"):

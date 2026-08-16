@@ -37,6 +37,8 @@ FONTI_PREZZO = {"scontrino", "dichiarato"}
 FONTI_FORMATO = {"utente", "scontrino", "ricerca", "openfoodfacts"}
 FONTI_NUTRIENTI = {"crea", "etichetta", "openfoodfacts"}
 STATI_SETTIMANA = {"preventivo", "consuntivo"}
+BANDE = {"pieno", "medio", "poco", "finito"}
+ROTAZIONI = {"alta", "media", "bassa"}
 
 # Deperibilita': la fascia [fine] di kb/deperibilita.md e' l'unica ammessa in
 # `avanzi`. Il reparto e' il segnale strutturato che abbiamo; dove non basta si
@@ -46,7 +48,10 @@ REPARTI_INCERTI = {"latticini-uova", "gastronomia", "banco", "salumi"}
 # La fascia [fine] nomina esplicitamente uova e formaggi stagionati: stanno in
 # un reparto deperibile ma deperibili non sono, e vanno riconosciuti dal nome.
 NON_DEPERIBILE_NEL_NOME = ("surgelat", "congelat", "in scatola", "sott'olio", "essicc",
-                           "uova", "grana", "parmigian", "pecorino", "stagionat")
+                           "uova", "grana", "parmigian", "pecorino", "stagionat",
+                           # il latte a lunga conservazione sta in un reparto
+                           # deperibile e in dispensa ci sta benissimo, finche' e' chiuso
+                           "uht", "lunga conservazione")
 
 PAVIMENTO_KCAL = 1200
 DATA = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -391,6 +396,8 @@ class Lint:
             self.segnala("DISPENSA_SENZA_DATA", AVVISO, percorso,
                          f"`aggiornata` = {dispensa.get('aggiornata')!r}")
 
+        self._controlla_scorte(dispensa.get("scorte") or {}, percorso)
+
         for identificativo, quantita in (dispensa.get("avanzi") or {}).items():
             if not isinstance(quantita, (int, float)):
                 self.segnala("AVANZO_NON_NUMERICO", ERRORE, percorso,
@@ -416,7 +423,46 @@ class Lint:
                 self.segnala("FREEZER_SENZA_COSA", ERRORE, percorso,
                              f"{voce['cosa']}: `da_smaltire` non e' booleano")
 
-    def _controlla_deperibilita(self, identificativo, percorso):
+    def _controlla_scorte(self, scorte, percorso):
+        """Le scorte sono volutamente grossolane, ma non vaghe: senza `visto` la
+        fiducia non si puo' calcolare, e una quantita' fuori vocabolario non si
+        puo' ne' sottrarre ne' confrontare con la soglia."""
+        if not isinstance(scorte, dict):
+            self.segnala("YAML_ILLEGGIBILE", ERRORE, percorso, "`scorte` non e' una mappa")
+            return
+        for chiave, riga in scorte.items():
+            if not isinstance(riga, dict):
+                self.segnala("SCORTA_MALFORMATA", ERRORE, percorso, f"{chiave}: non e' una mappa")
+                continue
+            quantita = riga.get("quantita")
+            if not (isinstance(quantita, (int, float)) and quantita >= 0) \
+                    and quantita not in BANDE:
+                self.segnala("SCORTA_QUANTITA_INVALIDA", ERRORE, percorso,
+                             f"{chiave}: `quantita` = {quantita!r}, ne' un numero ne' {sorted(BANDE)}")
+            if not DATA.match(str(riga.get("visto", ""))):
+                self.segnala("SCORTA_SENZA_VISTO", ERRORE, percorso,
+                             f"{chiave}: `visto` = {riga.get('visto')!r}. Senza, la fiducia non si calcola")
+            for campo in ("soglia", "massimo"):
+                valore = riga.get(campo)
+                if valore is not None and not (isinstance(valore, (int, float)) and valore >= 0):
+                    self.segnala("SCORTA_SOGLIA_INVALIDA", ERRORE, percorso,
+                                 f"{chiave}: `{campo}` = {valore!r}")
+            soglia, massimo = riga.get("soglia"), riga.get("massimo")
+            if isinstance(soglia, (int, float)) and isinstance(massimo, (int, float)) \
+                    and massimo < soglia:
+                self.segnala("SCORTA_TETTO_SOTTO_SOGLIA", ERRORE, percorso,
+                             f"{chiave}: massimo {massimo} sotto la soglia {soglia}: la riga "
+                             "tornerebbe in lista e non si potrebbe mai comprare")
+            rotazione = riga.get("rotazione")
+            if rotazione is not None and rotazione not in ROTAZIONI:
+                self.segnala("SCORTA_ROTAZIONE_SCONOSCIUTA", ERRORE, percorso,
+                             f"{chiave}: `rotazione` = {rotazione!r}")
+            # La chiave puo' essere testo libero — «mezzo scamone» non e' una
+            # riga del paniere — ma se e' un id vero, vale la regola dei deperibili.
+            if chiave in self.paniere:
+                self._controlla_deperibilita(chiave, percorso, dove="scorte")
+
+    def _controlla_deperibilita(self, identificativo, percorso, dove="avanzi"):
         prodotto = self.paniere.get(identificativo)
         if not prodotto:
             return
@@ -426,10 +472,11 @@ class Lint:
         reparto = prodotto.get("reparto")
         if reparto in REPARTI_DEPERIBILI:
             self.segnala("DEPERIBILE_IN_AVANZI", ERRORE, percorso,
-                         f"{identificativo}: reparto `{reparto}`, fra tre giorni non esiste")
+                         f"{identificativo}: in `{dove}`, reparto `{reparto}`, fra tre giorni non esiste")
         elif reparto in REPARTI_INCERTI:
             self.segnala("DEPERIBILE_IN_AVANZI", AVVISO, percorso,
-                         f"{identificativo}: reparto `{reparto}`, in avanzi solo se davvero non deperibile")
+                         f"{identificativo}: in `{dove}`, reparto `{reparto}`, "
+                         "solo se davvero non deperibile")
 
     # ---------------------------------------------------------------- storico.yaml
 

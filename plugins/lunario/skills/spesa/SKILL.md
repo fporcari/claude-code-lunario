@@ -183,7 +183,14 @@ lascia stare il resto. Se i giorni colpiti sono tanti, e' il caso di
   settimana, solo non deperibili. E la sezione `freezer`: cio' che finisce
   nel congelatore invece che in pentola ci entra adesso, con la data di oggi,
   perche' fra due mesi sara' esattamente il pezzo che nessuno ricorda; cio'
-  che il menu ha gia' tirato fuori ne esce
+  che il menu ha gia' tirato fuori ne esce.
+
+  E le **`scorte`**: cio' che e' entrato oggi si somma alla quantita'. E'
+  l'aggiornamento piu' affidabile di tutto il ciclo — viene da uno scontrino,
+  non da una stima, e non costa una domanda. Ma **non tocca `visto`**: lo
+  scontrino sa quanto e' **entrato**, non quanto ce n'e', perche' non sa
+  quanto ce n'era. Solo un conteggio umano azzera l'eta' del dato
+  (`${CLAUDE_PLUGIN_ROOT}/kb/scorte.md`)
 - **`dati/storico.yaml`** — `spesa_reale` (solo il menu), accanto a
   `spesa_extra_alimentare` e `totale_scontrino` per memoria; e
   `scarto_per_riga`: dove la stima ha sbagliato, non solo di quanto. E' il dato

@@ -38,8 +38,10 @@ Leggi, in silenzio, senza riepilogare all'utente cio' che gia' sa:
 - `dati/ritmi.yaml`, `dati/note.md` — la settimana tipo e i vincoli dichiarati
 - `dati/storico.yaml` — tarature, piatti delle ultime 2 settimane (non
   ripeterli), bocciati recenti, budget
-- `dati/dispensa.yaml` — cosa il sistema **crede** ci sia in casa: e' il punto
-  di partenza delle domande sulle scorte, non la risposta
+- `dati/dispensa.yaml` — le tre sezioni: `scorte` (cio' che la casa tiene in
+  casa, contato), `avanzi` (cio' che il motore ha calcolato), `freezer` (cio'
+  che l'utente ha visto). E' il punto di partenza delle domande, non la
+  risposta
 
 Note scadute: segnalale in una riga e proponi di toglierle. Non toglierle tu.
 
@@ -123,38 +125,69 @@ la lista e' chiusa. Togliere quattro righe di banco da una lista gia' chiusa
 non e' un miglioramento del menu: sono soldi che si stavano per spendere due
 volte.
 
-`dispensa.yaml` da solo non basta, e va detto perche' non e' un difetto del
-file: contiene cio' che il motore ha **calcolato** — comprato meno consumato —
-mentre qui serve cio' che l'utente **vede**. Alla prima settimana e' vuoto per
-definizione, ed e' proprio la settimana in cui il congelatore e' pieno di roba
-di prima; poi deriva a ogni cena saltata e a ogni teglia portata dalla nonna.
+Ma **non e' piu' un censimento**, e non deve esserlo: «cosa hai in casa?»
+ottiene meta' risposta ogni volta, perche' costringe a ricordare. Le tre
+sezioni di `dati/dispensa.yaml` si trattano in tre modi diversi, e insieme
+costano meno di un minuto.
 
-Tre domande, in quest'ordine, **una per volta**:
+### 1. Il congelatore, per intero
 
-1. **Congelatore** — per primo: e' quello che si dimentica sempre, e' gia'
-   pagato, ed e' spesso roba da smaltire
-2. **Frigo** — i deperibili, che comandano i primi giorni della settimana
-3. **Dispensa secca** — quello che scala le quantita' della spesa
+E' corto, e' gia' pagato, ed e' quello che si dimentica sempre. **Mostralo**,
+tutto, e chiedi cosa manca e cosa e' sbagliato:
 
-E non chiederle a freddo. «Cosa hai in casa?» ottiene meta' risposta ogni
-volta, perche' costringe a ricordare: **mostra cosa credi ci sia**, da
-`dispensa.yaml`, e chiedi cosa manca e cosa e' sbagliato. «Dovrei avere due
-confezioni di filetti di branzino e mezzo chilo di pollo — cosa c'e' che non
-ho scritto?».
+> Dovresti avere due confezioni di filetti di branzino e mezzo chilo di pollo,
+> piu' lo scamone di giugno che sarebbe ora di smaltire. Cosa c'e' che non ho
+> scritto?
+
+Le risposte vanno in `freezer`, con quantita', peso dove conta e data di
+congelamento dove si sa.
+
+### 2. Le scorte, una fetta di sei righe
+
+Se la casa ha fatto l'inventario, `dispensa.yaml` ha una sezione `scorte` con
+tutto quello che si tiene in casa — spesso cinquanta righe. **Non si ricontano
+tutte**: se ne rivisita una fetta di **al massimo sei**, scelte dove
+l'incertezza incontra l'impatto, secondo `${CLAUDE_PLUGIN_ROOT}/kb/scorte.md`:
+le stantie che servono questa settimana, quelle vicine alla soglia, quelle a
+rotazione alta non viste da un po'.
+
+Si presenta come un **elenco da correggere**, mai come sei domande:
+
+> Dovreste avere: la pasta a 4 pacchi, la passata a `poco`, 2 scatole di tonno,
+> il riso `pieno`, e il caffe' non lo vedo da luglio. Cosa e' sbagliato?
+
+Chi taglia corto non perde niente: la fetta si salta, invecchia ancora e torna
+il lunedi' dopo con una priorita' piu' alta. **Le righe confermate prendono
+`visto: oggi`**; quelle saltate no — e restare vecchie e' esattamente cio' che
+le fa ritornare.
+
+### 3. Se `scorte` e' vuota
+
+E' il caso di chi non ha mai fatto l'inventario, e la prima settimana di
+chiunque. Proponi `lunario:inventario` **una volta sola**, in mezza riga —
+«se un giorno mi fai vedere cosa c'e' in dispensa, la lista si accorcia
+parecchio» — e vai avanti lo stesso, chiedendo frigo e dispensa secca come
+faresti senza. Il sistema funziona identico senza inventario: ha solo la lista
+piu' lunga. Non insistere, e non riproporlo ogni lunedi'.
+
+### 4. Il fresco, che non si inventaria
+
+Del frigo interessano solo i deperibili di questa settimana — mezza busta di
+rucola, il pezzo di formaggio aperto — e si chiedono a voce perche' comandano i
+primi giorni. **Non si scrivono in `scorte`**: fra tre giorni non esistono, e
+pianificarci sopra la settimana dopo significa cucinare marcio.
 
 Se l'utente taglia corto o dice che non ha voglia di controllare, va bene:
 prendi quello che c'e' scritto e vai avanti, senza insistere e senza farlo
 pesare. Una domanda saltata costa una riga della spesa; un interrogatorio il
 lunedi' mattina costa la skill.
 
-**Scrivi le risposte in `dati/dispensa.yaml`** — il congelatore nella sezione
-`freezer`, con quantita', peso dove conta, data di congelamento dove si sa
-(contratto in `CLAUDE.md`). Se non le scrivi, la risposta e' persa entro
-lunedi' prossimo e la domanda si rifa' da capo, che e' il modo piu' rapido di
-farla smettere di funzionare.
+**Scrivi le risposte in `dati/dispensa.yaml`.** Se non le scrivi, la risposta
+e' persa entro lunedi' prossimo e la domanda si rifa' da capo, che e' il modo
+piu' rapido di farla smettere di funzionare.
 
-Le scorte che entrano nel menu portano due conseguenze che `lunario:menu`
-deve gestire, e vanno passate avanti: la **riga della spesa corrispondente
+Le scorte che entrano nel menu portano due conseguenze che `lunario:menu` deve
+gestire, e vanno passate avanti: la **riga della spesa corrispondente
 sparisce** e viene nominata uscendo, e ogni surgelato porta il suo
 **scongelamento**.
 

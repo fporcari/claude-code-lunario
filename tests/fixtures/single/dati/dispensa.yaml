@@ -2,6 +2,33 @@
 
 aggiornata: 2026-08-16
 
+scorte:
+  # Casa senza scorte: quattro righe, soglie basse, niente magazzino.
+  pasta-mezze-maniche-500:
+    quantita: 1
+    soglia: 1
+    massimo: 3
+    visto: 2026-08-16
+    rotazione: alta
+  passata-pomodoro-700:
+    quantita: poco
+    soglia: 1
+    massimo: 3
+    visto: 2026-08-10
+    rotazione: alta
+  olio-evo-1000:
+    quantita: 1
+    soglia: 1
+    massimo: 2
+    visto: 2026-08-16
+    rotazione: media
+  lenticchie-secche-500:
+    quantita: 1
+    soglia: 1
+    massimo: 2
+    visto: 2026-07-28
+    rotazione: media
+
 avanzi:
   pasta-mezze-maniche-500: 200
   lenticchie-secche-500: 350

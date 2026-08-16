@@ -147,8 +147,8 @@ Ritirata lunedi 3 agosto. Le caselle sono tutte spuntate: la settimana e' finita
 
 **Totale pagato — 110,00 €**
 
-Sopra il budget di 110 € di un soffio: il banco ha pesato un chilo tondo di
-pollo invece degli 800 g messi in conto.
+Esattamente sul budget di 110 €, e per caso: il banco ha pesato un chilo tondo
+di pollo invece degli 800 g messi in conto.
 
 ## Scarto dal preventivo
 

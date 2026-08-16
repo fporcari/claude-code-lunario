@@ -139,8 +139,10 @@ l'ingrediente c'e'.
 Un segnale da cogliere, non subito ma col tempo: se un prodotto risulta
 «mancante» e l'utente risponde «ce l'ho» per **due o tre settimane di fila**,
 non e' un buco di tracciamento — e' una scorta di casa che il sistema continua
-a mettere in lista senza motivo (olio, sale, spezie, farina). Proponi di
-trattarlo come tale invece di comprarlo ogni volta.
+a mettere in lista senza motivo (olio, sale, spezie, farina). Adesso ha un
+posto dove stare: proponi di metterlo in `scorte`, con una soglia bassa, cosi'
+smette di comparire in lista ogni settimana. Una riga per chiederlo, e se la
+risposta e' no si va avanti.
 
 ## 3. Il procedimento
 
@@ -220,6 +222,12 @@ postmortem, che corregge la dispensa sul reale invece che sul previsto.
 
 Spunta solo cio' che e' stato consumato per intero. Mezza confezione aperta
 non e' consumata: se serve, annotala accanto alla riga.
+
+Se quello che hai usato veniva dalle **scorte**, scalalo anche li' — ma come
+**stima**, e **senza toccare `visto`**: cucinare non e' contare, e una
+dispensa piena di numeri derivati che si dichiarano appena visti e' peggio di
+una dispensa vecchia che si dichiara vecchia
+(`${CLAUDE_PLUGIN_ROOT}/kb/scorte.md`).
 
 Fallo in silenzio: non elencare all'utente cosa hai spuntato.
 

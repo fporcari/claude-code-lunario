@@ -1,11 +1,256 @@
 # FIXTURE SINTETICO — persone inventate, numeri tondi. Non e' una casa vera.
 #
-# Solo cio' che il motore ha calcolato dalle ultime spese. Le ~35 voci fisse
-# della credenza — sale, olio, aceto, farine, zucchero, caffe', lievito,
-# scatolame di riserva — non stanno qui, e oggi non stanno da nessuna parte:
-# esistono nel paniere e basta. Vedi il CLAUDE.md del fixture.
+# Il fixture di regressione del «quinto pacco della stessa cosa»: la credenza
+# fissa di questa casa sta tutta in `scorte`, quaranta righe, e due di quelle
+# righe sono gia' al tetto. Vedi il CLAUDE.md del fixture.
 
 aggiornata: 2026-08-16
+
+scorte:
+  # La dotazione fissa della credenza: dispensa secca, scatolame, conserve,
+  # condimenti, colazione. Numeri e bande mescolati apposta.
+  spaghetti-500:
+    quantita: 3
+    soglia: 2
+    massimo: 6
+    visto: 2026-08-16
+    rotazione: alta
+  penne-rigate-500:
+    quantita: 2
+    soglia: 2
+    massimo: 6
+    visto: 2026-08-16
+    rotazione: alta
+  fusilli-500:
+    quantita: 2
+    soglia: 2
+    massimo: 6
+    visto: 2026-08-16
+    rotazione: alta
+  pasta-integrale-500:
+    quantita: 1
+    soglia: 1
+    massimo: 4
+    visto: 2026-08-09
+    rotazione: alta
+  pastina-stelline-500:
+    quantita: poco
+    soglia: 1
+    massimo: 3
+    visto: 2026-06-20      # stantia: rotazione alta, non contata da due mesi
+    rotazione: alta
+  riso-carnaroli-1000:
+    quantita: 2
+    soglia: 1
+    massimo: 4
+    visto: 2026-08-16
+    rotazione: alta
+  riso-basmati-500:
+    quantita: medio
+    soglia: 1
+    massimo: 3
+    visto: 2026-07-02      # stantia
+    rotazione: alta
+  farina-00-1000:
+    quantita: 3
+    soglia: 1
+    massimo: 4
+    visto: 2026-08-02
+    rotazione: media
+  farina-integrale-1000:
+    quantita: 1
+    soglia: 1
+    massimo: 3
+    visto: 2026-06-05      # stantia
+    rotazione: media
+  semola-rimacinata-1000:
+    quantita: pieno
+    soglia: 1
+    massimo: 3
+    visto: 2026-06-08      # stantia
+    rotazione: media
+  cous-cous-500:
+    quantita: 2
+    soglia: 1
+    massimo: 4
+    visto: 2026-08-09
+    rotazione: alta
+  orzo-perlato-400:
+    quantita: 1
+    soglia: 1
+    massimo: 3
+    visto: 2026-07-19
+    rotazione: media
+  lenticchie-secche-500:
+    quantita: 2
+    soglia: 1
+    massimo: 4
+    visto: 2026-08-09
+    rotazione: media
+  ceci-secchi-500:
+    quantita: 2
+    soglia: 1
+    massimo: 4
+    visto: 2026-08-02
+    rotazione: media
+  fagioli-borlotti-secchi-500:
+    quantita: 1
+    soglia: 1
+    massimo: 3
+    visto: 2026-07-26
+    rotazione: media
+  ceci-lessati-400:
+    quantita: 4
+    soglia: 2
+    massimo: 8
+    visto: 2026-08-16
+    rotazione: media
+  fagioli-cannellini-400:
+    quantita: 3
+    soglia: 2
+    massimo: 6
+    visto: 2026-08-16
+    rotazione: media
+  lenticchie-lessate-400:
+    quantita: 2
+    soglia: 2
+    massimo: 6
+    visto: 2026-08-16
+    rotazione: media
+  pomodori-pelati-400:
+    quantita: 5
+    soglia: 3
+    massimo: 8
+    visto: 2026-08-16
+    rotazione: media
+  # AL TETTO: ricomprata tre settimane di fila, e in `avanzi` ce ne sono altri
+  # 2100 g. La lista della spesa non la deve piu' proporre.
+  passata-pomodoro-700:
+    quantita: 6
+    soglia: 3
+    massimo: 6
+    visto: 2026-08-16
+    rotazione: alta
+  concentrato-pomodoro-140:
+    quantita: 2
+    soglia: 1
+    massimo: 4
+    visto: 2026-07-26
+    rotazione: media
+  tonno-olio-160:
+    quantita: 5
+    soglia: 2
+    massimo: 5             # al tetto anche questo, meno grave della passata
+    visto: 2026-08-16
+    rotazione: media
+  sgombro-naturale-125:
+    quantita: 2
+    soglia: 1
+    massimo: 4
+    visto: 2026-06-12      # stantia
+    rotazione: media
+  mais-dolce-300:
+    quantita: poco
+    soglia: 1
+    massimo: 3
+    visto: 2026-07-12
+    rotazione: media
+  olio-evo-1000:
+    quantita: 2
+    soglia: 1
+    massimo: 4
+    visto: 2026-08-16
+    rotazione: alta
+  olio-semi-girasole-1000:
+    quantita: 1
+    soglia: 1
+    massimo: 2
+    visto: 2026-07-19
+    rotazione: media
+  aceto-bianco-1000:
+    quantita: 1
+    soglia: 1
+    massimo: 2
+    visto: 2026-06-14
+    rotazione: bassa
+  aceto-balsamico-250:
+    quantita: medio
+    soglia: 1
+    massimo: 2
+    visto: 2026-06-14
+    rotazione: bassa
+  sale-fino-1000:
+    quantita: 2
+    soglia: 1
+    massimo: 3
+    visto: 2026-07-05
+    rotazione: bassa
+  sale-grosso-1000:
+    quantita: pieno
+    soglia: 1
+    massimo: 3
+    visto: 2026-07-05
+    rotazione: bassa
+  zucchero-1000:
+    quantita: 2
+    soglia: 1
+    massimo: 3
+    visto: 2026-07-05
+    rotazione: bassa
+  caffe-macinato-250:
+    quantita: poco
+    soglia: 2
+    massimo: 6
+    visto: 2026-06-28      # stantia, e sotto soglia: candidata numero uno
+    rotazione: alta
+  biscotti-frollini-350:
+    quantita: 2
+    soglia: 1
+    massimo: 4
+    visto: 2026-08-16
+    rotazione: alta
+  fette-biscottate-315:
+    quantita: 1
+    soglia: 1
+    massimo: 3
+    visto: 2026-08-09
+    rotazione: alta
+  marmellata-albicocche-340:
+    quantita: 3
+    soglia: 1
+    massimo: 4
+    visto: 2026-07-26
+    rotazione: media
+  miele-400:
+    quantita: medio
+    soglia: 1
+    massimo: 2
+    visto: 2026-06-14
+    rotazione: bassa
+  lievito-secco-21:
+    quantita: 4
+    soglia: 2
+    massimo: 8
+    visto: 2026-06-21
+    rotazione: bassa
+  dadi-vegetali-100:
+    quantita: 1
+    soglia: 1
+    massimo: 2
+    visto: 2026-07-12
+    rotazione: bassa
+  parmigiano-grattugiato-100:
+    quantita: 1
+    soglia: 1
+    massimo: 3
+    visto: 2026-08-16
+    rotazione: alta
+  grana-stagionato:
+    quantita: medio
+    soglia: 1
+    massimo: 2
+    visto: 2026-08-09
+    rotazione: media
 
 avanzi:
   spaghetti-500: 200

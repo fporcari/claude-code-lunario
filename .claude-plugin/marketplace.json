@@ -5,15 +5,15 @@
     "email": "fporcari@softwell.it"
   },
   "metadata": {
-    "description": "Lunario: menu settimanale di famiglia e lista della spesa in confezioni reali, su una griglia pasto x persona — chi e' a dieta e chi no, pasti liberi, merende, ristorante — con postmortem che ritara porzioni, piatti e prezzi. Motore pubblico, dati di famiglia locali.",
-    "version": "3.4.0"
+    "description": "Lunario: menu settimanale di famiglia e lista della spesa in confezioni reali, su una griglia pasto x persona — chi e' a dieta e chi no, pasti liberi, merende, ristorante — con una dispensa contata che ferma il quinto pacco della stessa cosa, e un postmortem che ritara porzioni, piatti e prezzi. Motore pubblico, dati di famiglia locali.",
+    "version": "4.0.0"
   },
   "plugins": [
     {
       "name": "lunario",
       "source": "./plugins/lunario",
-      "description": "Nutrizionista di famiglia: raccoglie impegni e voglie della settimana in conversazione, genera il menu dei 7 giorni sulla griglia dei pasti di ognuno, ordinato per deperibilita', e la lista della spesa in confezioni reali, poi impara dagli avanzi e dagli scontrini",
-      "version": "3.4.0",
+      "description": "Nutrizionista di famiglia: raccoglie impegni e voglie della settimana in conversazione, guarda cosa c'e' gia' in dispensa e in congelatore, genera il menu dei 7 giorni sulla griglia dei pasti di ognuno, ordinato per deperibilita', e la lista della spesa in confezioni reali, poi impara dagli avanzi e dagli scontrini",
+      "version": "4.0.0",
       "author": {
         "name": "Francesco Porcari"
       },
@@ -24,7 +24,9 @@
         "dieta",
         "nutrizione",
         "famiglia",
-        "meal-planning"
+        "meal-planning",
+        "dispensa",
+        "inventario"
       ]
     }
   ]

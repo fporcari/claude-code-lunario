@@ -181,6 +181,7 @@ Applicala e dichiarala, senza chiedere permesso per le regole automatiche:
 | media **sopra 4** | priorita' nella rotazione |
 | voto basso dei soli bambini | non toccare il piatto: rinforza la base neutra — e se quel bambino non ha ancora `selettivo` nel profilo, proponi di attivarlo |
 | confezione avanzata 2 volte di fila | il formato e' sbagliato: proponi di cercarne uno piu' piccolo |
+| lo stesso prodotto ricomprato mentre c'era gia' in casa, 2 volte | proponi un `massimo` in `scorte`: e' l'errore che nessuno nota |
 | sforo del budget | privilegia i piatti a miglior €/100 g di proteine (`${CLAUDE_PLUGIN_ROOT}/kb/consigli-pratici.md`) |
 | stessa cella disattesa 3 volte | **proponi** un ritmo nuovo in `ritmi.yaml`, non scriverlo |
 | merenda comprata e mai consumata | la cella e' `casa` ma nessuno la fa: proponi di metterla a `no` |
@@ -201,6 +202,22 @@ messa via ci entra. Non serve una domanda apposta — se il diario dice che
 giovedi' e' finito nel congelatore meta' polpettone, quella riga si scrive da
 sola, e lunedi' `lunario:settimana` avra' qualcosa di vero da far correggere
 invece di una lista vuota.
+
+## Le scorte, e quanto vale la dispensa
+
+Le `scorte` si correggono sul consumo reale come tutto il resto — ma **come
+stima, senza toccare `visto`**: la domenica nessuno e' andato a contare
+(`${CLAUDE_PLUGIN_ROOT}/kb/scorte.md`). Se qualcosa e' andato a zero, mettilo
+a `finito`: e' il dato che lo rimette in lista lunedi'.
+
+Una volta ogni tanto — non ogni domenica — vale la pena dire **quanto vale la
+roba che avete in casa**, dai prezzi in `prodotti.jsonl`. E' il numero che
+rende sensato tenere un inventario, e va detto come un dato:
+
+> In dispensa e in congelatore ci sono circa 340 € di roba gia' pagata.
+
+Vale la regola di sempre: le righe senza prezzo restano fuori e il totale si
+dichiara parziale. Un totale alto non e' una colpa e non si commenta.
 
 ## Lo scarto fra preventivo e consuntivo
 

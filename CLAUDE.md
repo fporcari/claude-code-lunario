@@ -152,18 +152,20 @@ non impara. Ogni skill scrive un livello solo.
 |---|---|---|---|
 | `lunario:profilo` | stabile | `dati/profilo.yaml` | una volta |
 | `lunario:ritmi` | dichiarato | `dati/ritmi.yaml`, `dati/note.md` | quando cambia la vita |
-| `lunario:settimana` | effimero | `settimane/<ISO>-<titolo>/contesto.yaml`, `dati/ricette.md`, `dispensa.yaml` (scorte) | ogni lunedi' |
+| `lunario:settimana` | effimero | `settimane/<ISO>-<titolo>/contesto.yaml`, `dati/ricette.md`, `dispensa.yaml` (la fetta contata del lunedi') | ogni lunedi' |
 | `lunario:menu` | — (consuma tutto) | `settimane/<ISO>-<titolo>.md` + `.html`, `dati/dispensa.yaml` | ogni lunedi' |
 | `lunario:spesa` | appreso (prezzi) | `dati/prodotti.jsonl`, `dispensa.yaml`, `storico.yaml` | al ritiro della spesa |
 | `lunario:prepara` | appreso (cucina) | `dati/storico.yaml` → `voti.<piatto>.cucina`, `settimane/<ISO>-<titolo>/diario.yaml` | mentre si cucina |
 | `lunario:correggi` | effimero | il menu (giorni residui) e il diario della settimana | quando cambia qualcosa |
 | `lunario:postmortem` | appreso (tavola, pesate) | `dati/storico.yaml` | domenica |
+| `lunario:inventario` | contato | `dati/dispensa.yaml` → `scorte` e `freezer` | una volta, poi quando si rifa' il giro |
 | `lunario:aggiorna` | — (allinea i livelli al contratto) | `dati/versione.yaml`, e i file che il salto di contratto tocca | quando il motore e la cartella non combaciano |
 
-L'utente ne invoca quattro: `lunario:settimana` il lunedi', `lunario:spesa`
-quando ritira la spesa, `lunario:prepara` quando cucina e
-`lunario:postmortem` la domenica. `lunario:menu` viene chiamata dalla prima e
-non va invocata a mano; le altre servono quando serve.
+L'utente ne invoca quattro tutte le settimane: `lunario:settimana` il lunedi',
+`lunario:spesa` quando ritira la spesa, `lunario:prepara` quando cucina e
+`lunario:postmortem` la domenica. `lunario:inventario` si invoca una volta e
+poi quasi mai. `lunario:menu` viene chiamata dalla prima e non va invocata a
+mano; le altre servono quando serve.
 
 **I due voti non sono lo stesso voto.** Chi cucina valuta difficolta' e resa
 appena finito, e quel dato decide **dove** un piatto puo' stare nella
@@ -188,14 +190,15 @@ cartella di lavoro e non viaggiano con esso.
 ├── .claude-plugin/marketplace.json  # il repo come marketplace
 ├── plugins/lunario/                 # IL MOTORE, condivisibile
 │   ├── .claude-plugin/plugin.json
-│   ├── skills/                      # profilo · ritmi · settimana · menu
-│   │   └── ...                      # spesa · prepara · correggi
-│   │                                # postmortem · aggiorna
+│   ├── skills/                      # profilo · ritmi · inventario
+│   │   └── ...                      # settimana · menu · spesa · prepara
+│   │                                # correggi · postmortem · aggiorna
 │   ├── kb/                          # knowledge base condivisa
 │   │   ├── porzioni-standard.md     # porzioni e frequenze CREA 2018
 │   │   ├── deperibilita.md          # ordine dei giorni, durate in frigo
 │   │   ├── confezioni.md            # grammi -> confezioni, dispensa, avanzi
 │   │   ├── consigli-pratici.md      # bimbi selettivi, batch cooking, €/proteine
+│   │   ├── scorte.md                # bande, fiducia, conteggio ciclico
 │   │   └── piatti.md                # pool piatti taggato per deperibilita'
 │   ├── scripts/
 │   │   ├── off_lookup.py            # Open Food Facts -> dati/prodotti.jsonl
@@ -220,7 +223,7 @@ famiglia non appartengono al motore. Vivono nella cartella da cui si lavora:
 │   ├── note.md               # vincoli liberi, letti a OGNI lancio
 │   ├── ricette.md            # i piatti di casa, accanto a kb/piatti.md
 │   ├── prodotti.jsonl        # il paniere: formato, nutrienti, prezzi
-│   ├── dispensa.yaml         # cosa e' rimasto in casa
+│   ├── dispensa.yaml         # scorte contate, avanzi calcolati, congelatore
 │   └── storico.yaml          # settimane e tarature
 └── settimane/                # menu generati: <ISO>-<titolo>
 ```
@@ -474,13 +477,30 @@ Chi scrive questo file: **lo scrive il sistema, su dettatura dell'utente**. E'
 l'unica eccezione alla regola di confine, e regge perche' il contenuto e' suo
 mentre la forma serve al motore. L'utente puo' sempre editarlo a mano.
 
-### dati/dispensa.yaml — cosa e' rimasto
+### dati/dispensa.yaml — cosa c'e' in casa
 
 ```yaml
-aggiornata: 2026-08-14
+aggiornata: 2026-08-16
+
+scorte:
+  # Cio' che la casa TIENE in casa. Contato grossolanamente, rivisitato a
+  # rotazione. Chiave = id in dati/prodotti.jsonl quando c'e', testo libero se no.
+  pasta-integrale-500:
+    quantita: 4              # confezioni intere, oppure una banda:
+                             # pieno | medio | poco | finito
+    soglia: 2                # sotto, torna in lista della spesa
+    massimo: 6               # sopra, non si compra piu': e' il tetto
+    visto: 2026-08-16        # quando un essere umano l'ha confermata
+    rotazione: alta          # alta|media|bassa: ogni quanto rivisitarla
+  passata-700:
+    quantita: poco
+    soglia: 3
+    visto: 2026-07-04        # vecchia: la fetta del lunedi' la chiedera'
+
 avanzi:
   pasta-integrale-500: 400      # grammi residui, per il tipo `confezione`
   uova-6: 4                     # pezzi interi, per il tipo `pezzo`
+
 freezer:
   - cosa: filetti di branzino
     pezzi: 2
@@ -491,16 +511,53 @@ freezer:
     grammi: 600
 ```
 
-Due sezioni, perche' sono due cose diverse. `avanzi` e' cio' che il motore ha
-**calcolato**: confezioni comprate meno fabbisogno, corretto al postmortem.
-Solo prodotti non deperibili (fascia `[fine]` di `kb/deperibilita.md`) — il
-fresco avanzato non e' un credito, e' immondizia fra tre giorni.
+Tre sezioni, e sono tre cose diverse — confonderle e' il modo piu' rapido di
+avere un inventario di cui non ci si fida piu':
 
-`freezer` e' cio' che l'utente **vede aprendo il congelatore**, e nessun
-calcolo lo sa: pezzi arrivati da un'altra spesa, meta' di un pacco, la carne
-messa via a giugno. Non ha un `id` di prodotto perche' spesso non ce l'ha —
-«mezzo scamone» non e' una riga del paniere — e porta invece la data di
-congelamento, che e' il dato con cui si decide cosa esce per primo.
+| sezione | chi lo sa | precisione | quanto dura |
+|---|---|---|---|
+| `scorte` | l'ha **contato** un essere umano | grossolana, a bande | mesi: e' la dotazione di casa |
+| `avanzi` | l'ha **calcolato** il motore: comprato meno consumato | precisa, in grammi | una settimana o due |
+| `freezer` | l'ha **visto** l'utente aprendo lo sportello | pezzi e grammi, con la data | finche' non si cucina |
+
+`freezer` non ha un `id` di prodotto perche' spesso non ce l'ha — «mezzo
+scamone» non e' una riga del paniere — e porta invece la data di congelamento,
+che e' il dato con cui si decide cosa esce per primo.
+
+#### Le scorte, e perche' sono volutamente imprecise
+
+Prima che `scorte` esistesse, una casa con cinquanta prodotti fissi non aveva
+dove metterli, e li ridichiarava a memoria ogni lunedi': una prova di memoria
+su cinquanta voci restituisce meta' risposta, tutte le volte.
+
+Due errori opposti, e chiedono due precisioni diverse — l'asimmetria e' la
+licenza a non costruire un magazzino:
+
+- **compro quello che ho gia'** → serve una quantita' approssimativa, per
+  scalare il fabbisogno
+- **il quinto pacco della stessa cosa** → serve solo `massimo`. E' l'errore che
+  nessuno nota, e si risolve col dato piu' grezzo che esista
+
+`quantita` accetta un numero **oppure** una banda, e il motore legge quella che
+trova senza convertirla di nascosto nell'altra.
+
+**La fiducia non si scrive: si calcola** da `visto`, da `rotazione` e da quanto
+il menu di quella settimana si appoggia a quella riga — fresca, invecchiata,
+stantia. La tabella completa sta in `${CLAUDE_PLUGIN_ROOT}/kb/scorte.md`. Il
+motore non deve avere ragione: deve **sapere quanto e' vecchia la sua
+convinzione**, perche' il consumo si osserva solo dove passa `lunario:prepara`,
+e la deriva ha una direzione prevedibile — il consumo e' sotto-registrato,
+quindi il motore crede di avere piu' di quello che c'e'.
+
+**Il movimento automatico non promuove mai una riga a «contata».** `spesa`,
+`menu` e `prepara` muovono `quantita` come stima e **non toccano `visto`**:
+solo un conteggio umano, o una foto confermata, azzera l'eta' del dato. Se lo
+facesse anche lo scarico automatico, una dispensa piena di numeri derivati
+sembrerebbe appena contata.
+
+**Solo non deperibili**, in tutte e tre le sezioni: la fascia `[fine]` di
+`kb/deperibilita.md`. Il fresco avanzato non e' un credito, e' immondizia fra
+tre giorni.
 
 Un piatto costruito su una riga di `freezer` **cancella la riga della spesa
 corrispondente**, e la cancellazione va detta: un banco pesce quasi vuoto e'
@@ -719,7 +776,10 @@ settimane:
     spesa_fuori_casa: null # ristorante, pizzeria, bar: alimentare, non spesa
     totale_scontrino: null # per memoria: include detersivi e non alimentari
     scarto_per_riga:       # dove la stima ha sbagliato, non solo di quanto
-      - {prodotto: passata-700, stimato_eur: 2.40, reale_eur: 3.60, causa: ricomprata, ce n'erano tre}
+      - prodotto: passata-700
+        stimato_eur: 2.40
+        reale_eur: 3.60
+        causa: ricomprata mentre in dispensa ce n'erano gia' tre
     celle_disattese:       # previsto casa, fatto fuori (o viceversa)
       - {giorno: 2026-08-22, pasto: cena, chi: tutti, previsto: casa, reale: ristorante}
     avanzi:
@@ -731,7 +791,10 @@ Le tre liste hanno una forma, e vale la pena averla scritta: la prima volta che
 tre persone diverse hanno riempito questi campi ne sono uscite tre forme
 incompatibili, e un campo che ognuno modella a modo suo non si puo' ne'
 confrontare fra settimane ne' controllare. `causa` e' la meta' che conta di
-`scarto_per_riga`: il quanto lo dicono i due numeri, il **perche'** no.
+`scarto_per_riga`: il quanto lo dicono i due numeri, il **perche'** no — ed e'
+scritta a blocco, non in linea, perche' **una mappa inline non tollera una
+virgola dentro un valore**: `{causa: ricomprata, ce n'erano tre}` non e' YAML
+valido, e' una mappa con una voce rotta. Testo libero uguale a prosa: a blocco.
 
 `spesa_fuori_casa` sta accanto agli altri e non dentro: mangiare fuori e'
 spesa alimentare vera, ma non e' spesa di Lunario, e sommarla a `spesa_reale`
@@ -818,24 +881,33 @@ va usata apertamente, con tre regole che non si negoziano:
    scaldare, una cella `libero` non riceve un piatto ipocalorico
 4. Fabbisogno: per ogni ingrediente, grammi totali della settimana — contando
    colazioni, spuntini e merende, che sono celle come le altre
-5. **Confezioni**: fabbisogno − dispensa − freezer → confezioni da comprare,
-   secondo `kb/confezioni.md`. La lista dice «2 pacchi da 500 g», mai «1050 g».
-   Cio' che copre una scorta **esce dalla lista e viene nominato uscendo**
+5. **Confezioni**: fabbisogno − `avanzi` − `freezer` − `scorte` → confezioni da
+   comprare, secondo `kb/confezioni.md` e con la fiducia di `kb/scorte.md`: una
+   scorta fresca si sottrae in silenzio, una invecchiata si sottrae e si
+   dichiara, una stantia non si crede. Sopra `massimo` non si compra, e lo si
+   dice. La lista dice «2 pacchi da 500 g», mai «1050 g». Cio' che copre una
+   scorta **esce dalla lista e viene nominato uscendo**
 6. Salva `settimane/<ISO>-<titolo>.md`, aggiorna `dispensa.yaml` con gli avanzi
    previsti, aggiungi la voce a storico con `spesa_stimata`
 
 ### Le scorte si chiedono prima, non si scoprono dopo
 
-`dispensa.yaml` dice cio' che il motore ha calcolato; non dice cio' che c'e'.
-Alla prima settimana e' vuoto per definizione — ed e' esattamente la settimana
-in cui il congelatore e' pieno di roba di prima —, poi deriva a ogni cena
-saltata, e del congelatore non sa niente.
+`avanzi` dice cio' che il motore ha calcolato; non dice cio' che c'e'. Alla
+prima settimana e' vuoto per definizione — ed e' esattamente la settimana in
+cui il congelatore e' pieno di roba di prima —, poi deriva a ogni cena saltata.
 
-Quindi `lunario:settimana` **chiede** prima di generare, e chiede in tre tempi
-— congelatore, frigo, dispensa secca — partendo da cio' che crede di avere:
-correggere un elenco riesce a chiunque, ricordarlo a nessuno. Il congelatore
-va per primo perche' e' quello che si dimentica sempre, e' gia' pagato, e
-spesso e' roba da smaltire.
+Quindi `lunario:settimana` **guarda prima di generare**, e non fa un
+censimento: il congelatore lo mostra per intero, perche' e' corto; delle
+`scorte` rivisita **una fetta di al massimo sei righe**, scelte dove
+l'incertezza incontra l'impatto (`kb/scorte.md`); del frigo chiede solo il
+fresco di questa settimana, che non si inventaria. Sempre mostrando cio' che
+crede di avere: correggere un elenco riesce a chiunque, ricordarlo a nessuno.
+
+E' conteggio ciclico, non inventario perpetuo — le cucine professionali sulla
+dispensa secca fanno cosi'. Chi taglia corto non perde niente: la fetta
+invecchia e torna il lunedi' dopo, piu' in alto. Se `scorte` e' vuota, si
+propone `lunario:inventario` **una volta sola** e si va avanti lo stesso: senza
+inventario il sistema funziona identico, ha solo la lista piu' lunga.
 
 Cio' che ne esce comanda **prima** della scelta dei piatti, non dopo: un
 menu gia' scritto e una lista gia' chiusa a cui si tolgono quattro righe di

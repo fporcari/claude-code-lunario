@@ -1,11 +1,46 @@
-# Dispensa — cosa e' rimasto in casa.
+# Dispensa — cosa c'e' in casa.
 # Copia in dati/dispensa.yaml (resta locale, gitignored), oppure lascia che
 # sia il sistema a crearlo: lo aggiorna da solo a ogni menu e a ogni postmortem.
 #
 # Serve a non ricomprare ogni lunedi' la pasta di cui resta mezzo pacco:
 # il fabbisogno della settimana si scala di quello che c'e' gia'.
+#
+# TRE sezioni, e sono tre cose diverse:
+#   scorte   cio' che la casa TIENE in casa. L'ha CONTATO un essere umano,
+#            grossolanamente, e dura mesi
+#   avanzi   cio' che il motore ha CALCOLATO: comprato meno consumato. Preciso,
+#            in grammi, e dura una settimana o due
+#   freezer  cio' che l'utente ha VISTO aprendo lo sportello, con la data
+# Confonderle e' il modo piu' rapido di avere un inventario di cui non ci si
+# fida piu'. Regole complete in kb/scorte.md.
 
 aggiornata: 2026-08-14
+
+scorte:
+  # La dotazione fissa di casa. La riempie `lunario:inventario`, una volta, a
+  # voce o dalle foto degli scaffali — non si compila a mano, mai: l'inserimento
+  # manuale e' la causa di morte di ogni app di dispensa.
+  # Chiave = id in prodotti.jsonl quando c'e', testo libero quando non c'e'.
+  pasta-integrale-500:
+    quantita: 4            # confezioni intere, OPPURE una banda:
+                           #   pieno | medio | poco | finito
+                           # Nessuno pesa la farina, e non serve.
+    soglia: 2              # sotto, il prodotto torna in lista della spesa
+    massimo: 6             # sopra, NON si compra piu'. E' il campo che ferma
+                           # il quinto pacco: l'errore che nessuno nota
+    visto: 2026-08-14      # quando un essere umano l'ha confermata l'ultima
+                           # volta. Il movimento automatico non lo tocca MAI
+    rotazione: alta        # alta|media|bassa: ogni quanto rivisitarla
+  passata-700:
+    quantita: poco
+    soglia: 3
+    visto: 2026-07-04      # vecchia: la fetta del lunedi' chiedera' questa
+
+# La FIDUCIA non si scrive, si calcola da `visto`, `rotazione` e da quanto il
+# menu si appoggia a quella riga: fresca (si sottrae in silenzio), invecchiata
+# (si sottrae e si dichiara nel menu), stantia (non ci si fida, si conta prima
+# di generare). Il motore non deve avere ragione: deve sapere quanto e' vecchia
+# la sua convinzione.
 
 avanzi:
   # chiave = id del prodotto in dati/prodotti.jsonl
