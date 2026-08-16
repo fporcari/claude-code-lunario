@@ -14,7 +14,7 @@ menu e chiudere la settimana.
 | **lunedi'** | `lunario:settimana` — racconti la settimana, esce menu e spesa |
 | **al ritiro della spesa** | `lunario:spesa` — lo scontrino: prezzi veri, cosa manca |
 | **mentre cucini** | `lunario:prepara` — ingredienti, passi, e chiude il pasto nel diario |
-| **domenica** | `lunario:postmortem` — avanzi, voti, com'e' andata |
+| **domenica** | `lunario:postmortem` — avanzi, voti, com'e' andata; chiude la settimana con un file che si rilegge |
 | a settimana in corso | `lunario:correggi` — se cambia qualcosa |
 | quando cambia la vita | `lunario:ritmi` — orari nuovi, vincoli permanenti |
 | quando cambia la famiglia | `lunario:profilo` — peso, obiettivi, esclusioni |
@@ -36,26 +36,54 @@ viene inventato: resta assente, la cartella funziona lo stesso, e te lo chiede
 quando serve davvero. Una cartella che non si aggiorna mai continua a
 funzionare: l'aggiornamento migliora, non e' il prezzo del biglietto.
 
-## Il menu ha due stati
+## Il menu ha due documenti
 
-| stato | quando | cosa vuol dire |
+| documento | quando | cosa vuol dire |
 |---|---|---|
-| `preventivo` | dal lunedì fino alla spesa | quello che volete mangiare. Formati, prezzi e piatti sono stime: il totale **non** è una spesa |
-| `consuntivo` | dopo lo scontrino | quello che c'è davvero in casa: prodotti veri, prezzi pagati, sostituzioni già applicate |
+| `-preventivo.md` | dal lunedì fino alla spesa | quello che volete mangiare. Formati, prezzi e piatti sono stime: il totale **non** è una spesa |
+| `-consuntivo.md` | dopo lo scontrino | quello che c'è davvero in casa: prodotti veri, prezzi pagati, sostituzioni già applicate |
+
+Sono due file e non uno riscritto sopra l'altro: il confronto fra quello che
+volevate e quello che è arrivato è la cosa che insegna di più, e per leggerlo
+non deve servire `git`.
 
 Il preventivo si cambia quante volte serve — è per questo che lo si fa girare
-in casa prima di uscire. Il passaggio a consuntivo lo fa `lunario:spesa` quando
-gli dai lo scontrino, e nessun'altra skill lo tocca.
+in casa prima di uscire. Il consuntivo lo scrive `lunario:spesa` quando gli dai
+lo scontrino, e nessun'altra skill lo fa.
 
-La lista della spesa del preventivo **si spunta col dito**: aprila sul telefono
-al supermercato, le spunte restano dov'erano anche se ricarichi la pagina.
-Restano in quel browser e basta — al ritorno, quello che è entrato in casa lo
-dice lo scontrino.
+Da lì in poi il documento vivo è il consuntivo: se una cena salta o arrivano
+ospiti, `lunario:correggi` lavora su quello. Di solito non si tocca, ma quello
+che succede davvero va scritto dove il resto del sistema lo rilegge.
 
 Se qualcosa non c'era, `lunario:spesa` te lo dice e sceglie tu: **cambiamo il
 piatto** con quello che avete in casa, oppure **te lo procuri tu** prima del
 giorno in cui serve. Nel secondo caso il sistema se lo segna e te lo ricorda
 quel giorno, mentre cucini — una volta sola, senza insistere.
+
+## La lista della spesa è un file, e torna indietro
+
+`-lista.md` è la spesa e basta: reparti nell'ordine in cui giri il negozio,
+una casella per riga, e sotto ogni riga a cosa serve. È l'unico file che
+**scrivi tu**.
+
+Aprilo sul telefono al supermercato con un qualsiasi editor markdown, spunta
+quello che prendi e **annota accanto quello che non torna** — «non c'erano,
+prese 2 da 70 g», «questo lo prendo giovedì». Al ritorno passa a
+`lunario:spesa` lo scontrino: riapre lo stesso file, legge le tue annotazioni e
+sistema tutto. Niente da esportare, niente da ricopiare in chat.
+
+Perché il telefono lo veda, la cartella deve stare in un servizio
+sincronizzato — iCloud, Dropbox, Drive, Nextcloud, Syncthing sono equivalenti.
+Se puoi, **sincronizza solo `settimane/`**: in `dati/` ci sono pesi e obiettivi,
+e quelli è meglio restino su questa macchina. Se non sincronizzi niente
+funziona tutto uguale: la lista si legge dal computer.
+
+In coda alla lista c'è **«Fuori Lunario»**: mettici la roba che compri comunque
+e che il menu non pianifica — detersivi, carta forno. Resta lì, fuori dai conti.
+
+L'HTML invece si legge e si stampa, e basta. Ci sono dei quadratini, ma sono
+per la penna: una spunta cliccata in una pagina resta nel browser, e nessuna
+skill la vedrebbe mai.
 
 ## La griglia dei pasti
 
@@ -103,18 +131,26 @@ dati/
 ├── dispensa.yaml     cosa e' rimasto in casa              <- lo scrive il sistema
 ├── storico.yaml      settimane passate e tarature         <- lo scrive il sistema
 └── versione.yaml     a che versione sta questa cartella   <- lo scrive il sistema
-settimane/                        i menu generati
-├── 2026-W34-commando.md          il menu e la spesa
-├── 2026-W34-commando.html        da stampare, o da spuntare al supermercato
-└── 2026-W34-commando/
-    ├── contesto.yaml  gli impegni di QUELLA settimana      <- lo racconti tu
-    └── diario.yaml    cosa avete mangiato davvero          <- lo scrive il sistema
+settimane/2026-W34-commando/      una cartella per settimana, e dentro c'e' tutto
+├── 2026-W34-commando-preventivo.md     i sette giorni, come li avevate voluti
+├── 2026-W34-commando-preventivo.html   da stampare e attaccare al frigo
+├── 2026-W34-commando-lista.md          la spesa: la porti al supermercato
+├── 2026-W34-commando-consuntivo.md     cosa c'e' davvero in casa, dopo lo scontrino
+├── 2026-W34-commando-consuntivo.html
+├── 2026-W34-commando-postmortem.md     com'e' andata, cosa e' cambiato
+├── contesto.yaml      gli impegni di QUELLA settimana      <- lo racconti tu
+└── diario.yaml        cosa avete mangiato davvero          <- lo scrive il sistema
 ```
 
 Il nome di una settimana e' l'ISO piu' il suo titolo: l'ordine alfabetico resta
 l'ordine cronologico, e in un'altra chat o al telefono la settimana si chiama
 «Commando», non «2026-W34». Il nome si fissa quando il menu nasce e non cambia
-piu'.
+piu', e ogni documento se lo porta per intero — cosi' un file scaricato sul
+telefono dice ancora di che settimana e'.
+
+Le settimane fatte con una versione precedente hanno il markdown **accanto**
+alla cartella invece che dentro. Restano cosi' e continuano a funzionare: sono
+un registro, e un registro non si riorganizza.
 
 Il diario si riempie strada facendo, senza che tu compili niente: basta dirlo
 mentre succede — «stasera niente polpette, pizza d'asporto» — e a fine cottura

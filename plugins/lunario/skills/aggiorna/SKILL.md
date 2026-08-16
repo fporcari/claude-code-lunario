@@ -89,15 +89,40 @@ una griglia pasto × persona.
 |---|---|---|
 | `dispensa.yaml` senza `scorte` | additivo | aggiungi `scorte: {}`. Vuota, e va bene che sia vuota: la riempie `lunario:inventario` quando l'utente vuole |
 
+### Da 3 a 4 — la settimana e' una cartella
+
+Dal contratto 4 i documenti della settimana stanno **dentro** la sua cartella,
+uno per ruolo: `<nome>-preventivo.md` e `.html`, `<nome>-lista.md`,
+`<nome>-consuntivo.md` e `.html`, `<nome>-postmortem.md`. Prima markdown e HTML
+stavano accanto alla cartella, ed erano un file solo che si riscriveva da
+preventivo a consuntivo.
+
+| cosa trovi | tipo | cosa fai |
+|---|---|---|
+| settimane col markdown accanto alla cartella | additivo, e **non scrive niente** | restano dove sono, col nome che hanno. Le settimane nuove nascono nella cartella |
+
+**Questo passo non sposta un solo file**, ed e' deliberato: le settimane
+passate sono un registro, e `settimana.py` le riconosce come `layout: piatto` e
+le trova lo stesso. Spostarle vorrebbe dire muovere due file per settimana, il
+`menu:` che ci punta in `storico.yaml` e qualsiasi link mandato a qualcuno —
+per guadagnare un ordine che a nessuno serve su una settimana gia' mangiata.
+
+Vale anche per **la settimana in corso**, che e' il caso a cui viene voglia di
+fare un'eccezione: se il motore si aggiorna di mercoledi', quella settimana
+finisce nel layout in cui e' nata, e la prossima nasce nel nuovo. Migrare un
+documento mentre qualcuno ci sta cucinando sopra e' esattamente il tipo di
+sorpresa che questa skill esiste per non fare.
+
 ## 4. Cosa non si tocca, mai
 
 - **Il contenuto di `settimane/`.** Le settimane passate sono un registro, non
   dati vivi: si leggono come sono e non si riscrivono. Un vecchio `stato:
   bozza` o `confermato` si **legge** come `preventivo`, un `in corso` come
   `consuntivo` — nella testa di chi legge, non nel file
-- **I nomi delle settimane.** Quelle scritte come `2026-W34.md`, senza titolo,
-  restano cosi': il glob le trova lo stesso, e rinominare vorrebbe dire muovere
-  markdown, HTML, cartella e ogni link che ci puntava
+- **I nomi e la posizione delle settimane.** Quelle scritte come `2026-W34.md`,
+  senza titolo, e quelle col markdown accanto alla cartella restano cosi':
+  `settimana.py` le trova lo stesso, e rinominarle o spostarle vorrebbe dire
+  muovere i file, il `menu:` in `storico.yaml` e ogni link che ci puntava
 - **I livelli dichiarati**, oltre le riscritture di grammatica qui sopra.
   Profilo, ritmi e note sono dell'utente: una migrazione traduce il vocabolario
   del motore, non cambia cio' che l'utente ha deciso

@@ -4,6 +4,81 @@ Le versioni che contano sono quelle che cambiano il **contratto dei dati**: da
 4.0.0 la cartella di casa porta un timbro (`dati/versione.yaml`) e si allinea da
 sola, quindi aggiornare il motore non richiede piu' niente da parte tua.
 
+## 5.0.0 — la settimana e' una cartella, e la lista torna indietro
+
+Nasce da una spesa vera all'Esselunga, col telefono in mano: la pagina HTML si
+impallava, le spunte si perdevano, e ritrovare il punto costava piu' del fare la
+spesa a memoria. Sotto l'inciampo c'erano tre difetti diversi, e il piu' grave
+non era la pagina.
+
+**La lista della spesa e' un file, ed e' un ingresso di dati.** Le spunte
+dell'HTML vivevano in `localStorage`: restavano nel browser di quel telefono, e
+`lunario:spesa` non le vedeva mai. Chi le faceva credeva di aver detto qualcosa
+al sistema — che e' esattamente la regola gia' scritta per il consuntivo, uno
+stato dentro una pagina e' invisibile alle skill **e lo e' in silenzio**. Adesso
+la spesa e' `<nome>-lista.md`: reparti nell'ordine del negozio, una casella per
+riga che vuol dire «preso», la riga d'uso sotto, e «Fuori Lunario» in coda.
+Si apre col telefono da una cartella sincronizzata, si annota a mano — «non
+c'erano, prese 2 da 70 g» — e al ritorno `lunario:spesa` **riapre lo stesso
+file**. Nessuna esportazione, nessuna seconda copia da riconciliare, nessuna
+dipendenza da Apple o da nessun altro: il markdown e' testo, e la
+sincronizzazione e' una proprieta' della cartella. Una cartella non
+sincronizzata funziona identica.
+
+Le annotazioni hanno una gerarchia di fiducia, ed e' la meta' che conta:
+**l'annotazione vince su quale prodotto e' entrato in casa** — l'utente era li'
+— **lo scontrino vince su quanto e' costato**, che e' stampato. Una frase che
+non si classifica non si interpreta: si chiede una volta.
+
+**La settimana e' una cartella, e ci sta tutto dentro** — preventivo, lista,
+consuntivo, postmortem, contesto, diario — ognuno col nome intero, perche' un
+file scaricato sul telefono perde la cartella e `preventivo.md` nudo non dice
+piu' di che settimana sia.
+
+- **preventivo e consuntivo sono due file**, non uno stato che si sovrascrive:
+  lo scarto fra i due e' la cosa che insegna qualcosa, e non deve richiedere un
+  `git diff`
+- **il documento vivo e' l'ultimo ruolo che esiste su disco**: il consuntivo se
+  c'e', altrimenti il preventivo. E' li' che `prepara` spunta e `correggi`
+  riscrive — anche a consuntivo scritto, perche' un fatto che scombina il piano
+  e' esattamente cio' che un registro deve dire
+- **il postmortem lascia un file**: com'e' andata, cosa e' cambiato, cosa resta
+  aperto. Prima finiva fra `storico.yaml` e la chat, e la chat a febbraio non la
+  rilegge nessuno
+- lo risolve `scripts/settimana.py`, in un posto solo: cinque skill che
+  compongono a mano gli stessi percorsi, dopo tre release sono cinque idee
+  diverse di dove stiano i file
+
+**Il consuntivo chiude sul cibo di casa, non sul totale della cassa.** Su uno
+scontrino vero da 233,26 € c'erano uno zaino da 45,90 €, la carta igienica e la
+spesa della suocera: la skill scorporava tutto correttamente e poi rimetteva il
+totale di cassa nell'ultima riga, facendo sembrare la settimana costata il
+doppio. Adesso l'etichetta e' «Totale cibo di casa» e il numero e' `spesa_reale`
++ `spesa_extra_alimentare`; il totale dello scontrino resta accanto, dichiarato
+per quello che e'. E la spesa fatta per un'altra casa **resta in pagina**, voce
+per voce e col suo subtotale: e' fuori dai conti, non cancellata dal documento —
+quanto si deve a qualcuno e' il numero che si sta cercando.
+
+Altro, piu' piccolo:
+
+- **una casella, un significato.** «Preso» sulla lista, «fatto» sui pasti. Il
+  consumo non e' una casella: sta in `dispensa.yaml` e nel diario. Prima la
+  stessa casella voleva dire comprato, arrivato e consumato a seconda di chi la
+  guardava
+- **lo scontrino fotografato** si legge a due colonne separate, appaiando per
+  indice e verificando la somma contro il totale stampato: su una foto storta le
+  due colonne scivolano di una riga intera, e i prezzi finiscono sul prodotto
+  sbagliato
+- l'HTML resta e cambia mestiere: si stampa, si attacca al frigo, si mostra a
+  chi la settimana la deve mangiare. Niente piu' caselle cliccabili
+
+**Il contratto dei dati sale a 4**, e la migrazione **non sposta un solo file**.
+Le settimane gia' scritte restano dove sono, col nome che hanno: lo script le
+riconosce come `layout: piatto` e le trova comunque. Vale anche per la settimana
+in corso, che e' il caso a cui viene voglia di fare un'eccezione — migrare un
+documento mentre qualcuno ci sta cucinando sopra e' la sorpresa che questo
+meccanismo esiste per non fare. Le settimane nuove nascono nella cartella.
+
 ## 4.1.1 — tre regole che il motore non poteva eseguire
 
 Trovate facendo girare il tier 2 su `famiglia`: il giro passa, ma tre cose

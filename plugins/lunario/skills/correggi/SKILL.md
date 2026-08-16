@@ -16,24 +16,39 @@ description: >-
 
 # Correggi — il menu cambia
 
-Stessa skill per due situazioni molto diverse, e la differenza la fa lo
-`stato` scritto in testa al markdown della settimana — che si trova con un
-glob su `settimane/<ISO>*`. Sbagliarla significa proporre
-un piatto per cui non e' stata comprata roba, o rifare la spesa per niente.
+Stessa skill per due situazioni molto diverse, e la differenza la fa **quale
+documento e' vivo**. Non si indovina, si chiede:
 
-| stato | dove siamo | cosa vincola |
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/settimana.py
+```
+
+La riga `vivo:` dice su quale file si scrive: il consuntivo se la spesa e' gia'
+passata, il preventivo se no. Sbagliarlo significa proporre un piatto per cui
+non e' stata comprata roba, o rifare la spesa per niente — e scriverlo in un
+documento che nessuno riaprira'.
+
+| vivo | dove siamo | cosa vincola |
 |---|---|---|
-| `preventivo` | la spesa non e' ancora stata ritirata | **niente**: si cambia liberamente e la lista si rigenera |
-| `consuntivo` | la spesa e' stata ritirata | **cosa c'e' in casa**: si riusa, non si ricompra |
+| `-preventivo.md` | la spesa non e' ancora stata ritirata | **niente**: si cambia liberamente e la lista si rigenera |
+| `-consuntivo.md` | la spesa e' stata ritirata | **cosa c'e' in casa**: si riusa, non si ricompra |
 
-Questa skill **non promuove niente**: il passaggio a `consuntivo` lo fa
-`lunario:spesa` con lo scontrino in mano. Regole complete in `CLAUDE.md`.
+**Il consuntivo di solito non si tocca**, ed e' giusto cosi': e' il registro di
+cosa c'e' in casa. Ma la settimana la scrivono anche i fatti — una cena salta,
+arrivano ospiti, un ingrediente va a male — e quei fatti vanno scritti dove il
+resto del sistema li rilegge. Correggere il consuntivo non e' ripianificare la
+settimana: e' **registrare cosa e' successo davvero**, che e' esattamente il
+suo mestiere. Il preventivo, sotto, resta li' intatto a dire cosa si voleva.
 
-Le settimane scritte da versioni vecchie del motore portano un altro
-vocabolario, e **si legge, non si riscrive**: `bozza` e `confermato` valgono
-`preventivo`, `in corso` vale `consuntivo`. Una settimana passata e' un
-registro, e un registro non si corregge per farlo somigliare al vocabolario di
-oggi.
+Questa skill **non promuove niente**: il consuntivo lo scrive `lunario:spesa`
+con lo scontrino in mano, e nessun altro. Regole complete in `CLAUDE.md`.
+
+Le settimane scritte da versioni vecchie del motore stanno in un file solo,
+accanto alla cartella invece che dentro, e portano un altro vocabolario in
+testa: `bozza` e `confermato` valgono `preventivo`, `in corso` vale
+`consuntivo`. Lo script le trova lo stesso e le dichiara `layout: piatto` —
+**si leggono e si scrivono dove sono, non si spostano**. Una settimana in corso
+non e' il momento di riorganizzarle.
 
 ## Prima di tutto: la cartella e' allineata?
 
@@ -55,7 +70,10 @@ riportando le obiezioni di chi non e' in questa chat.
   me non va» portano a soluzioni diverse — la prima si risolve con una base
   neutra piu' robusta, la seconda cambiando piatto
 - Cambia quello che serve, ricontrolla i vincoli di sempre (deperibilita',
-  frequenze, ritmi, esclusioni) e **rigenera la lista della spesa**
+  frequenze, ritmi, esclusioni) e **rigenera tutti e tre i file insieme** —
+  `-preventivo.md`, `-lista.md` e `-preventivo.html`. Rigenerarne due su tre
+  manda al supermercato una lista che non e' quella del menu, ed e' un errore
+  che si scopre allo scaffale
 - Lo stato resta `preventivo`, prima e dopo: modificare una previsione la
   lascia una previsione
 - Non riepilogare tutto il menu a ogni giro: mostra i giorni cambiati
@@ -69,7 +87,8 @@ Quando l'utente dice che va bene — «confermo», «ok cosi'», «vado a fare l
 spesa» — non sta approvando dei numeri, che nessuno puo' ancora verificare:
 sta dicendo che i **piatti** vanno bene e che esce di casa. Quindi:
 
-1. **rigenera lista e HTML**, che sono quelli che andranno al supermercato
+1. **rigenera `-lista.md` e l'HTML**: il primo e' quello che va al
+   supermercato, ed e' anche quello che tornera' indietro annotato
 2. **scrivi la settimana sul calendario**, se l'utente lo vuole (sotto)
 3. dillo in una riga, ricordando `lunario:spesa` al ritiro
 
@@ -77,8 +96,9 @@ Lo `stato` **non si tocca**: resta `preventivo` fino allo scontrino. Se dopo
 questo momento arriva un'altra modifica, si fa senza cerimonie — avvisa in
 mezza riga che la lista cambia, applicala e rigenera.
 
-Segna in testa al file la data dell'ultima rigenerazione, cosi' si sa quale
-versione e' finita in borsa.
+Segna in testa alla lista la data dell'ultima rigenerazione, cosi' si sa quale
+versione e' finita in borsa. E' l'unico dato che distingue due copie dello
+stesso file su due dispositivi diversi.
 
 ### La settimana sul calendario
 
@@ -116,7 +136,7 @@ Qui la differenza con `lunario:settimana` e' tutta in una cosa: **la spesa e'
 gia' fatta**. Il vincolo non e' piu' il gusto ne' il budget, e' cosa c'e' in
 casa.
 
-Leggi il markdown della settimana, `dati/dispensa.yaml`, il `contesto.yaml`
+Leggi il consuntivo, `dati/dispensa.yaml`, il `contesto.yaml` e il `diario.yaml`
 nella cartella della settimana, e il profilo con le sue esclusioni.
 Stabilisci che giorno e' oggi: **i giorni passati non si toccano mai**, si
 riscrivono solo quelli che restano.
@@ -136,9 +156,10 @@ cella: «stasera ordiniamo» → `cena: ristorante`, «pranzo me lo porto» →
 menu: e' quello che il postmortem confrontera' col reale.
 
 **2. Cosa c'e' in frigo?** E' la domanda che decide la proposta — ma non
-farla alla cieca. Nel menu, `lunario:prepara` ha spuntato i pasti fatti e gli
-ingredienti consumati: quello che resta **non** spuntato e' quello che c'e'
-ancora in casa.
+farla alla cieca. Tre fonti che ce l'hanno gia' scritto: il consuntivo dice
+cosa e' **entrato** in casa, i pasti spuntati dicono cosa e' stato **cucinato**,
+e `dispensa.yaml` e il diario dicono cosa `lunario:prepara` ha visto **finire**.
+Quello che e' entrato e non e' stato cucinato e' quello che c'e' ancora.
 
 Una cosa **non** c'e', e va tolta prima di proporla: i `sospesi` del
 `diario.yaml` con `stato: da_procurare` (contratto in `CLAUDE.md`). Al ritiro
@@ -151,7 +172,7 @@ Quindi non chiedere l'inventario: **proponi la lista che hai gia**, e fatti
 solo correggere. «Dovrebbero esserti rimasti 400 g di straccetti, le zucchine
 e mezza busta di rucola — torna?». Una domanda sola invece di dieci.
 
-Se il menu non e' stato spuntato (capita: si cucina senza lanciare la skill),
+Se i pasti non sono stati spuntati (capita: si cucina senza lanciare la skill),
 allora chiedi, partendo dagli ingredienti dei giorni saltati e facendoli
 confermare a gruppi.
 
@@ -181,9 +202,14 @@ non la domenica.
 
 ## Dopo
 
-Riscrivi nel markdown della settimana solo i giorni cambiati, lasciando visibile
-cosa c'era prima (una riga barrata o una nota). Aggiorna `dati/dispensa.yaml`
-se la correzione cambia gli avanzi previsti.
+Riscrivi **nel documento vivo** solo i giorni cambiati, lasciando visibile cosa
+c'era prima (una riga barrata o una nota). Aggiorna `dati/dispensa.yaml` se la
+correzione cambia gli avanzi previsti.
+
+Sul consuntivo vale una cautela in piu': si toccano **i giorni**, non la parte
+che registra la spesa. Cosa e' entrato in casa e a che prezzo e' un fatto
+chiuso, e una correzione di giovedi' non lo cambia. Se la modifica costringe a
+comprare qualcosa, e' spesa integrativa, e la registra il postmortem.
 
 **A settimana iniziata, scrivi anche il diario** — `diario.yaml` nella cartella
 della settimana,
@@ -208,7 +234,7 @@ successo ancora niente, si sta ancora decidendo.
 
 **Il nome della settimana non si tocca**, nemmeno se il menu cambia da cima a
 fondo: il titolo e' fissato alla generazione, e rinominare vorrebbe dire
-muovere markdown, HTML, cartella e ogni link che ci puntava. Il documento
+muovere la cartella, sei documenti e ogni link che ci puntava. Il documento
 cambia contenuto, non identita'.
 
 ## Un'obiezione che vale piu' di un giovedi'

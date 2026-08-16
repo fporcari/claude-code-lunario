@@ -33,17 +33,22 @@ notare ogni lunedi' e' rumore.
 ## 0. Prima di chiedere, leggi
 
 La domenica si apre su **cio' che e' gia' scritto**, e sono due file che
-insieme raccontano quasi tutta la settimana:
+insieme raccontano quasi tutta la settimana. Dove stanno lo dice lo script:
 
-- il **consuntivo** (il markdown della settimana, `stato: consuntivo`) — cosa e'
-  entrato in casa, a che prezzo, con quali sostituzioni, e in coda lo scarto
-  dal preventivo
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/settimana.py
+```
+
+- il **consuntivo** (`<nome>-consuntivo.md`, il documento vivo dopo la spesa) —
+  cosa e' entrato in casa, a che prezzo, con quali sostituzioni, e in coda lo
+  scarto dal preventivo. Se la settimana non e' mai passata da `lunario:spesa`,
+  il vivo e' ancora il preventivo, e va letto sapendo che e' una previsione
 - il **diario** (`diario.yaml`, nella cartella della settimana) — cosa si e' mangiato davvero,
   chi c'era, cosa e' avanzato, quali celle sono saltate, **registrato nel
   giorno in cui e' successo** invece che ricordato adesso
 
-Comprato e cucinato, gia' assemblati. Leggili per primi, insieme al menu
-spuntato.
+Comprato e cucinato, gia' assemblati. Leggili per primi, insieme ai pasti
+spuntati.
 
 Quello che il diario copre **non si chiede**: si propone come verificato, in
 una riga, e si passa oltre. Le domande qui sotto valgono solo per i buchi.
@@ -228,11 +233,20 @@ dichiara parziale. Un totale alto non e' una colpa e non si commenta.
 
 ## Lo scarto fra preventivo e consuntivo
 
-Se la settimana e' passata da `lunario:spesa`, in coda al markdown della settimana
-c'e' la sezione **Scarto dal preventivo**. Leggila e portala in
+Se la settimana e' passata da `lunario:spesa`, in coda al consuntivo c'e' la
+sezione **Scarto dal preventivo**, e i due documenti sono entrambi sul disco:
+il delta si legge, e dove non basta si confrontano i file. Portala in
 `storico.settimane[]`: `spesa_stimata` accanto a `spesa_reale`, e le righe
 divergenti in `scarto_per_riga`. Scrivere solo il totale reale cancella l'unica
 cosa che il confronto sa insegnare.
+
+C'e' una terza fonte, e questa settimana e' l'unica occasione di leggerla: la
+**lista annotata a mano** (`<nome>-lista.md`). Le righe che l'utente ha scritto
+al supermercato dicono cose che ne' il preventivo ne' lo scontrino sanno —
+«questo formato non lo tengono mai», «era finito anche stavolta». `lunario:spesa`
+le ha gia' usate per la settimana; qui interessano solo se **si ripetono**, ed e'
+la stessa regola di tutto il resto: una volta e' sfortuna, tre volte e' il
+paniere.
 
 Non commentarla riga per riga in chat — l'utente l'ha gia' vista al ritiro. Si
 guarda invece la **ripetizione**: stessa riga divergente nello stesso verso per
@@ -243,6 +257,40 @@ tre settimane e' un dato del paniere, non della settimana.
 | lo stesso formato arriva sempre diverso da quello atteso | correggi `formato_g` in `prodotti.jsonl`: il paniere ha il dato sbagliato, non il negozio |
 | lo stesso prodotto manca 3 volte — sostituito al ritiro o rimasto `sospeso`, e' la stessa mancanza | proponi di sostituirlo stabilmente nel paniere: non lo tengono |
 | il consuntivo supera il preventivo di piu' del 10% per 3 settimane | i prezzi del paniere sono vecchi, e il budget lo e' di conseguenza. Dillo una volta, come dato |
+
+## Il postmortem lascia un file
+
+Le tarature vanno in `storico.yaml`, che e' fatto per essere riletto da una
+skill. Ma **il ragionamento** — cosa e' andato storto, cosa si e' deciso e
+perche' — finiva in chat, e una chat a febbraio non la rilegge nessuno.
+
+Scrivi `<nome>-postmortem.md` nella cartella della settimana. E' un documento
+breve, si legge in un minuto, e chiude il fascicolo:
+
+```markdown
+# Postmortem — 2026-W34 Commando
+domenica 2026-08-23
+
+## Com'e' andata
+Due cene su sette sono saltate, tutte e due il giovedi'. Il resto ha tenuto.
+
+## Cosa ho cambiato
+- porzione di pasta di Adulto1: 90 → 80 g, avanzava da tre settimane
+- Polpette al sugo: fuori rotazione fino al 2026-09-13 (media 1,7)
+- formato della passata: 700 g invece di 400, ne arriva sempre uno piu' grande
+
+## Cosa resta aperto
+- il branzino non e' mai arrivato, terza volta: quel banco non lo tiene
+- il giovedi' e' finito fuori tre settimane di fila — se succede ancora, e' un
+  ritmo da scrivere
+```
+
+Tre sezioni, e nessuna di piu': **com'e' andata**, **cosa ho cambiato** (le
+tarature applicate, in una riga ciascuna) e **cosa resta aperto** (le cose
+proposte e non accettate, i sospesi mai chiusi, i segnali a due terzi). Ne'
+voti uno per uno ne' il peso di nessuno: le pesate stanno in `storico.yaml`, e
+un numero sul corpo di una persona non si scrive in un documento che qualcun
+altro puo' aprire.
 
 ## Chiusura
 

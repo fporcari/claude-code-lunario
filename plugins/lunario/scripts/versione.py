@@ -30,12 +30,13 @@ import sys
 # Il numero di contratto si muove SOLO quando si muove il contratto dei dati,
 # non a ogni versione del plugin. La tabella completa, con cosa cambia a ogni
 # passo, sta nella skill `lunario:aggiorna`.
-CONTRATTO_CORRENTE = 3
+CONTRATTO_CORRENTE = 4
 
 DESCRIZIONE = {
     1: "prima della griglia dei pasti: `bambini:`, `fuori_trasportabile`, settimane senza titolo",
     2: "griglia dei pasti, preventivo/consuntivo, settimane <ISO>-<titolo>, diario",
     3: "dispensa a tre sezioni: le scorte contate accanto agli avanzi e al congelatore",
+    4: "la settimana e' una cartella: preventivo, lista, consuntivo e postmortem, ognuno un file",
 }
 
 
@@ -123,13 +124,17 @@ def rileva(dati, radice):
     if motivi:
         return 1, motivi
 
+    settimane = os.path.join(radice, "settimane")
+    if _settimana_a_cartella(settimane):
+        return 4, ["c'e' gia' una settimana coi documenti dentro la cartella"]
+
     dispensa = _testo(os.path.join(dati, "dispensa.yaml"))
     if re.search(r"^scorte:\s*$", dispensa, re.MULTILINE):
-        return 3, ["la dispensa ha gia' la sezione `scorte`"]
+        return 3, ["la dispensa ha gia' la sezione `scorte`",
+                   "nessuna settimana coi documenti dentro la cartella"]
 
     motivi.append("griglia dei pasti presente")
     motivi.append("la dispensa non ha ancora la sezione `scorte`")
-    settimane = os.path.join(radice, "settimane")
     if os.path.isdir(settimane):
         nomi = [n for n in os.listdir(settimane) if n.endswith(".md")]
         nudi = [n for n in nomi if re.match(r"^\d{4}-W\d{2}\.md$", n)]
@@ -139,13 +144,31 @@ def rileva(dati, radice):
     return 2, motivi
 
 
+def _settimana_a_cartella(settimane):
+    """Una settimana col preventivo (o la lista) dentro la propria cartella.
+
+    E' il segno del contratto 4, e si vede da fuori: prima i documenti stavano
+    **accanto** alla cartella, che conteneva solo contesto e diario.
+    """
+    if not os.path.isdir(settimane):
+        return False
+    for voce in os.listdir(settimane):
+        cartella = os.path.join(settimane, voce)
+        if not os.path.isdir(cartella):
+            continue
+        for dentro in os.listdir(cartella):
+            if re.search(r"-(preventivo|lista|consuntivo|postmortem)\.(md|html)$", dentro):
+                return True
+    return False
+
+
 def stato(radice):
     dati = cartella_dati(radice)
     timbro = leggi_timbro(dati)
     if timbro:
-        return timbro["contratto"], "timbro", []
+        return timbro["contratto"], "dal timbro", []
     contratto, motivi = rileva(dati, radice)
-    return contratto, "forma", motivi
+    return contratto, "dalla forma dei file", motivi
 
 
 def main(argomenti=None):
@@ -184,13 +207,13 @@ def main(argomenti=None):
         print("non e' una cartella di casa Lunario: " + "; ".join(motivi))
         return 2
     if contratto == CONTRATTO_CORRENTE:
-        print(f"ok: contratto {contratto}, allineata (letto dal {come})")
+        print(f"ok: contratto {contratto}, allineata (letto {come})")
         return 0
     if contratto > CONTRATTO_CORRENTE:
         print(f"attenzione: la cartella e' al contratto {contratto}, il motore si ferma a "
               f"{CONTRATTO_CORRENTE}. Aggiorna il plugin: questa versione ignora cio' che non conosce.")
         return 0
-    print(f"migrazione necessaria: {contratto} -> {CONTRATTO_CORRENTE} (letto dal {come})")
+    print(f"migrazione necessaria: {contratto} -> {CONTRATTO_CORRENTE} (letto {come})")
     for motivo in motivi:
         print(f"  · {motivo}")
     return 3

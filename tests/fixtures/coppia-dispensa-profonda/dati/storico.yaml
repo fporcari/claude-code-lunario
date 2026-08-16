@@ -56,7 +56,7 @@ tarature:
 settimane:
   - settimana: 2026-W30
     titolo: La settimana dei pelati
-    menu: settimane/2026-W30-la-settimana-dei-pelati.md
+    menu: settimane/2026-W30-la-settimana-dei-pelati/2026-W30-la-settimana-dei-pelati-consuntivo.md
     spesa_stimata: 120.00
     spesa_reale: 128.50
     spesa_extra_alimentare: 6.00
@@ -73,7 +73,7 @@ settimane:
     note: la spesa e' partita da una dispensa mai contata
   - settimana: 2026-W31
     titolo: La settimana del freezer
-    menu: settimane/2026-W31-la-settimana-del-freezer.md
+    menu: settimane/2026-W31-la-settimana-del-freezer/2026-W31-la-settimana-del-freezer-consuntivo.md
     spesa_stimata: 115.00
     spesa_reale: 124.00
     spesa_extra_alimentare: 4.50
@@ -90,7 +90,7 @@ settimane:
     note: il merluzzo di giugno e' rimasto nel freezer un'altra settimana
   - settimana: 2026-W32
     titolo: La settimana delle zuppe
-    menu: settimane/2026-W32-la-settimana-delle-zuppe.md
+    menu: settimane/2026-W32-la-settimana-delle-zuppe/2026-W32-la-settimana-delle-zuppe-consuntivo.md
     spesa_stimata: 110.00
     spesa_reale: 118.00
     spesa_extra_alimentare: 0.00

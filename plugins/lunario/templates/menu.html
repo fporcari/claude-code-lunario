@@ -213,8 +213,9 @@
   .scorte{background:var(--carta);border:1px solid var(--riga);
           border-radius:10px;padding:2px 14px}
   /* La dispensa non e' una checklist: e' una dichiarazione. Una riga sola
-     dentro «Gia' in casa», accanto al congelatore che invece si spunta,
-     perche' scongelare e' un'azione con un orario e avere la pasta no. */
+     dentro «Gia' in casa», accanto al congelatore che invece porta un
+     quadratino, perche' scongelare e' un'azione con un orario e avere la
+     pasta no. */
   .dispensa{
     background:var(--velo);border-radius:8px;
     font-size:.8rem;color:var(--tenue);line-height:1.6;
@@ -240,44 +241,11 @@
   footer{margin-top:30px;padding-top:12px;border-top:1px solid var(--riga);
          font-size:.72rem;color:var(--tenue);line-height:1.6}
 
-  /* I quadratini di carta servono in stampa, non a schermo: a schermo c'e' una
-     checkbox vera. Questa regola sta PRIMA del blocco @media print: altrimenti,
-     a parita' di specificita', vincerebbe lei e in stampa non comparirebbero. */
-  .quadratino{display:none;margin-right:5px}
-
-  /* ---- la spesa si spunta col dito ----
-     Il foglio si stampa e finisce sul frigo, ma la lista si usa al
-     supermercato, e li' si ha in mano un telefono. Senza questo, chi fa la
-     spesa ricopia venti righe in un blocco note — ed e' esattamente li' che
-     si perdono i formati e i pasti a cui servono. La casella e' larga quanto
-     un polpastrello, e tutta la riga e' cliccabile. */
-  .spunta{
-    appearance:none;-webkit-appearance:none;
-    width:1.35em;height:1.35em;flex:0 0 auto;margin-right:6px;
-    border:1.5px solid var(--tenue);border-radius:5px;
-    align-self:center;cursor:pointer;position:relative;
-    background:var(--carta);
-  }
-  .spunta:checked{background:var(--accento);border-color:var(--accento)}
-  .spunta:checked::after{
-    content:"✓";position:absolute;inset:0;
-    display:flex;align-items:center;justify-content:center;
-    font-size:.85em;color:var(--su-accento);
-  }
-  .riga label{display:flex;align-items:center;cursor:pointer;flex:1;min-height:34px}
-  /* Presa: la riga resta leggibile ma smette di chiedere attenzione. */
-  .voce.presa .riga{opacity:.4;text-decoration:line-through}
-  .voce.presa .uso{opacity:.4}
-  .azzera{
-    display:block;margin:14px 0 0 auto;padding:.4em 1em;
-    background:none;border:1px solid var(--riga);border-radius:999px;
-    color:var(--tenue);font:inherit;font-size:.74rem;cursor:pointer;
-  }
-  /* Il consuntivo e' inerte: la spesa e' gia' stata fatta, non c'e' niente da
-     spuntare. Restano i quadratini di carta, per chi lo stampa. */
-  [data-stato="consuntivo"] .spunta,
-  [data-stato="consuntivo"] .azzera{display:none}
-  [data-stato="consuntivo"] .riga label{cursor:default}
+  /* Il quadratino e' un glifo, non una casella: questa pagina si legge e si
+     stampa, non si usa. Al supermercato ci va `<nome>-lista.md`, che si spunta
+     a mano e torna indietro — una spunta cliccata qui non la leggerebbe
+     nessuna skill, e non la leggerebbe in silenzio. */
+  .quadratino{margin-right:5px;color:var(--tenue)}
 
   /* ---- dal tablet in su: il giorno riprende la colonna, la spesa raddoppia ---- */
   @media (min-width:640px){
@@ -336,26 +304,22 @@
     .uso{font-size:8pt;padding:0 0 3px 16px}
     .uso a{color:inherit;text-decoration:none}
     .piatto a{border-bottom:none;color:inherit}
-    /* Sulla carta si ricomincia da capo: quadratini vuoti per la penna,
-       nessuna riga barrata. Il foglio stampato non eredita le spunte fatte
-       col dito, perche' chi stampa vuole una lista, non un resoconto. */
-    .quadratino{display:inline-block}
-    .spunta,.azzera{display:none}
-    .voce.presa .riga,.voce.presa .uso{opacity:1;text-decoration:none}
+    .quadratino{color:#555}
     footer{margin-top:12px}
   }
 </style>
 </head>
-<!-- data-stato governa i DUE layout di questa pagina, e non e' cosmetica:
-     "preventivo"  la lista si spunta col dito, ed e' un documento di lavoro
-     "consuntivo"  la spesa e' fatta: la pagina e' un registro e non si tocca
-     Sul consuntivo gli input.spunta NON si emettono affatto — restano i
-     quadratini di carta — perche' quello che si annota su una pagina non lo
-     legge nessuna skill, e lo silenzio con cui non lo legge e' il problema:
-     chi scrive crede di aver detto una cosa al sistema. Le annotazioni vere —
-     com'e' andata, quanto ci e' voluto davvero, cosa si e' mangiato invece —
-     arrivano da lunario:prepara, che e' li' mentre si cucina e scrive sui
-     file. -->
+<!-- data-stato dice quale dei due documenti e' questa pagina, e non e'
+     cosmetica: cambia l'intestazione, l'etichetta del totale e cosa si sta
+     leggendo.
+     "preventivo"  quello che si vuole mangiare e comprare: sono tutte stime
+     "consuntivo"  quello che c'e' davvero in casa, dopo lo scontrino
+     Nessuno dei due si spunta e nessuno dei due raccoglie note: quello che si
+     scrive in una pagina non lo legge nessuna skill, e il silenzio con cui non
+     lo legge e' il problema — chi scrive crede di aver detto una cosa al
+     sistema. Al supermercato ci va `<nome>-lista.md`, che torna indietro
+     annotato; le annotazioni della settimana passano da lunario:prepara, che
+     e' li' mentre si cucina e scrive sui file. -->
 <body data-stato="preventivo">
 <div class="foglio">
 
@@ -466,22 +430,22 @@
        Le due meta' hanno nature opposte, e il markup le tratta diversamente:
        il congelatore e' una lista di AZIONI CON UN ORARIO — la riga dello
        scongelamento e' l'unico vincolo di questa pagina che il giorno stesso
-       non si recupera, quindi si spunta come la spesa e si scrive sempre,
+       non si recupera, quindi porta il suo quadratino e si scrive sempre,
        anche quando sembra ovvia. La dispensa e' una DICHIARAZIONE: niente da
-       fare, niente da spuntare — una riga sola che spiega perche' la lista
-       e il totale sono piu' corti di quel che sembrerebbe giusto. -->
+       fare — una riga sola che spiega perche' la lista e il totale sono piu'
+       corti di quel che sembrerebbe giusto. -->
   <h2 id="incasa">Già in casa</h2>
   <div class="scorte">
     <div class="voce">
       <div class="riga">
-        <label><input type="checkbox" class="spunta" data-riga="scongela-branzino"><span class="quadratino">☐</span>Filetti di branzino</label>
+        <span class="quadratino">☐</span>Filetti di branzino
         <span class="q">2 × 250 g</span>
       </div>
       <div class="uso">→ <a href="#g-lun">lun cena</a> · in frigo domenica sera (8-12 h)</div>
     </div>
     <div class="voce">
       <div class="riga">
-        <label><input type="checkbox" class="spunta" data-riga="scongela-scamone"><span class="quadratino">☐</span>Scamone — e' li' da giugno</label>
+        <span class="quadratino">☐</span>Scamone — e' li' da giugno
         <span class="q">475 g</span>
       </div>
       <div class="uso">→ <a href="#g-sab">sab cena</a> · in frigo venerdi' mattina (12-24 h)</div>
@@ -516,20 +480,19 @@
          finocchi» in «e' il mercoledi' da ripensare». -->
     <div class="reparto">
       <h3>Ortofrutta</h3>
-      <!-- data-riga e' la chiave con cui la spunta sopravvive a un ricarico:
-           uno slug stabile del prodotto, unico nella pagina. Se cambia, la
-           spunta di quella riga riparte da zero — che e' il comportamento
-           giusto, perche' la riga non e' piu' la stessa. -->
+      <!-- Il quadratino e' per la penna di chi stampa. Chi fa la spesa col
+           telefono apre `<nome>-lista.md`, dove la stessa riga si spunta
+           davvero e torna indietro. -->
       <div class="voce">
         <div class="riga">
-          <label><input type="checkbox" class="spunta" data-riga="zucchine"><span class="quadratino">☐</span>Zucchine</label>
+          <span class="quadratino">☐</span>Zucchine
           <span class="q">600 g · 1,49 €</span>
         </div>
         <div class="uso">→ <a href="#g-lun">lun cena</a> · <a href="#g-gio">gio pranzo</a></div>
       </div>
       <div class="voce">
         <div class="riga">
-          <label><input type="checkbox" class="spunta" data-riga="rucola"><span class="quadratino">☐</span>Rucola</label>
+          <span class="quadratino">☐</span>Rucola
           <span class="q">2 buste · 2,18 €</span>
         </div>
         <div class="uso">→ contorno, tutta la settimana</div>
@@ -540,7 +503,7 @@
       <h3>Dispensa</h3>
       <div class="voce">
         <div class="riga">
-          <label><input type="checkbox" class="spunta" data-riga="fusilli-integrali"><span class="quadratino">☐</span>Fusilli integrali</label>
+          <span class="quadratino">☐</span>Fusilli integrali
           <span class="q">2 × 500 g · 2,38 €</span>
         </div>
         <div class="uso">→ <a href="#g-gio">gio cena</a></div>
@@ -550,13 +513,18 @@
   </div>
 
   <!-- L'etichetta segue lo stato: «Totale stimato» sul preventivo,
-       «Totale pagato» sul consuntivo. Chiamare stima un pagamento, o
-       viceversa, e' l'unico modo di rendere inutile il confronto fra i due. -->
+       «Totale cibo di casa» sul consuntivo. Chiamare stima un pagamento, o
+       viceversa, e' l'unico modo di rendere inutile il confronto fra i due.
+
+       E sul consuntivo il numero e' il CIBO DI QUESTA CASA — menu piu'
+       alimentare fuori lista — non il totale della cassa: uno zaino e la spesa
+       di un'altra famiglia sono gia' stati scorporati mezz'ora prima, e
+       rimetterli nell'ultima riga disfa tutto il lavoro. Il totale dello
+       scontrino, se serve, va nel blocco «fuori da questo conto». -->
   <div class="totale">
     <span>Totale stimato</span>
     <span class="cifra">{{TOTALE}} €</span>
   </div>
-  <button type="button" class="azzera" hidden>Azzera le spunte</button>
 
   <footer>
     Calorie indicative, stimate dalle tabelle CREA e arrotondate alle decine —
@@ -567,63 +535,13 @@
 </div>
 
 <script>
-// Le spunte della spesa, e nient'altro. Restano in questo browser: al sistema
-// non servono — quello che e' entrato in casa lo dice lo scontrino, non questa
-// pagina — e uno stato che le skill non leggono non deve fingere di parlarci.
-(function () {
-  // Solo il preventivo si spunta. Il consuntivo e' un registro: la spesa e'
-  // gia' stata fatta, e una casella li' non avrebbe niente da dire.
-  //
-  // La difesa vera non e' questa riga, e' il markup: un consuntivo non emette
-  // nessun input.spunta, quindi qui non c'e' niente da agganciare. Il
-  // controllo su data-stato e' la seconda cintura, non la prima — legarsi solo
-  // a un attributo significa dipendere da quando il DOM e' pronto.
-  if (document.body.dataset.stato === 'consuntivo') return;
-
-  var chiave = 'lunario:{{ISO}}:spesa';   // per settimana: due settimane aperte non si mescolano
-  var spunte = document.querySelectorAll('.spunta');
-  if (!spunte.length) return;
-
-  var azzera = document.querySelector('.azzera');
-
-  // localStorage puo' non esserci: file aperto da un'anteprima, URL data:,
-  // navigazione privata. In quel caso si spunta lo stesso, e basta: una lista
-  // che si rompe perche' il browser nega lo storage e' peggio di una lista
-  // che dimentica.
-  function leggi() {
-    try { return JSON.parse(localStorage.getItem(chiave)) || {}; } catch (e) { return {}; }
-  }
-  function scrivi(stato) {
-    try { localStorage.setItem(chiave, JSON.stringify(stato)); } catch (e) { /* amen */ }
-  }
-
-  var stato = leggi();
-
-  function disegna(box) {
-    box.closest('.voce').classList.toggle('presa', box.checked);
-  }
-
-  Array.prototype.forEach.call(spunte, function (box, i) {
-    var id = box.dataset.riga || ('riga-' + i);
-    box.checked = !!stato[id];
-    disegna(box);
-    box.addEventListener('change', function () {
-      if (box.checked) { stato[id] = 1; } else { delete stato[id]; }
-      scrivi(stato);
-      disegna(box);
-    });
-  });
-
-  if (azzera) {
-    azzera.hidden = false;
-    azzera.addEventListener('click', function () {
-      stato = {};
-      scrivi(stato);
-      Array.prototype.forEach.call(spunte, function (box) { box.checked = false; disegna(box); });
-    });
-  }
-})();
-
+// Questa pagina si legge, e basta. C'e' stata una versione che si spuntava col
+// dito e teneva le spunte in localStorage: funzionava, ed era inutile — quelle
+// spunte restavano nel browser di quel telefono, e `lunario:spesa` non le
+// vedeva. Chi le faceva credeva di aver detto qualcosa al sistema. Al
+// supermercato ci va `<nome>-lista.md`, che e' un file, si annota a mano e
+// torna indietro.
+//
 // I link interni (usi, salti) non passano per la navigazione a frammento:
 // aperti da un'anteprima (data: URL) o da certi visualizzatori, quel
 // meccanismo e' bloccato. Intercettare il clic e scorrere a mano funziona

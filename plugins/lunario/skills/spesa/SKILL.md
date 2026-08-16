@@ -34,8 +34,22 @@ notare ogni lunedi' e' rumore.
 Il PDF si legge con la skill `read-document` — nessun parser da scrivere. Da
 ogni riga: descrizione, quantita', formato se c'e', prezzo pagato.
 
+**Se lo scontrino e' una foto**, `read-document` esce con un errore e la strada
+e' la skill `pdf` con l'OCR. Ma su uno scontrino lungo, arricciato e fotografato
+di sbieco, leggere le due colonne appaiate non funziona: descrizioni e prezzi
+scivolano fino a una riga intera di sfasamento, e il risultato e' un paniere con
+i prezzi di un altro prodotto. Quello che funziona, in tre mosse:
+
+1. **ritaglia le due colonne** e leggile come **due elenchi ordinati**,
+   descrizioni da una parte e prezzi dall'altra
+2. **appaia per indice**, non per posizione sull'immagine. I prodotti ripetuti
+   sono la controprova che l'allineamento tiene — tre `1,99` uguali di fila,
+   i `0,01` dei sacchetti
+3. **somma le righe e confrontale col totale stampato.** Se non torna,
+   l'allineamento e' saltato da qualche parte: si rilegge, non si aggiusta
+
 **Se il PDF non si lascia leggere** — scansione illeggibile, file corrotto, un
-formato che `read-document` non digerisce — dillo subito e senza giri, poi si
+formato che nemmeno l'OCR digerisce — dillo subito e senza giri, poi si
 procede a voce: si chiede il totale, e i prezzi che l'utente ricorda dei
 prodotti nuovi. Ogni prezzo raccolto cosi' entra nella serie con
 `fonte: dichiarato` e la data di oggi. Quelli che nessuno ricorda restano
@@ -92,6 +106,11 @@ Le righe spuntate diventano `spesa_reale` (se erano in lista) o
 `spesa_extra_alimentare` (se no). Solo la prima si confronta con
 `spesa_stimata`: il budget riguarda il menu, non lo scontrino.
 
+Le righe **non** spuntate escono dai conti, ma non dal documento: cio' che e'
+stato comprato per un'altra casa finisce nel consuntivo in una sezione sua,
+voce per voce e col suo subtotale (4b). Quanto si deve a qualcuno e' un numero
+che serve, e toglierlo dalla pagina obbliga a rifarlo a mano.
+
 Nessuna delle due e' `spesa_fuori_casa`, che riguarda i pasti consumati al
 ristorante e non passa mai da qui: la raccoglie il postmortem.
 
@@ -116,24 +135,79 @@ cercato nello scontrino ne' segnalato come mancante.
 Il prezzo di quei prodotti resta quello che l'utente dichiara, quando gli va:
 meglio un prezzo vecchio dichiarato tale che una riga vuota.
 
-## 2b. Riconcilia con la lista
+## 2b. Riconcilia con la lista annotata
 
-Per le righe del gruppo **menu**, confronta con la lista nel markdown della
-settimana (glob su `settimane/<ISO>*`). Quattro esiti, e solo due meritano di essere raccontati:
+La lista non e' un ricordo di quello che si voleva comprare: e' un file, ed e'
+**tornato indietro insieme allo scontrino**. Aprilo — e' `<nome>-lista.md`
+dentro la cartella della settimana:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/settimana.py
+```
+
+Quattro esiti per ogni riga del gruppo **menu**, e solo due meritano di essere
+raccontati:
 
 | esito | cosa fai |
 |---|---|
-| **arrivato come previsto** | spunta la riga, in silenzio |
+| **arrivato come previsto** | registralo, in silenzio |
 | **formato diverso** (chiesto 500 g, dato 400 g) | il reale vince: ricalcola se il fabbisogno regge, e se non regge dillo |
 | **manca** | vai al punto 3 |
 | **in piu'**, fuori lista | gia' classificato sopra: nessun commento |
 
-**Se l'utente ha spuntato la lista sul telefono**, chiediglielo: una lista
-spuntata a meta' e' la risposta onesta a «cosa avete comprato davvero», e le
-righe **non** spuntate sono gia' i candidati alla sostituzione, senza chiedere
-a nessuno di ricordarsele. Non e' un dato che le skill possono leggere da sole
-— resta nel browser di quel telefono — quindi o lo racconta l'utente o non
-esiste. Se non risponde, si va avanti con lo scontrino e basta.
+### Le caselle
+
+Una casella spuntata nella lista vuol dire **preso**, e niente altro. Sono la
+risposta onesta a «cosa avete comprato davvero», e le righe **non** spuntate
+sono gia' i candidati alla sostituzione, senza chiedere a nessuno di
+ricordarsele.
+
+Con un'eccezione che va gestita e non ignorata: **una lista con zero caselle
+spuntate e' indistinguibile da una lista mai aperta.** In quel caso le caselle
+non dicono niente — non dicono «non ho comprato niente» — quindi si lavora sullo
+scontrino e basta, e lo si nomina una volta sola, senza rimproveri: «la lista
+non risulta spuntata, vado sullo scontrino». Se l'utente dice che invece l'ha
+usata, si torna a crederci.
+
+### Le annotazioni scritte a mano
+
+Accanto a una riga puo' esserci una frase — «non c'erano, prese 2 da 70 g»,
+«preso il branzino intero», «questo lo prendo giovedi'». E' testo libero per
+costruzione: non c'e' una sintassi da imparare, e non deve essercene una.
+Leggile, e portale in **uno** di questi esiti:
+
+| l'annotazione dice | dove finisce |
+|---|---|
+| il formato era un altro | `formato_g` e `fonte_formato` in `prodotti.jsonl`, e il fabbisogno si ricalcola |
+| ho preso un altro prodotto | sostituzione applicata al piatto (punto 3), e il prodotto nuovo entra nel paniere |
+| ne ho preso di piu' o di meno | la quantita' reale, e l'avanzo che ne segue in `dispensa.yaml` |
+| non c'era, me lo prendo dopo | un `sospeso` nel diario (punto 3) |
+| non c'era, lascia perdere | il piatto cambia, e non resta niente in aria |
+| l'ho preso altrove | `fuori_scontrino: true` sul prodotto (punto 2a) |
+| quanto e' costato | prezzo con `fonte: dichiarato`, **solo** se non c'e' sullo scontrino |
+
+Quando si crede a chi, perche' le due fonti sanno cose diverse:
+
+| la domanda | chi vince | perche' |
+|---|---|---|
+| **quale** prodotto e' entrato in casa | l'annotazione | l'utente era li' e aveva il pacco in mano |
+| **quanto** e' costato | lo scontrino | e' stampato, e contiene gia' sconti e promozioni |
+| **che formato** hanno dato | lo scontrino se lo riporta, altrimenti l'annotazione, con `fonte_formato: {fonte: utente, data}` | |
+| **cosa non e' arrivato** | la casella vuota, confermata dall'assenza sullo scontrino | due segnali concordi non si chiedono |
+
+Un'annotazione che non entra in nessuna di queste caselle **non si interpreta**:
+si chiede, una volta, insieme alle altre domande aperte. Indovinare cosa
+volesse dire una frase e' esattamente il modo di scrivere nel paniere un dato
+che nessuno ha detto.
+
+La sezione **«Fuori Lunario»** in coda alla lista si legge e si salta: non
+entra nei totali, non entra nel paniere, non entra in dispensa. E' li' apposta
+per essere ignorata dal motore, e per non essere dimenticata dall'utente.
+
+**Il file della lista non si riscrive.** E' il documento che l'utente ha
+annotato in piedi davanti a uno scaffale: resta com'e', ed e' la prova di cosa
+e' successo quel giorno. Cio' che si e' capito va nel consuntivo e nei file di
+dati, non ricopiato li' sopra.
 
 Il riconoscimento delle sigle segue le regole del paniere: se
 `FUSILLI INTGR 500` e' gia' in `alias_scontrino`, si riconosce da solo; se e'
@@ -162,7 +236,7 @@ Rispondi tu, e distingui:
 
 | la risposta | cosa fai |
 |---|---|
-| **si sostituisce** | aggiorna quel giorno nel menu e nel consuntivo, e finisce li': non resta niente in aria |
+| **si sostituisce** | aggiorna quel giorno nel consuntivo, e finisce li': non resta niente in aria |
 | **se lo procura dopo** | scrivi un `sospeso` nel diario della settimana, e non nominarlo piu' fino al giorno in cui serve |
 
 Il rimando detto e basta e' un rimando perso: giovedi' `lunario:prepara` fa
@@ -220,26 +294,50 @@ lascia stare il resto. Se i giorni colpiti sono tanti, e' il caso di
 - **`diario.yaml` della settimana** — la lista `sospesi`, e **solo se qualcosa
   e' stato rimandato**. Se e' arrivato tutto, o e' stato tutto sostituito, il
   file non si tocca: una lista vuota non e' un dato
-- **il markdown della settimana** — diventa il consuntivo: vedi il punto 4b.
-  Il **nome del file non cambia**: il titolo e' quello di sempre, e rinominare
-  vorrebbe dire muovere markdown, HTML e cartella insieme
+- **il consuntivo della settimana** — due file **nuovi**, accanto al
+  preventivo: vedi il punto 4b. Il nome della cartella non cambia, e il
+  preventivo non si tocca
 
-## 4b. Da preventivo a consuntivo
+## 4b. Il consuntivo si scrive accanto al preventivo
 
-Questa skill e' **l'unica** che cambia lo stato della settimana. Fino a un
-minuto fa il file diceva cosa si voleva comprare; adesso dice cosa c'e' in
-casa, ed e' una differenza di autorita', non di formattazione.
+Questa skill e' **l'unica** che porta la settimana da preventivo a consuntivo.
+Fino a un minuto fa il documento diceva cosa si voleva comprare; adesso ce n'e'
+un secondo che dice cosa c'e' in casa, ed e' una differenza di autorita', non
+di formattazione.
+
+Due file nuovi nella cartella della settimana, gli stessi nomi con un ruolo
+diverso:
+
+```
+settimane/2026-W34-commando/
+├── 2026-W34-commando-preventivo.md      <- resta com'e', non si tocca
+├── 2026-W34-commando-preventivo.html    <- idem
+├── 2026-W34-commando-lista.md           <- annotata dall'utente, non si riscrive
+├── 2026-W34-commando-consuntivo.md      <- nuovo
+└── 2026-W34-commando-consuntivo.html    <- nuovo
+```
+
+**Il preventivo non si sovrascrive.** E' la ragione per cui i due sono due file:
+lo scarto fra quello che si voleva e quello che c'e' e' il dato che il
+postmortem confronta, e leggerlo non deve richiedere un `git diff`. Da qui in
+poi il documento vivo della settimana e' il consuntivo — e' li' che
+`lunario:prepara` spunta i pasti e `lunario:correggi` riscrive i giorni.
+
+Cosa ci va dentro:
 
 1. `stato: consuntivo` in testa, con la data del ritiro
-2. **Riscrivi le righe della spesa sui prodotti reali**: nome, formato e prezzo
-   quelli dello scontrino, non quelli sperati. Una riga arrivata in 400 g resta
-   400 g anche se ne servivano 500
-3. **Applica le sostituzioni ai piatti**, non solo alla lista: se giovedi' il
-   branzino e' diventato merluzzo, giovedi' dice merluzzo. Un consuntivo che
-   nomina ancora un pesce che non e' entrato in casa non e' un registro
-4. **In coda, il delta**: poche righe, solo dove preventivo e consuntivo
-   divergono — formato, prezzo, prodotto sostituito, riga mancante. Serve al
-   postmortem e all'occhio umano, e deve leggersi senza `git diff`
+2. **I sette giorni**, ripresi dal preventivo e **con le sostituzioni gia'
+   applicate ai piatti**: se giovedi' il branzino e' diventato merluzzo,
+   giovedi' dice merluzzo. Un consuntivo che nomina ancora un pesce che non e'
+   entrato in casa non e' un registro. I pasti restano caselle: la settimana
+   deve ancora essere cucinata
+3. **Quello che e' entrato in casa**: nome, formato e prezzo dello scontrino,
+   non quelli sperati. Una riga arrivata in 400 g resta 400 g anche se ne
+   servivano 500. Non e' una lista della spesa e non ha caselle — la spesa e'
+   fatta
+4. **Il totale**, che e' il punto piu' facile da sbagliare: vedi qui sotto
+5. **In coda, il delta**: poche righe, solo dove preventivo e consuntivo
+   divergono — formato, prezzo, prodotto sostituito, riga mancante
 
 ```markdown
 ## Scarto dal preventivo
@@ -255,32 +353,53 @@ casa, ed e' una differenza di autorita', non di formattazione.
 stato vero sta nel diario, e due posti dove segnare la stessa cosa sono due
 posti che si contraddicono. Qui la riga serve all'occhio di chi riapre il file.
 
-Il preventivo non si conserva a parte: il delta e' la sua memoria utile, e il
-resto lo tiene git.
+### Il totale del consuntivo e' il cibo di casa
+
+L'etichetta e' **«Totale cibo di casa»**, e il numero e' `spesa_reale` +
+`spesa_extra_alimentare`: il menu piu' l'alimentare comprato fuori lista.
+
+**Il totale dello scontrino non e' il totale del consuntivo.** Il non
+alimentare e la spesa di altre case ne sono gia' fuori da mezz'ora, e
+rimetterceli dentro nell'ultima riga disfa tutto lo scorporo appena fatto: uno
+zaino da 45,90 € nel totale della settimana la fa sembrare costata il doppio, e
+quel numero non risponde a nessuna domanda che qualcuno si sia posto.
+
+Se serve la tracciabilita' col pezzo di carta, una riga **«fuori da questo
+conto, per memoria»** dice il totale della cassa e cosa lo separa da questo. Ma
+non e' il totale, e non sta al posto suo.
+
+**La spesa per un'altra casa resta in pagina**, in una sezione sua, voce per
+voce e con il suo subtotale: «scorporata» vuol dire fuori dai conti di Lunario,
+non cancellata dal documento. Quanto si deve alla suocera e' esattamente il
+numero che l'utente sta cercando, e sparire e' il modo piu' rapido di farglielo
+rifare a mano.
+
+```markdown
+## Totale cibo di casa — 142,28 €
+di cui menu 121,86 €, alimentare fuori lista 20,42 €
+
+### Fuori da questo conto, per memoria
+- alla cassa: 233,26 €
+- non alimentare: 45,90 € di zaino, 12,80 € fra carta casa e detersivi
+- spesa di un'altra casa: 32,28 € (dettaglio sotto)
+```
 
 ### Il consuntivo e' un registro, non un modulo
 
-Rigenera anche l'HTML, con `data-stato="consuntivo"` sul `body` e **senza
-nessuna casella da spuntare**: niente `input.spunta`, restano solo i quadratini
-di carta per chi lo stampa. L'etichetta del totale diventa «Totale pagato».
+Rigenera anche l'HTML, con `data-stato="consuntivo"` sul `body`.
 
-Nel preventivo la lista si spunta col dito, ed e' giusto: e' un documento di
-lavoro usato in un posto solo, su un telefono solo, per un'ora — uno stato che
-vive nel browser e' esattamente la quantita' di stato che serve, perche' a
-valle non lo aspetta nessuno.
+Ne' il preventivo ne' il consuntivo hanno caselle cliccabili, e il motivo vale
+la pena di scriverlo: **lo stato dentro la pagina e' invisibile alle skill, e lo
+e' in silenzio.** Le skill leggono file. Una spunta o un commento messi nella
+pagina sembrerebbero, a chi li scrive, esattamente come dire una cosa al
+sistema — e non li avrebbe ricevuti nessuno. Al supermercato ci va il markdown
+della lista, che invece torna indietro.
 
-Il consuntivo no, e il motivo vale la pena di scriverlo: **lo stato dentro la
-pagina e' invisibile alle skill, e lo e' in silenzio.** Le skill leggono file.
-Un commento scritto in un campo del menu sembrerebbe, a chi lo scrive,
-esattamente come dire una cosa al sistema — e nessuno l'avrebbe ricevuta. Una
-pagina che raccoglie note che non legge nessuno e' peggio di una pagina che non
-ne raccoglie.
-
-E non servirebbe comunque: il momento in cui si annota meglio non e' «guardando
-il menu la domenica», e' «davanti ai fornelli il mercoledi'», dove
-`lunario:prepara` c'e' gia', sta gia' parlando e scrive gia' sui file — nel
-diario della settimana. Un secondo canale produrrebbe solo due registri mezzi
-pieni che si contraddicono.
+E per le annotazioni non servirebbe comunque: il momento in cui si annota
+meglio non e' «guardando il menu la domenica», e' «davanti ai fornelli il
+mercoledi'», dove `lunario:prepara` c'e' gia', sta gia' parlando e scrive gia'
+sui file — nel diario della settimana. Un secondo canale produrrebbe solo due
+registri mezzi pieni che si contraddicono.
 
 ## 4a. L'occhio sui prezzi
 
@@ -304,13 +423,21 @@ solo quando i numeri le reggono:
 
 L'utente ha le buste da svuotare. Due o tre righe:
 
-- quanto ha speso davvero e di quanto si e' discostato dalla stima
+- **quanto e' costato il cibo di casa**, e di quanto si e' discostato dalla
+  stima. Se alla cassa la cifra era un'altra, dillo nella stessa frase e di'
+  cosa la separa: e' la domanda che si fa chiunque abbia in mano lo scontrino
 - cosa manca e cosa hai fatto di conseguenza
 - cosa resta da procurare, **e per quale giorno**: e' l'unica cosa di questa
   risposta che gli chiede di fare qualcosa
 
-Se e' andato tutto liscio, **una riga sola**: «Tutto arrivato, 89,40 € contro
-i 92,50 stimati. Buona settimana.»
+Su uno scontrino con dentro solo il menu, **una riga sola**: «Tutto arrivato,
+89,40 € contro i 92,50 stimati. Buona settimana.»
+
+Su uno scontrino vero, che il piu' delle volte contiene anche altro:
+
+> Cibo di casa 142,28 €, di cui 121,86 € di menu. Alla cassa 233,26 €: la
+> differenza e' lo zaino e la spesa di tua suocera (32,28 €, dettaglio nel
+> consuntivo).
 
 ## Perche' questo momento conta
 

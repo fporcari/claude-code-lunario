@@ -24,7 +24,13 @@ import re
 import subprocess
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+QUI = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, QUI)
+# La risoluzione dei file di una settimana e' del motore, non dei test: se i
+# test la riscrivessero, verificherebbero la propria idea del layout invece di
+# quella che usano le skill.
+sys.path.insert(0, os.path.join(os.path.dirname(QUI), "plugins", "lunario", "scripts"))
+import settimana as settimana_del_motore  # noqa: E402
 from minyaml import ErroreYaml, carica_file  # noqa: E402
 
 OK, FALLITA, NON_VERIFICABILE = "ok", "fallita", "non_verificabile"
@@ -76,21 +82,42 @@ class Casa:
     def storico(self):
         return self.yaml("dati/storico.yaml") or {}
 
+    def settimana(self):
+        """L'ultima settimana, risolta con lo script del motore."""
+        return settimana_del_motore.risolvi(self.radice)
+
     def cartella_settimana(self):
-        candidati = [p for p in glob.glob(os.path.join(self.radice, "settimane", "*"))
-                     if os.path.isdir(p)]
-        return sorted(candidati)[-1] if candidati else None
+        esito = self.settimana()
+        if not esito or not os.path.isdir(esito["cartella"]):
+            return None
+        return esito["cartella"]
+
+    def documento(self, ruolo):
+        """Il percorso di un ruolo — preventivo, consuntivo, lista, postmortem."""
+        esito = self.settimana()
+        return (esito or {}).get("esistono", {}).get(ruolo)
 
     def markdown_settimana(self):
-        candidati = sorted(glob.glob(os.path.join(self.radice, "settimane", "*.md")))
-        return candidati[-1] if candidati else None
+        """Il documento **vivo**: il consuntivo se c'e', altrimenti il preventivo."""
+        esito = self.settimana()
+        return (esito or {}).get("vivo")
 
-    def testo_settimana(self):
-        percorso = self.markdown_settimana()
-        if not percorso:
+    def _testo(self, percorso):
+        if not percorso or not os.path.isfile(percorso):
             return None
         with open(percorso, encoding="utf-8") as f:
             return f.read()
+
+    def testo_settimana(self):
+        return self._testo(self.markdown_settimana())
+
+    def testo_lista(self):
+        """La lista della spesa, che dal contratto 4 e' un file a se'.
+
+        Nel layout vecchio non esiste, e la spesa sta dentro il markdown della
+        settimana: si torna li', perche' l'asserzione riguarda la lista, non
+        il file in cui si trova."""
+        return self._testo(self.documento("lista")) or self.testo_settimana()
 
     def diario(self):
         cartella = self.cartella_settimana()
@@ -139,17 +166,34 @@ def _stato_settimana(testo):
     return trovato.group(1) if trovato else None
 
 
-def _righe_spesa(testo):
-    """Le righe della lista della spesa, saltando i giorni e le scorte."""
-    righe, dentro = [], False
+def _righe_spesa(testo, tutto=False):
+    """Le righe della lista della spesa, saltando i giorni e le scorte.
+
+    In un file di sola spesa (`<nome>-lista.md`) le intestazioni sono i
+    reparti, e le righe sono tutte quelle tranne «Fuori Lunario» — che e' li'
+    apposta per non essere contata."""
+    righe, dentro = [], tutto
     for riga in (testo or "").splitlines():
         intestazione = riga.strip().lower()
         if intestazione.startswith("#"):
-            dentro = "spesa" in intestazione
+            if "fuori lunario" in intestazione:
+                dentro = False
+            elif tutto or "spesa" in intestazione:
+                dentro = True
+            elif not tutto:
+                dentro = False
             continue
         if dentro and re.match(r"^\s*-\s*\[[ xX]\]", riga):
             righe.append(riga.strip())
     return righe
+
+
+def _righe_lista(casa):
+    """Le righe della spesa, dovunque la spesa viva in questa cartella."""
+    percorso = casa.documento("lista")
+    if percorso:
+        return _righe_spesa(casa.testo_lista(), tutto=True)
+    return _righe_spesa(casa.testo_settimana())
 
 
 def _caselle(testo):
@@ -161,18 +205,23 @@ def _caselle(testo):
 # ------------------------------------------------------------------ asserzioni
 
 def a_menu_scrive_quello_che_deve(casa):
-    """La tabella delle skill dice cosa scrive `lunario:menu`."""
-    mancanti = []
-    if not casa.markdown_settimana():
-        mancanti.append("settimane/<ISO>-<titolo>.md")
-    if not glob.glob(os.path.join(casa.radice, "settimane", "*.html")):
-        mancanti.append("settimane/<ISO>-<titolo>.html")
+    """La tabella delle skill dice cosa scrive `lunario:menu`: tre documenti
+    dentro la cartella della settimana, piu' la voce in storico."""
+    esito = casa.settimana()
+    if esito is None:
+        return Esito("menu scrive i suoi file", FALLITA, "nessuna settimana in `settimane/`")
+    ci_sono = esito["esistono"]
+    mancanti = [r for r in ("preventivo", "lista", "preventivo_html") if r not in ci_sono]
+    if esito["layout"] == "piatto":
+        # Il layout vecchio non ha ne' lista ne' ruoli: si controlla cio' che
+        # allora esisteva, e la migrazione non lo riscrive.
+        mancanti = [] if "preventivo" in ci_sono else ["il markdown della settimana"]
     if not casa.storico().get("settimane"):
         mancanti.append("voce in storico.settimane")
     if mancanti:
         return Esito("menu scrive i suoi file", FALLITA, "mancano: " + ", ".join(mancanti),
                      "tabella delle skill in CLAUDE.md")
-    return Esito("menu scrive i suoi file", OK)
+    return Esito("menu scrive i suoi file", OK, esito["nome"])
 
 
 def a_settimana_nasce_preventivo(casa):
@@ -200,26 +249,30 @@ def a_solo_spesa_promuove(casa):
     return Esito("dopo lo scontrino e' consuntivo", OK)
 
 
-def a_consuntivo_senza_caselle(casa):
-    """«Il consuntivo e' un registro, non un modulo»: niente input.spunta."""
-    html = sorted(glob.glob(os.path.join(casa.radice, "settimane", "*.html")))
-    if not html:
-        return Esito("il consuntivo non si spunta", NON_VERIFICABILE, "nessun HTML")
-    with open(html[-1], encoding="utf-8") as f:
-        pagina = f.read()
-    if 'class="spunta"' in pagina or "input.spunta" in pagina or "type=\"checkbox\"" in pagina:
-        return Esito("il consuntivo non si spunta", FALLITA,
-                     "l'HTML del consuntivo porta ancora delle caselle",
-                     "lo stato in pagina e' invisibile alle skill")
-    return Esito("il consuntivo non si spunta", OK)
+def a_pagina_senza_caselle(casa):
+    """«Lo stato dentro la pagina e' invisibile alle skill»: nessun HTML della
+    settimana raccoglie spunte, ne' il preventivo ne' il consuntivo. Al
+    supermercato ci va il markdown della lista, che invece torna indietro."""
+    pagine = [p for p in glob.glob(os.path.join(casa.radice, "settimane", "**", "*.html"),
+                                   recursive=True)]
+    if not pagine:
+        return Esito("le pagine non si spuntano", NON_VERIFICABILE, "nessun HTML")
+    colpevoli = []
+    for percorso in sorted(pagine):
+        with open(percorso, encoding="utf-8") as f:
+            pagina = f.read()
+        if 'class="spunta"' in pagina or "input.spunta" in pagina or 'type="checkbox"' in pagina:
+            colpevoli.append(os.path.basename(percorso))
+    if colpevoli:
+        return Esito("le pagine non si spuntano", FALLITA,
+                     "portano ancora delle caselle: " + ", ".join(colpevoli),
+                     "una spunta che nessuna skill legge finge di parlare col sistema")
+    return Esito("le pagine non si spuntano", OK, f"{len(pagine)} pagine")
 
 
 def a_lista_in_confezioni(casa):
     """«La lista della spesa e' in confezioni, mai in grammi astratti»."""
-    testo = casa.testo_settimana()
-    if testo is None:
-        return Esito("la lista e' in confezioni", NON_VERIFICABILE, "nessun markdown")
-    righe = _righe_spesa(testo)
+    righe = _righe_lista(casa)
     if not righe:
         return Esito("la lista e' in confezioni", NON_VERIFICABILE, "nessuna riga di spesa riconosciuta")
     paniere = casa.paniere()
@@ -280,13 +333,14 @@ def a_scorte_nominate_uscendo(casa):
     if not freezer:
         return Esito("le scorte usate sono nominate", NON_VERIFICABILE, "congelatore vuoto")
     incasa = _blocco(testo, r"gi[aà]'? in casa") or ""
+    righe = _righe_lista(casa)
     ricomprate = []
     for voce in freezer:
         parole = _parole_forti(voce.get("cosa"))
         if not parole:
             continue
         comprata = any(len(parole & _parole_forti(riga)) >= min(2, len(parole))
-                       for riga in _righe_spesa(testo))
+                       for riga in righe)
         nominata = len(parole & _parole_forti(incasa)) >= min(2, len(parole))
         if comprata and not nominata:
             ricomprate.append(voce.get("cosa"))
@@ -559,19 +613,61 @@ def a_un_commit_per_skill(casa, skill_attese):
 
 
 def a_nome_settimana_stabile(casa):
-    """Il nome si fissa alla generazione: markdown, HTML e cartella allineati."""
-    md = casa.markdown_settimana()
-    cartella = casa.cartella_settimana()
-    if not md or not cartella:
-        return Esito("il nome della settimana e' allineato", NON_VERIFICABILE, "settimana incompleta")
-    radice_md = os.path.basename(md)[:-3]
-    if radice_md != os.path.basename(cartella):
+    """Il nome si fissa alla generazione, e ogni documento lo porta intero.
+
+    Non e' pignoleria: le skill compongono i percorsi da `<cartella>-<ruolo>`,
+    quindi un documento con un altro prefisso non lo apre nessuno — e non
+    aprirlo non da' errore, da' una settimana che sembra vuota."""
+    esito = casa.settimana()
+    if esito is None:
+        return Esito("il nome della settimana e' allineato", NON_VERIFICABILE, "nessuna settimana")
+    if esito["layout"] == "piatto":
+        return Esito("il nome della settimana e' allineato", OK,
+                     f"{esito['nome']} (layout vecchio, non si rinomina)")
+    nome = esito["nome"]
+    sbagliati = [os.path.basename(p) for chiave, p in esito["esistono"].items()
+                 if chiave not in ("cartella", "contesto", "diario")
+                 and not os.path.basename(p).startswith(nome + "-")]
+    if sbagliati:
         return Esito("il nome della settimana e' allineato", FALLITA,
-                     f"markdown `{radice_md}` contro cartella `{os.path.basename(cartella)}`")
-    html = os.path.join(os.path.dirname(md), radice_md + ".html")
-    if not os.path.isfile(html):
-        return Esito("il nome della settimana e' allineato", FALLITA, f"manca {radice_md}.html")
-    return Esito("il nome della settimana e' allineato", OK, radice_md)
+                     f"documenti che non cominciano per `{nome}-`: {sbagliati}")
+    if not os.path.isdir(esito["cartella"]):
+        return Esito("il nome della settimana e' allineato", FALLITA,
+                     f"nessuna cartella `{nome}`: i documenti stanno dentro la settimana")
+    return Esito("il nome della settimana e' allineato", OK, nome)
+
+
+def a_preventivo_non_sovrascritto(casa):
+    """Dopo lo scontrino i documenti sono due, e il preventivo e' ancora li'.
+
+    E' il dato su cui il postmortem misura tutto: uno scarto che si legge solo
+    con un `git diff` non lo legge nessuno."""
+    esito = casa.settimana()
+    if esito is None:
+        return Esito("il preventivo resta", NON_VERIFICABILE, "nessuna settimana")
+    if esito["layout"] == "piatto":
+        return Esito("il preventivo resta", NON_VERIFICABILE,
+                     "layout vecchio: preventivo e consuntivo sono lo stesso file")
+    ci_sono = esito["esistono"]
+    if "consuntivo" not in ci_sono:
+        return Esito("il preventivo resta", NON_VERIFICABILE, "nessun consuntivo")
+    if "preventivo" not in ci_sono:
+        return Esito("il preventivo resta", FALLITA,
+                     "c'e' il consuntivo e il preventivo e' sparito",
+                     "lunario:spesa scrive accanto, non sopra")
+    return Esito("il preventivo resta", OK)
+
+
+def a_postmortem_lascia_un_file(casa):
+    """La domenica non finisce in chat: il fascicolo della settimana si chiude."""
+    esito = casa.settimana()
+    if esito is None:
+        return Esito("il postmortem lascia un file", NON_VERIFICABILE, "nessuna settimana")
+    if "postmortem" in esito["esistono"]:
+        return Esito("il postmortem lascia un file", OK)
+    return Esito("il postmortem lascia un file", FALLITA,
+                 f"nessun `{esito['nome']}-postmortem.md` nella cartella",
+                 "una chat a febbraio non la rilegge nessuno")
 
 
 # ------------------------------------------------------------- insiemi per fase
@@ -581,6 +677,7 @@ def dopo_settimana(casa):
         a_menu_scrive_quello_che_deve(casa),
         a_settimana_nasce_preventivo(casa),
         a_nome_settimana_stabile(casa),
+        a_pagina_senza_caselle(casa),
         a_lista_in_confezioni(casa),
         a_scorte_nominate_uscendo(casa),
         a_scongelamento_dichiarato(casa),
@@ -597,7 +694,8 @@ def dopo_settimana(casa):
 def dopo_spesa(casa):
     return [
         a_solo_spesa_promuove(casa),
-        a_consuntivo_senza_caselle(casa),
+        a_preventivo_non_sovrascritto(casa),
+        a_pagina_senza_caselle(casa),
         a_prezzi_con_data_e_fonte(casa),
         a_nome_settimana_stabile(casa),
         a_rimando_registrato(casa),
@@ -626,6 +724,7 @@ def dopo_correggi(casa):
 def dopo_postmortem(casa):
     return [
         a_fuori_casa_non_entra_in_spesa_reale(casa),
+        a_postmortem_lascia_un_file(casa),
         a_dispensa_si_e_mossa(casa),
         a_prezzi_con_data_e_fonte(casa),
         a_un_commit_per_skill(casa, ["postmortem"]),

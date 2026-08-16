@@ -121,6 +121,10 @@ def cartella_al_contratto_vecchio(casa):
         os.remove(timbro)
 
 
+def niente(casa):
+    """Nessun guasto: il fixture e' gia' la condizione da provare."""
+
+
 def senza_git(casa):
     percorso = os.path.join(casa, "dati", "profilo.yaml")
     with open(percorso, encoding="utf-8") as f:
@@ -247,6 +251,29 @@ def c_cartella_migrata(casa):
     return Esito("la cartella e' stata migrata", OK, uscita.stdout.strip())
 
 
+def c_la_settimana_vecchia_resta_dov_era(casa):
+    """La nuova nasce nella cartella; la vecchia non si sposta.
+
+    E' la promessa della migrazione al contratto 4, ed e' l'unico posto in cui
+    si vede davvero: `single` ha una settimana scritta col layout di prima, e
+    dopo un giro completo deve essere ancora li', intatta."""
+    settimane = os.path.join(casa, "settimane")
+    vecchia = os.path.join(settimane, "2026-W32-la-settimana-delle-lenticchie.md")
+    if not os.path.isfile(vecchia):
+        return Esito("la settimana vecchia resta dov'era", FALLITA,
+                     "il markdown accanto alla cartella e' stato spostato o rinominato",
+                     "le settimane passate sono un registro: non si migrano")
+    nuove = [n for n in os.listdir(settimane)
+             if os.path.isdir(os.path.join(settimane, n))
+             and any(r in v for v in os.listdir(os.path.join(settimane, n))
+                     for r in ("-preventivo.md", "-lista.md"))]
+    if not nuove:
+        return Esito("la settimana vecchia resta dov'era", FALLITA,
+                     "nessuna settimana nuova coi documenti dentro la cartella",
+                     "dal contratto 4 il menu scrive li'")
+    return Esito("la settimana vecchia resta dov'era", OK, f"nuove: {sorted(nuove)}")
+
+
 def c_nessun_commit(casa):
     messaggi = Casa(casa).commit()
     if messaggi is None:
@@ -297,6 +324,10 @@ SCENARI = [
     Scenario("cartella-vecchia", "famiglia", ["settimana"], cartella_al_contratto_vecchio,
              [c_cartella_migrata, c_menu_esce_lo_stesso],
              "una cartella al contratto precedente: si migra, poi si genera"),
+    Scenario("settimana-vecchia", "single", ["settimana"], niente,
+             [c_la_settimana_vecchia_resta_dov_era, c_menu_esce_lo_stesso],
+             "una cartella col layout di settimana precedente: la nuova nasce "
+             "nella cartella, la vecchia non si tocca"),
     Scenario("senza-git", "coppia-dispensa-profonda", ["settimana"], senza_git,
              [c_nessun_commit, c_ha_scritto_lo_stesso],
              "una casa che il versionamento non lo vuole"),

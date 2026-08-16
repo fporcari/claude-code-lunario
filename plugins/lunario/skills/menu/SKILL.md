@@ -29,9 +29,14 @@ notare ogni lunedi' e' rumore.
 
 `dati/profilo.yaml` · `dati/ritmi.yaml` · `dati/note.md` ·
 `dati/ricette.md` · `dati/storico.yaml` (tarature) · `dati/dispensa.yaml`
-(`scorte`, `avanzi` **e** `freezer`) · il `contesto.yaml` della settimana, che si trova
-con un glob su `settimane/<ISO>*`. Se il contesto manca, chiama
-`lunario:settimana` invece di indovinare.
+(`scorte`, `avanzi` **e** `freezer`) · il `contesto.yaml` della settimana. Dove
+stanno i file della settimana lo dice lo script, e non si indovina:
+
+```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/settimana.py
+```
+
+Se il contesto manca, chiama `lunario:settimana` invece di tirare a indovinare.
 
 ## 1. Risolvi la griglia, prima di scegliere qualsiasi piatto
 
@@ -167,7 +172,7 @@ Quando un piatto e' costruito su una riga di `freezer` o su un avanzo di
 dispensa, la riga della spesa corrispondente **non si compra**. Ma cancellarla
 in silenzio rende sospetta tutta la lista: un banco pesce con una riga sola
 sembra una dimenticanza finche' non si sa perche'. Quindi la cancellazione si
-nomina nella sezione **«Gia' in casa»** (6b), che sta prima della spesa:
+nomina nella sezione **«Gia' in casa»** (6c) del preventivo:
 
 ```markdown
 ### Dalla dispensa, non si compra
@@ -322,18 +327,23 @@ giorni: «la settimana dei legumi coraggiosi», «tre pesci e un forno acceso»,
 In entrambi i casi: una riga sola, ironico va bene e furbo no, e se non viene
 niente di caratteristico un titolo piano e' meglio di uno forzato.
 
-**Poi il titolo diventa il nome dei file.** Slug: minuscolo, accenti tolti,
-tutto cio' che non e' lettera o cifra a `-`, niente `-` doppi ne' agli estremi.
-`lunario:settimana` ha creato `settimane/<ISO>/`: rinominala adesso, prima di
-scrivere qualsiasi cosa, cosi' i tre nomi nascono gia' allineati.
+**Poi il titolo diventa il nome della cartella**, e da li' quello di ogni file
+che ci finira' dentro. Lo slug lo calcola lo script, cosi' non lo si scrive a
+mano due volte in modo diverso:
 
 ```bash
+python3 ${CLAUDE_PLUGIN_ROOT}/scripts/settimana.py --slug "Commando"
 mv settimane/2026-W34 settimane/2026-W34-commando
 ```
 
+`lunario:settimana` ha creato `settimane/<ISO>/`: rinominala **adesso**, prima
+di scrivere qualsiasi cosa, cosi' i documenti nascono gia' col nome giusto. E'
+l'unico rename previsto dal sistema, e avviene prima che qualcuno abbia visto
+un nome.
+
 Da qui in poi il nome e' fissato: `lunario:correggi` non lo tocca nemmeno se
-riscrive meta' settimana, perche' un rename dovrebbe muovere tre cose insieme
-e ogni link che ci puntava.
+riscrive meta' settimana, perche' un rename dovrebbe muovere la cartella, sei
+documenti e ogni link che ci puntava.
 
 ### 5a. Il vestito della settimana
 
@@ -366,11 +376,25 @@ lo stato, non i colori.
 
 ## 6. Output
 
-Tre cose, in quest'ordine:
+**Tutto dentro la cartella della settimana**, e ogni file porta il nome intero:
+un documento scaricato sul telefono o allegato a un messaggio perde la cartella
+e resta col suo nome soltanto, e `preventivo.md` a quel punto non dice di quale
+settimana sia.
 
-1. **`settimane/<ISO>-<titolo>.md`** — la fonte: in testa
-   `stato: preventivo`, poi titolo, i 7 giorni e la lista per reparto in
-   confezioni col totale.
+```
+settimane/2026-W34-commando/
+├── 2026-W34-commando-preventivo.md      <- i sette giorni
+├── 2026-W34-commando-preventivo.html    <- la copia da frigo
+├── 2026-W34-commando-lista.md           <- la spesa, sola e da spuntare a mano
+├── contesto.yaml
+└── diario.yaml
+```
+
+Quattro cose, in quest'ordine:
+
+1. **`<nome>-preventivo.md`** — la fonte: in testa `stato: preventivo`, poi
+   titolo, i 7 giorni, «Gia' in casa» e il totale stimato. **La lista non ci
+   sta dentro**: sta nel suo file, e il preventivo la nomina in una riga.
 
    Ogni giorno porta le celle che esistono davvero: colazione e merende in una
    riga sola in testa, poi pranzo e cena col piatto, le kcal per persona e la
@@ -378,30 +402,83 @@ Tre cose, in quest'ordine:
    marcate — «cena — fuori (ristorante)» — perche' il giorno si legga per
    intero. Una cella `libero` si marca **libero**, senza kcal.
 
-   Ogni pasto e ogni riga della spesa si scrivono come **caselle da spuntare**
-   (`- [ ]`): `lunario:prepara` le marca man mano che si cucina e si consuma,
-   e da quel momento il file dice non solo cosa era previsto, ma **a che punto
-   e' la settimana**. E' lo stato su cui si appoggiano `lunario:correggi` e il
-   postmortem
-2. **`settimane/<ISO>-<titolo>.html`** — da
+   Ogni pasto e' una **casella da spuntare** (`- [ ]`), e vuol dire una cosa
+   sola: quel pasto e' stato fatto. Le marca `lunario:prepara` man mano che si
+   cucina, e da quel momento il file dice anche **a che punto e' la settimana**
+2. **`<nome>-lista.md`** — la spesa, sola: vedi 6a. E' l'unico documento che
+   l'utente modifica a mano, e l'unico che torna indietro
+3. **`<nome>-preventivo.html`** — da
    `${CLAUDE_PLUGIN_ROOT}/templates/menu.html`, sostituendo i segnaposto
    `{{...}}` e ripetendo i blocchi marcati `RIPETI`. Si stampa e si attacca al
-   frigo, ma soprattutto **si apre sul telefono al supermercato**: la lista si
-   spunta col dito e le spunte restano dov'erano se la pagina si ricarica. I
-   reparti vanno nell'ordine in cui si gira il negozio, non in ordine
-   alfabetico.
+   frigo, e si mostra a chi la settimana la deve mangiare: e' la copia
+   **leggibile**, non uno strumento. I reparti vanno nell'ordine in cui si gira
+   il negozio, non in ordine alfabetico.
 
-   Tre cose da riempire bene, perche' non si vedono guardando la pagina:
-   `{{ISO}}` compare anche nella chiave di salvataggio — che resta l'ISO nudo
-   e **non** il nome del file, cosi' due settimane aperte insieme non si
-   mescolano e nessun rename azzera le spunte; ogni `input.spunta` vuole un `data-riga`
-   **unico nella pagina** — uno slug del prodotto, non l'indice della riga,
-   altrimenti aggiungere una voce sposta tutte le spunte gia' fatte; e il
-   salto «Già in casa» nella nav in testa si emette solo se la sezione
-   esiste. Il vestito — palette, fregio, `theme-color` — segue la sezione 5a
-3. **Voce in `dati/storico.yaml`** con `titolo` e `spesa_stimata`
+   Due cose da riempire bene, perche' non si vedono guardando la pagina: il
+   salto «Già in casa» nella nav in testa si emette solo se la sezione esiste,
+   e il vestito — palette, fregio, `theme-color` — segue la sezione 5a.
+   **Nessuna casella cliccabile**: al supermercato ci va il markdown, e una
+   pagina che raccoglie spunte che nessuna skill legge e' peggio di una pagina
+   che non ne raccoglie
+4. **Voce in `dati/storico.yaml`** con `titolo`, `spesa_stimata` e `menu` che
+   punta al preventivo dentro la cartella
 
-### 6a. Ogni riga della spesa dice a cosa serve
+### 6a. La lista e' un file suo, ed e' l'unico che torna indietro
+
+Al banco del pesce servono quaranta righe da spuntare, non un documento di
+sette giorni. E soprattutto: **la lista e' un ingresso di dati**. L'utente la
+apre sul telefono, spunta cio' che prende, annota accanto cio' che non c'era o
+era diverso, e al ritorno `lunario:spesa` riapre **lo stesso file**. Non ci
+sono due copie da riconciliare, e non c'e' niente da esportare.
+
+Un file markdown, niente menu dentro:
+
+```markdown
+# Spesa — 2026-W34 Commando
+preventivo del 2026-08-17 · spunta col dito, annota accanto: rileggo tutto io
+
+## Banco pesce
+- [ ] Filetti di branzino — 500 g
+      → lun cena
+
+## Ortofrutta
+- [ ] Zucchine — 1,5 kg
+      → mer cena · gio cena
+- [ ] Rucola — 2 buste da 100 g
+      → insalate, tutta la settimana
+
+## Dispensa
+- [ ] Fusilli integrali — 2 × 500 g
+      → mar pranzo · ven cena
+
+## Fuori Lunario
+- [ ] detersivo lavastoviglie
+- [ ] carta forno
+```
+
+Le regole della lista, tutte per la stessa ragione — che qualcuno la legge in
+piedi, con una mano sola, e qualcun altro la rilegge tre giorni dopo:
+
+- **i reparti nell'ordine in cui si gira il negozio**, come nell'HTML
+- **una casella per riga**, con confezione e quantita' vere. La casella vuol
+  dire **preso**, e niente altro: non «consumato», non «arrivato in casa»
+- **la riga d'uso sotto**, come in 6b: e' quella che al banco dice cosa salta
+  se manca
+- **«Fuori Lunario» in coda, in una sezione sua**: cio' che si compra comunque
+  e che il motore non pianifica. In markdown il colore non esiste, e una
+  sezione separata dice da sola cosa il motore deve ignorare — sopravvive a
+  qualsiasi app la apra. Se il profilo ha `tolleranze.spesa_per_altri: true`,
+  anche la spesa che viaggia per un'altra casa sta qui
+- **spazio per annotare**: si annota in linea, dopo la riga, a parole. Non c'e'
+  una sintassi da imparare, e non deve essercene una
+
+**La prima volta che scrivi una lista in questa casa** — nessuna settimana
+precedente ha un `-lista.md` — dillo in mezza riga, una volta sola: la lista e'
+un file, e se la cartella sta in un servizio sincronizzato la si apre col
+telefono al supermercato con un qualsiasi editor markdown. Poi mai piu': non e'
+una funzione da vendere, e' una comodita' che o si e' capita o non interessa.
+
+### 6b. Ogni riga della spesa dice a cosa serve
 
 Sotto ogni riga, in piccolo, **i pasti che usano quell'ingrediente**:
 
@@ -439,17 +516,17 @@ Falla anche come **verifica**: se una riga non ha nessun pasto che la usa, non
 e' una riga della spesa, e' un residuo di una modifica precedente. Toglila
 invece di comprarla.
 
-### 6b. Gia' in casa: la seconda fonte del menu
+### 6c. Gia' in casa: la seconda fonte del menu
 
 Il menu ha **due fonti** — cio' che entra dal carrello e cio' che c'e' gia'
-in casa — e la seconda ha una sezione sua, fra i giorni e la spesa, non
-dentro la lista: e' quello che **esce** di casa, non quello che entra nel
-carrello. Dentro, le due meta' si trattano in modo opposto, perche' hanno
-nature opposte:
+in casa — e la seconda ha una sezione sua, **nel preventivo, dopo i giorni**,
+non nella lista: e' quello che **esce** di casa, non quello che entra nel
+carrello, e al supermercato non ci si fa niente. Dentro, le due meta' si
+trattano in modo opposto, perche' hanno nature opposte:
 
 - **il congelatore e' una lista di azioni con un orario**: una riga per
   scorta, con il giorno in cui si mangia e l'ora in cui va spostata in
-  frigo, e la casella si spunta come quelle della spesa
+  frigo, e una casella che vuol dire **tirato fuori**
 - **la dispensa e' una dichiarazione**: niente da fare, niente da spuntare —
   si nomina cio' che copre, cosi' la lista corta e il totale basso hanno una
   ragione leggibile
@@ -471,15 +548,15 @@ Lo scongelamento non e' un dettaglio da ricettario: e' **l'unico pezzo di
 settimana che il giorno stesso non si recupera**. Un piatto rimandato si
 sposta, un forno occupato si aspetta; una bistecca ancora dura alle otto di
 sera e' una cena che non avviene. Quindi la riga dello scongelamento si
-scrive sempre, anche quando sembra ovvia, e la casella si spunta come le
-altre — `lunario:prepara` la marca la sera prima.
+scrive sempre, anche quando sembra ovvia, e la casella la marca
+`lunario:prepara` la sera prima.
 
 Nell'HTML la sezione e' `#incasa`: il blocco `.scorte` per il congelatore
 (casella, quantita', link al giorno che la usa) e il blocco `.dispensa` per
 la riga della dispensa. La sezione — e il suo salto nella nav — c'e' solo se
 la settimana usa delle scorte.
 
-### 6c. Il piatto porta la sua ricetta, quando serve
+### 6d. Il piatto porta la sua ricetta, quando serve
 
 Un menu si approva o si contesta sulla capacita' di **immaginarsi la
 settimana**, e il nome nudo di un piatto non basta: «cous cous con verdure e
@@ -504,7 +581,7 @@ Le ricerche si fanno in blocco come quelle dei formati: sono pochi piatti a
 settimana, e il link trovato resta scritto nel file della settimana, quindi
 non si ricerca due volte.
 
-### 6d. Vedere la cena prima di comprarla
+### 6e. Vedere la cena prima di comprarla
 
 Il link dice **cos'e'** un piatto; non dice cos'e' **qui** — scalato su questa
 casa, con la base neutra tirata fuori per i bambini, dentro i trenta minuti di
@@ -524,8 +601,9 @@ invocare una skill, e un link che non fa niente e' peggio di nessun link.
 L'anteprima e' una cosa che si chiede parlando, ed e' giusto cosi' — a quel
 punto la conversazione c'e' gia'.
 
-In chat: il titolo, il menu, la lista, il totale, e dove hai salvato l'HTML.
-Stop. Le spiegazioni solo dove la scelta non e' ovvia, una riga ciascuna.
+In chat: il titolo, il menu, la lista, il totale, e dove hai salvato la
+cartella. Stop. Le spiegazioni solo dove la scelta non e' ovvia, una riga
+ciascuna.
 
 **Il menu esce sempre in preventivo**, e va detto in chiaro: formati, prezzi e
 piatti sono tutti previsioni finche' non passano dallo scontrino. Chiudi con una
@@ -537,5 +615,7 @@ agli altri, e porta **PREVENTIVO** nell'intestazione: un foglio stampato senza
 quella parola finisce sul frigo, e il suo totale viene letto come soldi spesi.
 
 Il preventivo resta tale anche dopo che l'utente dice «va bene»: `lunario:correggi`
-lo modifica, `lunario:spesa` lo promuove a consuntivo col primo scontrino.
-Nessun'altra skill cambia lo stato.
+lo modifica, `lunario:spesa` scrive il consuntivo accanto ad esso col primo
+scontrino. Nessun'altra skill lo fa, e **il preventivo non viene mai
+sovrascritto**: resta li' com'era, ed e' cio' contro cui si misura tutto il
+resto.

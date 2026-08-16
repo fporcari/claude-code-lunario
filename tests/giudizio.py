@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Tier 3 — il menu e' *buono*? Un parere scritto, che non fa fallire niente.
 
-    python3 tests/giudizio.py settimane/2026-W34-commando.md
+    python3 tests/giudizio.py settimane/2026-W34-commando/2026-W34-commando-preventivo.md
     python3 tests/giudizio.py --casa /tmp/lunario-test/famiglia
 
 Il tier 1 dice se i file rispettano il contratto, il tier 2 se il giro lascia
@@ -25,6 +25,8 @@ import sys
 
 QUI = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(QUI)
+sys.path.insert(0, os.path.join(REPO, "plugins", "lunario", "scripts"))
+import settimana as settimana_del_motore  # noqa: E402
 
 DOMANDA = """Leggi questo menu settimanale generato da Lunario e scrivi un parere per un essere
 umano. Non devi correggerlo ne' rigenerarlo: devi dire cosa ne pensi.
@@ -52,9 +54,16 @@ serve a nessuno. E non inventare: se un dato non c'e' nel file, dillo invece di 
 
 
 def trova_menu(argomenti):
+    """Il documento vivo dell'ultima settimana, con lo script del motore.
+
+    Il glob nudo su `settimane/*.md` non basta piu': dal contratto 4 i
+    documenti stanno dentro la cartella della settimana, e sono quattro."""
     if argomenti.menu:
         return argomenti.menu
     casa = argomenti.casa or os.getcwd()
+    esito = settimana_del_motore.risolvi(casa)
+    if esito and esito["vivo"]:
+        return esito["vivo"]
     candidati = sorted(glob.glob(os.path.join(casa, "settimane", "*.md")))
     return candidati[-1] if candidati else None
 

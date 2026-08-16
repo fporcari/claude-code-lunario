@@ -1,6 +1,6 @@
 # I test di Lunario
 
-Il motore e' otto skill in markdown eseguite da un modello: **l'output non e'
+Il motore e' dieci skill in markdown eseguite da un modello: **l'output non e'
 deterministico e non lo sara' mai**. Un menu generato due volte sono due menu
 diversi, correttamente. Quindi qui non si asserisce mai *il menu*: si
 asserisce cio' che di qualunque menu deve essere vero.
@@ -13,7 +13,7 @@ trasformano in asserzioni.
 
 | tier | cosa fa | costo | quando gira |
 |---|---|---|---|
-| **1 — lint dei contratti** | `lint_dati.py`: ogni YAML e' leggibile, gli id della dispensa esistono nel paniere, ogni prezzo ha data e fonte, nessun deperibile fra gli avanzi, nessuno stato di cella fuori vocabolario | zero token | sempre, CI compresa |
+| **1 — lint dei contratti** | `lint_dati.py`: ogni YAML e' leggibile, gli id della dispensa esistono nel paniere, ogni prezzo ha data e fonte, nessun deperibile fra gli avanzi, nessuno stato di cella fuori vocabolario, i documenti della settimana col nome che le skill cercheranno | zero token | sempre, CI compresa |
 | **2 — il giro completo** | `loop_runner.py`: `claude -p` headless su una casa sintetica, settimana → spesa → prepara → correggi → postmortem, poi le proprieta' asserite sugli artefatti | token veri | a mano, prima di una release |
 | **3 — il giudizio** | `giudizio.py`: il menu e' *buono*? equilibrato, vario, plausibile un mercoledi' sera | token veri | ogni tanto |
 
@@ -46,17 +46,19 @@ python3 tests/scenari.py --scenario tutti
 Gli scenari sono le settimane storte: dispensa vuota alla prima settimana, una
 settimana senza nemmeno una cena a casa, uno scontrino a cui manca meta' della
 lista, un ingrediente che nessun database conosce, un'esclusione nascosta
-dentro altri ingredienti, una casa con `git: no`. Piu' uno che nessuno
-proverebbe a mano ed e' esattamente dove una migrazione si rompe:
+dentro altri ingredienti, una casa con `git: no`. Piu' i due che nessuno
+proverebbe a mano, ed e' esattamente dove una migrazione si rompe:
 **`cartella-vecchia`**, una cartella al contratto precedente che va migrata e
-poi deve generare un menu.
+poi deve generare un menu, e **`settimana-vecchia`**, una cartella con una
+settimana scritta col layout di prima — la nuova deve nascere nella cartella e
+la vecchia deve restare intatta dov'e'.
 
 In alcuni di questi il comportamento giusto e' **rifiutare e dirlo**: una riga
 marcata `[formato da verificare]` e' un successo. Quello che non deve mai
 succedere e' che il buco venga riempito con un numero verosimile.
 
 ```bash
-python3 tests/giudizio.py /tmp/lunario-test/famiglia/settimane/2026-W34-*.md
+python3 tests/giudizio.py --casa /tmp/lunario-test/famiglia
 ```
 
 Il runner carica il motore da questo repo con `--plugin-dir`: **non serve
@@ -105,6 +107,14 @@ dichiara, e `test_lint.py` verifica che sia ancora li'.
 | `single` | una persona, `dieta: true`, dispensa magra, `intervista: minima`. E' dove porzioni e pavimento delle 1200 kcal mordono, e dove meta' delle sezioni del profilo sono legittimamente assenti |
 | `famiglia` | quattro persone, due bambini di cui uno `selettivo`, merende, pasto libero, ristorante fisso. **Tutti e sei gli stati di cella** in gioco |
 | `coppia-dispensa-profonda` | due persone, nessuno a dieta, una cinquantina di prodotti fissi. E' la casa che ricompra cio' che ha gia' |
+
+**`single` e' anche l'unica rimasta indietro, di proposito**: nessun
+`versione.yaml`, quindi il contratto si deduce dalla forma dei file, e la sua
+settimana ha il markdown accanto alla cartella invece che dentro, com'era fino
+al contratto 3. Verifica due cose che le altre due non possono verificare — che
+il contratto si indovini bene, e che una settimana scritta dal motore vecchio si
+trovi e si legga ancora. Le altre due sono al contratto 4, con le settimane a
+cartella.
 
 Piu' `fixtures/scontrino/`, uno scontrino sintetico in PDF (generato da un
 `.txt` con `genera_pdf.py`, stdlib pura) che contiene apposta: righe che
