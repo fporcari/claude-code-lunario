@@ -197,15 +197,33 @@ class Corsa:
             self.registro.append((fase, "timeout", f"oltre {self.opzioni.timeout}s"))
             return [asserzioni.Esito(f"{fase}: la skill termina", asserzioni.FALLITA, "timeout")]
         durata = time.time() - inizio
-        if uscita.returncode != 0:
-            self.registro.append((fase, "errore", uscita.stderr.strip()[:400]))
-            return [asserzioni.Esito(f"{fase}: la skill termina", asserzioni.FALLITA,
-                                     f"uscita {uscita.returncode}: {uscita.stderr.strip()[:200]}")]
-        self.registro.append((fase, "ok", f"{durata:.0f}s"))
         self._salva_trascrizione(fase, uscita.stdout)
+        # `claude -p` puo' fallire dicendolo **su stdout**, dentro il JSON, e
+        # uscire lo stesso con 0: senza guardare `is_error` una sessione morta
+        # sembrerebbe un giro andato bene con dei file che non ha scritto nessuno.
+        motivo = self._perche_e_fallita(uscita)
+        if motivo:
+            self.registro.append((fase, "errore", motivo[:400]))
+            return [asserzioni.Esito(f"{fase}: la skill termina", asserzioni.FALLITA, motivo[:300])]
+        self.registro.append((fase, "ok", f"{durata:.0f}s"))
 
         casa = asserzioni.Casa(self.casa, prima=prima)
         return asserzioni.per_fase(fase, casa)
+
+    @staticmethod
+    def _perche_e_fallita(uscita):
+        """None se e' andata bene, altrimenti il motivo in chiaro."""
+        try:
+            risposta = json.loads(uscita.stdout)
+        except (json.JSONDecodeError, ValueError):
+            risposta = None
+        if isinstance(risposta, dict) and risposta.get("is_error"):
+            return (f"{risposta.get('terminal_reason') or 'errore'}: "
+                    f"{risposta.get('result') or 'nessun dettaglio'}")
+        if uscita.returncode != 0:
+            dettaglio = (uscita.stderr or "").strip() or (uscita.stdout or "").strip()
+            return f"uscita {uscita.returncode}: {dettaglio}"
+        return None
 
     def _salva_trascrizione(self, fase, testo):
         cartella = os.path.join(os.path.dirname(self.casa), "trascrizioni")

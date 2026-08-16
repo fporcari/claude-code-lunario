@@ -63,6 +63,20 @@ Il runner carica il motore da questo repo con `--plugin-dir`: **non serve
 avere il plugin installato**, e si testa il codice che si ha davanti, non
 quello dell'ultima release.
 
+Un modo di fallire che non e' un bug del motore e conviene riconoscere subito:
+
+```
+· fase settimana: errore api_error: Failed to authenticate: OAuth session expired
+```
+
+Il tier 2 lancia `claude -p` come sottoprocesso, e quel processo deve potersi
+autenticare per conto suo. Da dentro una sessione Claude Code la cosa spesso non
+funziona: **si lancia da un terminale normale**, con `claude` gia' autenticato.
+Il runner lo legge da `is_error` nel JSON di risposta — `claude -p` puo' fallire
+dicendolo su stdout e uscire comunque con 0, e senza guardare quel campo una
+sessione morta sembrerebbe un giro andato bene con dei file che non ha scritto
+nessuno.
+
 ## Cosa vuol dire un fallimento
 
 | tier | esito | cosa significa |
