@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Lunario: menu settimanale di famiglia e lista della spesa in confezioni reali, su una griglia pasto x persona — chi e' a dieta e chi no, pasti liberi, merende, ristorante — con postmortem che ritara porzioni, piatti e prezzi. Motore pubblico, dati di famiglia locali.",
-    "version": "3.1.0"
+    "version": "3.3.0"
   },
   "plugins": [
     {
       "name": "lunario",
       "source": "./plugins/lunario",
       "description": "Nutrizionista di famiglia: raccoglie impegni e voglie della settimana in conversazione, genera il menu dei 7 giorni sulla griglia dei pasti di ognuno, ordinato per deperibilita', e la lista della spesa in confezioni reali, poi impara dagli avanzi e dagli scontrini",
-      "version": "3.1.0",
+      "version": "3.3.0",
       "author": {
         "name": "Francesco Porcari"
       },

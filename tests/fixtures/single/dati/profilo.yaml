@@ -1,0 +1,29 @@
+# FIXTURE SINTETICO — persona inventata, numeri tondi. Non e' una persona vera.
+
+intervista: minima
+
+famiglia:
+  - nome: Solo1
+    dieta: true
+    altezza_cm: 165
+    peso_kg: 62
+    peso_obiettivo_kg: 57
+    kcal_giorno: 1300
+    pesata_settimanale: true
+    selettivo: false
+    pasti:
+      spuntino: no
+      merenda: no
+
+esclusioni:
+  - peperoni
+
+preferenze:
+  minuti_max_cena: 30
+  max_pasti_pesce_settimana: 2
+
+git: locale
+
+calendario:
+  scrivi: false
+  id: null

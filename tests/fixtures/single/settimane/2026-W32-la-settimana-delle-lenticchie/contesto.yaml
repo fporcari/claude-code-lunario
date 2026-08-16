@@ -1,0 +1,9 @@
+# FIXTURE SINTETICO — persona inventata, numeri tondi. Non e' una persona vera.
+#
+# Le eccezioni di questa settimana sola: si sovrappongono a dati/ritmi.yaml e
+# non si accumulano da nessuna parte.
+
+settimana:
+  sabato:
+    Solo1:
+      cena: ristorante

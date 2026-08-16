@@ -1,0 +1,40 @@
+# FIXTURE SINTETICO — persone inventate, numeri tondi. Non e' una famiglia vera.
+#
+# Diario volutamente INCOMPLETO: quattro giorni su sette, e nemmeno tutti i
+# pasti. E' il caso normale, e il postmortem deve reggerlo senza rimproverare
+# i buchi. Lo `stato` si scrive solo quando qualcosa e' andato storto.
+
+2026-08-03:
+  pranzo:
+    previsto: Insalatona con uova sode e pomodori
+    reale: Insalatona con uova sode e pomodori
+    chi: [Adulto1, Adulto2, Bimbo1, Bimbo2]
+  cena:
+    previsto: Polpette di macinato con zucchine
+    reale: Polpette di macinato con zucchine
+    chi: [Adulto1, Adulto2, Bimbo1, Bimbo2]
+    avanzo: sei polpette
+
+2026-08-04:
+  cena:
+    previsto: Filetti di platessa in padella con insalata
+    reale: Filetti di platessa in padella con insalata
+    chi: [Adulto1, Bimbo1, Bimbo2]
+
+2026-08-05:
+  pranzo:
+    previsto: Pasta con zucchine e grana
+    reale: Pasta con zucchine e grana
+    chi: [Bimbo1, Bimbo2]
+    stato: disattesa
+  cena:
+    previsto: Petto di pollo in padella con carote
+    reale: Petto di pollo in padella con carote
+    chi: [Adulto1, Adulto2, Bimbo1, Bimbo2]
+
+2026-08-06:
+  cena:
+    previsto: Frittata di zucchine in padella
+    reale: cena al ristorante
+    chi: [Adulto1, Adulto2, Bimbo1, Bimbo2]
+    stato: disattesa

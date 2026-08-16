@@ -198,6 +198,11 @@ cartella di lavoro e non viaggiano con esso.
 │   ├── scripts/
 │   │   └── off_lookup.py            # Open Food Facts -> dati/prodotti.jsonl
 │   └── templates/                   # modelli commentati, copiati al setup
+├── tests/                           # i tre tier, e tre case sintetiche
+│   ├── lint_dati.py                 # tier 1: i contratti, zero token
+│   ├── loop_runner.py               # tier 2: il giro intero headless
+│   ├── giudizio.py                  # tier 3: un parere, non un semaforo
+│   └── fixtures/                    # single · famiglia · coppia-dispensa-profonda
 └── loghi/
 ```
 
@@ -356,7 +361,10 @@ come mancante.
   formato a memoria, e non esiste: la data serve perche' i produttori
   cambiano i tagli, e la fonte perche' un errore va corretto dov'e' nato
 - `alias_scontrino`: sigle viste sugli scontrini, riconosciute ai giri dopo
-- `prezzi`: serie storica, mai sovrascritta. L'ultimo elemento e' il corrente
+- `prezzi`: serie storica, mai sovrascritta. L'ultimo elemento e' il corrente.
+  `eur` e' il prezzo **della confezione** per i tipi `confezione` e `pezzo`, e
+  il prezzo **al chilo** per il tipo `peso` — che al banco e' l'unica lettura
+  che vuol dire qualcosa
 - `fonte_nutrienti`: `openfoodfacts:<ean>`, `crea` se generico, oppure
   `etichetta` quando li ha letti l'utente sulla confezione — il dato di chi ha
   il pacco in mano vale quanto uno letto da OFF, perche' cio' che conta e' la
@@ -396,8 +404,8 @@ mentre la forma serve al motore. L'utente puo' sempre editarlo a mano.
 ```yaml
 aggiornata: 2026-08-14
 avanzi:
-  pasta-integrale-500: 400      # grammi residui
-  ceci-lessati-400: 1           # pezzi interi per tipo `pezzo`
+  pasta-integrale-500: 400      # grammi residui, per il tipo `confezione`
+  uova-6: 4                     # pezzi interi, per il tipo `pezzo`
 freezer:
   - cosa: filetti di branzino
     pezzi: 2
@@ -635,11 +643,20 @@ settimane:
     spesa_extra_alimentare: null   # cibo comprato ma non previsto
     spesa_fuori_casa: null # ristorante, pizzeria, bar: alimentare, non spesa
     totale_scontrino: null # per memoria: include detersivi e non alimentari
-    scarto_per_riga: []    # dove la stima ha sbagliato, non solo di quanto
-    celle_disattese: []    # previsto casa, fatto fuori (o viceversa)
-    avanzi: []
+    scarto_per_riga:       # dove la stima ha sbagliato, non solo di quanto
+      - {prodotto: passata-700, stimato_eur: 2.40, reale_eur: 3.60, causa: ricomprata, ce n'erano tre}
+    celle_disattese:       # previsto casa, fatto fuori (o viceversa)
+      - {giorno: 2026-08-22, pasto: cena, chi: tutti, previsto: casa, reale: ristorante}
+    avanzi:
+      - {cosa: pasta corta, quanto: mezzo pacco}
     note: ""
 ```
+
+Le tre liste hanno una forma, e vale la pena averla scritta: la prima volta che
+tre persone diverse hanno riempito questi campi ne sono uscite tre forme
+incompatibili, e un campo che ognuno modella a modo suo non si puo' ne'
+confrontare fra settimane ne' controllare. `causa` e' la meta' che conta di
+`scarto_per_riga`: il quanto lo dicono i due numeri, il **perche'** no.
 
 `spesa_fuori_casa` sta accanto agli altri e non dentro: mangiare fuori e'
 spesa alimentare vera, ma non e' spesa di Lunario, e sommarla a `spesa_reale`
@@ -888,6 +905,46 @@ nota non e' una taratura: la tocca solo l'utente, la skill puo' solo proporre.
 - La lista della spesa e' in confezioni, mai in grammi astratti
 - Output terso: menu, lista, totale, stop. kcal arrotondate alle decine
 
+## Come si sa cosa si e' rotto
+
+Le skill sono markdown eseguito da un modello: **l'output non e' deterministico
+e non lo sara' mai**. Un menu generato due volte sono due menu diversi, e va
+bene cosi'. Quindi non si asserisce mai il menu: si asserisce cio' che di
+qualunque menu deve essere vero — e quella specifica esiste gia', e' la sezione
+«Regole non negoziabili» qui sopra. I test in `tests/` la trasformano in
+asserzioni. Come si lanciano e cosa vuol dire un fallimento stanno in
+`tests/README.md`; qui c'e' solo cio' che vincola chi tocca il motore.
+
+| tier | cosa controlla | costo | quando |
+|---|---|---|---|
+| **1** `lint_dati.py` | i contratti dati: YAML leggibile, id che esistono, ogni prezzo con data e fonte, nessun deperibile fra gli avanzi, nessuno stato di cella fuori vocabolario | zero token | sempre |
+| **2** `loop_runner.py` | il giro intero headless su una casa sintetica, e le proprieta' che deve lasciare dietro | token veri | prima di una release |
+| **3** `giudizio.py` | il menu e' *buono*: equilibrio, varieta', plausibilita' di un mercoledi' sera | token veri | ogni tanto |
+
+**Il tier 3 non fa mai fallire la suite.** Esce sempre 0, per costruzione. Una
+suite che diventa rossa a caso viene ignorata entro due settimane, e da li' in
+poi riporta verde anche su un motore rotto.
+
+Due vincoli che ricadono su chi cambia il motore:
+
+- **Un contratto nuovo non e' finito finche' il tier 1 non lo controlla.** Un
+  campo che nessuno verifica diverge in silenzio: e' successo la prima volta
+  che tre persone hanno riempito `scarto_per_riga`, ed erano tre forme diverse
+- **I file dei dati stanno in un sottoinsieme YAML semplice** — niente ancore,
+  niente scalari multi-riga, niente documenti multipli. Non e' pigrizia del
+  parser: quei file li scrivono e li rileggono dei modelli, e la semplicita' e'
+  parte del contratto. `tests/minyaml.py` li legge con la sola stdlib e
+  segnala come violazione tutto cio' che ne esce
+
+**I fixture sono l'unica eccezione alla regola «nessun dato personale in
+git»**, e l'eccezione va dichiarata invece che lasciata implicita. In
+`tests/fixtures/` vivono tre case sintetiche — `single`, `famiglia`,
+`coppia-dispensa-profonda` — e reggono perche' sono **dichiaratamente finte, e
+si vede a colpo d'occhio**: nomi come `Adulto1` e `Solo1`, numeri tondi,
+nessun EAN (un codice a barre inventato somiglierebbe a un prodotto vero),
+nessuna fonte `openfoodfacts:`. Un test verifica che la riga che lo dichiara
+sia ancora in testa a ogni profilo.
+
 ## Note tecniche
 
 - Python: **zero dipendenze esterne**, solo stdlib (`urllib`). Niente venv da
@@ -904,7 +961,8 @@ nota non e' una taratura: la tocca solo l'utente, la skill puo' solo proporre.
 - Rate limit: OFF risponde 429 se la si incalza. `off_lookup.py` mette una
   pausa di 1 s tra le richieste e riprova una volta sola
 - Scontrini PDF: letti con la skill `read-document`, nessun parser da scrivere
-- `dati/` e `settimane/` sono gitignored: il repo resta pulito da dati personali
+- `dati/` e `settimane/` sono gitignored: il repo resta pulito da dati
+  personali. L'unica negazione riguarda `tests/fixtures/*/`, le case sintetiche
 - La cartella dei dati si puo' spostare con `LUNARIO_DATI=/percorso`; senza,
   e' `dati/` nella cartella di lavoro
 - L'evoluzione futura — dati su un server di casa, MCP in combo con le skill,

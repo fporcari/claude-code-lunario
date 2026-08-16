@@ -1,0 +1,9 @@
+# FIXTURE SINTETICO — persone inventate, numeri tondi. Non e' una casa vera.
+#
+# Le eccezioni di questa settimana sola: si sovrappongono a dati/ritmi.yaml e
+# non si accumulano da nessuna parte.
+
+settimana:
+  lunedi:
+    Adulto2:
+      pranzo: trasportabile

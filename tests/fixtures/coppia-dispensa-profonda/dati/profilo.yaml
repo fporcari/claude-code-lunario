@@ -1,0 +1,54 @@
+# FIXTURE SINTETICO — persone inventate, numeri tondi. Non e' una casa vera.
+
+intervista: completa
+
+famiglia:
+  - nome: Adulto1
+    dieta: false
+    altezza_cm: 180
+    kcal_giorno: null
+    pesata_settimanale: false
+    selettivo: false
+    pasti:
+      spuntino: no
+      merenda: no
+
+  - nome: Adulto2
+    dieta: false
+    altezza_cm: 165
+    kcal_giorno: null
+    pesata_settimanale: false
+    selettivo: false
+    pasti:
+      merenda: no
+
+esclusioni:
+  - acciughe
+
+preferenze:
+  cucina: mediterranea
+  etnico_facile_a_settimana: 1
+  minuti_max_cena: 40
+  max_pasti_pesce_settimana: {valore: 2, rigidita: preferenza}
+  max_pasti_carne_settimana: {valore: 4, rigidita: preferenza}
+  max_carne_rossa_settimana: 1
+
+tolleranze:
+  ripetizioni:
+    stessa_proteina_nel_giorno: false
+    stesso_piatto_nel_giorno: false
+    stesso_ingrediente_dopo_giorni: 2
+  avanzi:
+    tutti: come_sono
+    bambini: come_sono
+  spesa_per_altri: false
+
+titoli:
+  serie: null
+
+git: locale
+
+calendario:
+  scrivi: false
+  id: null
+  modo: settimana

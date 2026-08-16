@@ -1,0 +1,56 @@
+# FIXTURE SINTETICO — persone inventate, numeri tondi. Non e' una casa vera.
+#
+# Solo cio' che il motore ha calcolato dalle ultime spese. Le ~35 voci fisse
+# della credenza — sale, olio, aceto, farine, zucchero, caffe', lievito,
+# scatolame di riserva — non stanno qui, e oggi non stanno da nessuna parte:
+# esistono nel paniere e basta. Vedi il CLAUDE.md del fixture.
+
+aggiornata: 2026-08-16
+
+avanzi:
+  spaghetti-500: 200
+  penne-rigate-500: 500
+  fusilli-500: 300
+  riso-carnaroli-1000: 400
+  cous-cous-500: 250
+  lenticchie-secche-500: 250
+  lenticchie-lessate-400: 400
+  ceci-lessati-400: 800
+  fagioli-cannellini-400: 400
+  pomodori-pelati-400: 1200
+  passata-pomodoro-700: 2100
+  concentrato-pomodoro-140: 140
+  tonno-olio-160: 320
+  mais-dolce-300: 300
+  parmigiano-grattugiato-100: 50
+  piselli-surgelati-450: 450
+  uova-6: 4
+
+freezer:
+  - cosa: filetti di merluzzo
+    pezzi: 4
+    grammi: 100
+    dal: 2026-06-10
+    da_smaltire: true
+  - cosa: ragu di carne in vaschetta
+    pezzi: 2
+    grammi: 300
+    dal: 2026-06-20
+    da_smaltire: true
+  - cosa: petto di pollo a fette
+    grammi: 600
+    dal: 2026-07-25
+  - cosa: minestrone gia' porzionato
+    pezzi: 3
+    grammi: 400
+    dal: 2026-07-30
+  - cosa: pane a fette
+    grammi: 500
+    dal: 2026-08-05
+  - cosa: piselli surgelati aperti
+    grammi: 200
+    dal: 2026-08-05
+  - cosa: pasta al forno avanzata
+    pezzi: 1
+    grammi: 500
+    dal: 2026-08-09

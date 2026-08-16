@@ -1,0 +1,42 @@
+          SUPERMERCATO FITTIZIO SPA
+      VIA DI PROVA 1 - 00000 PROVIA (XX)
+              P.IVA 00000000000
+     SCONTRINO SINTETICO - DATI NON REALI
+
+DATA 17/08/2026                      ORA 09:42
+CASSA 3                      SCONTRINO N. 0042
+----------------------------------------------
+DESCRIZIONE              QTA  PREZZO   IMPORTO
+----------------------------------------------
+FUSILLI 500                2    1,10      2,20
+RISO ARBORIO 1KG           1    2,40      2,40
+CECI LESS.400              3    0,80      2,40
+LENTICCHIE 500             1    1,90      1,90
+OLIO EVO 1L                1    6,80      6,80
+PASSATA POM.400            3    0,90      2,70
+GRANA GRATT.100            2    2,40      4,80
+LATTE PARZ.1L              6    1,20      7,20
+YOGURT BIANCO 125          8    0,45      3,60
+UOVA FRESCHE X6            2    1,95      3,90
+PETTO POLLO          0,800KG    9,50      7,60
+MACINATO MANZO       0,500KG   12,00      6,00
+PISELLI SURG.450           2    1,50      3,00
+FILETTI PLATESSA 400       1    4,90      4,90
+ZUCCHINE             1,000KG    2,20      2,20
+CAROTE               1,000KG    1,30      1,30
+POMODORI             1,000KG    2,50      2,50
+MELE GOLDEN          2,000KG    1,90      3,80
+BISCOTTI FROLL.350         2    1,60      3,20
+CRACKERS 250               3    1,00      3,00
+TARALLI PUGLIESI 250       1    2,10      2,10
+DETERSIVO PIATTI 1L        1    2,50      2,50
+CARTA CASA X4              1    3,60      3,60
+SAPONE MANI 300ML          2    1,50      3,00
+SACCHI IMMOND.30L          1    2,20      2,20
+----------------------------------------------
+ARTICOLI 25               TOTALE EUR     88,80
+CONTANTE                                 90,00
+RESTO                                     1,20
+----------------------------------------------
+             GRAZIE E ARRIVEDERCI
+  DOCUMENTO DI TEST - NESSUN VALORE FISCALE

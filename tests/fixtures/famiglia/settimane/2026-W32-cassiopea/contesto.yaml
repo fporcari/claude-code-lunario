@@ -1,0 +1,12 @@
+# FIXTURE SINTETICO — persone inventate, numeri tondi. Non e' una famiglia vera.
+#
+# Le eccezioni di questa settimana sola: si sovrappongono a dati/ritmi.yaml e
+# non si accumulano da nessuna parte.
+
+settimana:
+  mercoledi:
+    Adulto1:
+      cena_entro_min: 25
+  domenica:
+    Bimbo2:
+      merenda: fuori

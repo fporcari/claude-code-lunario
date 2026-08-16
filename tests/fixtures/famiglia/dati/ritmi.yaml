@@ -1,0 +1,17 @@
+# FIXTURE SINTETICO — persone inventate, numeri tondi. Non e' una famiglia vera.
+
+settimana:
+  martedi:
+    Adulto2:
+      pranzo: trasportabile
+      cena_entro_min: 20
+      nota: corso serale, si cena tardi
+  mercoledi:
+    Adulto1:
+      pranzo: fuori
+  venerdi:
+    tutti:
+      cena: ristorante
+  sabato:
+    tutti:
+      cena: libero

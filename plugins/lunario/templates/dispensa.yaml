@@ -10,7 +10,7 @@ aggiornata: 2026-08-14
 avanzi:
   # chiave = id del prodotto in dati/prodotti.jsonl
   trofie-500: 400          # grammi residui (tipo `confezione`)
-  ceci-lessati-400: 2      # pezzi interi (tipo `pezzo`)
+  uova-6: 4                # pezzi interi (tipo `pezzo`)
 
 # SOLO prodotti non deperibili: dispensa secca, scatolame, surgelati, uova,
 # formaggi stagionati. Mezza busta di rucola NON si scrive qui: fra tre giorni

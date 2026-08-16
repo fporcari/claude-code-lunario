@@ -3,6 +3,12 @@
 # cartella in cui lo prova.
 dati/
 settimane/
+
+# I fixture dei test sono l'unica eccezione, ed e' dichiarata: sono case
+# sintetiche, con persone inventate e numeri tondi, e senza di loro non si puo'
+# cambiare una skill sapendo cosa si e' rotto.
+!tests/fixtures/*/dati/
+!tests/fixtures/*/settimane/
 .venv/
 __pycache__/
 .DS_Store

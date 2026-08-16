@@ -1,7 +1,7 @@
 {
   "name": "lunario",
   "description": "Menu settimanale di famiglia e lista della spesa in confezioni reali, su una griglia pasto x persona: chi e' a dieta e chi no, pasti liberi, colazioni e merende, pasti al ristorante. Otto skill: profilo, ritmi, settimana, menu, spesa, prepara, correggi, postmortem. Nessuna dipendenza da supermercati: formati e nutrienti da Open Food Facts, prezzi dagli scontrini dell'utente.",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "author": {
     "name": "Francesco Porcari"
   }

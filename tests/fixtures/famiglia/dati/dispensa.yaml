@@ -1,0 +1,22 @@
+# FIXTURE SINTETICO — persone inventate, numeri tondi. Non e' una famiglia vera.
+
+aggiornata: 2026-08-16
+
+avanzi:
+  fusilli-500: 200
+  riso-arborio-1000: 400
+  ceci-lessati-400: 400
+  grana-grattugiato-100: 40
+  uova-6: 2
+
+freezer:
+  - cosa: filetti di platessa
+    pezzi: 4
+    grammi: 100
+    dal: 2026-06-10
+    da_smaltire: true
+  - cosa: petto di pollo a fette
+    grammi: 600
+    dal: 2026-08-01
+  - cosa: minestrone di verdure
+    grammi: 500

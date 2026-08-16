@@ -1,0 +1,37 @@
+# FIXTURE SINTETICO — persona inventata, numeri tondi. Non e' una persona vera.
+#
+# Diario volutamente INCOMPLETO: quattro giorni su sette. E' il caso normale,
+# e il postmortem deve reggerlo senza rimproverare i buchi.
+
+2026-08-03:
+  pranzo:
+    previsto: Pasta al pomodoro
+    reale: Pasta al pomodoro
+    chi: [Solo1]
+  cena:
+    previsto: Petto di pollo in padella con zucchine
+    reale: Petto di pollo in padella con zucchine
+    chi: [Solo1]
+
+2026-08-04:
+  pranzo:
+    previsto: avanzo di pollo e zucchine
+    reale: avanzo di pollo e zucchine
+    chi: [Solo1]
+  cena:
+    previsto: Frittata di zucchine
+    reale: Frittata di zucchine
+    chi: [Solo1]
+    avanzo: una fetta oltre la porzione di domani
+
+2026-08-05:
+  pranzo:
+    previsto: frittata di zucchine fredda
+    reale: frittata di zucchine fredda
+    chi: [Solo1]
+
+2026-08-07:
+  cena:
+    previsto: Zuppa di lenticchie e orzo
+    reale: Zuppa di lenticchie e orzo
+    chi: [Solo1]

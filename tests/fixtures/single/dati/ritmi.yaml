@@ -1,0 +1,9 @@
+# FIXTURE SINTETICO — persona inventata, numeri tondi. Non e' una persona vera.
+
+settimana:
+  mercoledi:
+    Solo1:
+      pranzo: trasportabile
+  giovedi:
+    Solo1:
+      cena_entro_min: 20

@@ -1,0 +1,13 @@
+# FIXTURE SINTETICO — persone inventate, numeri tondi. Non e' una casa vera.
+
+settimana:
+  martedi:
+    Adulto1:
+      pranzo: trasportabile
+  giovedi:
+    Adulto2:
+      pranzo: fuori
+      cena_entro_min: 30
+  sabato:
+    tutti:
+      cena: libero
